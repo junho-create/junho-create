@@ -1,4 +1,4 @@
-## Hi there I'm Junho Yeo👋
+
 <!--
 **junho-create/junho-create** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
@@ -13,9 +13,7 @@ Here are some ideas to get you started:
 - 😄 Pronouns: ...
 - ⚡ Fun fact: ...
 -->
-
-## 👋 Hi, I'm Junho Yeo
-
+## Hi there I'm Junho Yeo👋
 🎓 Industrial Engineering student at **Yonsei University**  
 💡 Interested in **AI Agents, Computer Vision, and Data Analysis**  
 
