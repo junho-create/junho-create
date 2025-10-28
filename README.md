@@ -22,7 +22,7 @@ Here are some ideas to get you started:
 ### 🧩 Projects
 #### 🧪 Major Coursework Projects
 - Longtailservice_Recommendation_teamproject.zip  
-  : Team project for Advanced Programming (24-2), developing a long-tail service recommendation system using collaborative filtering and content-based recommendation algorithms
+  : Team project for "Advanced Programming (24-2)", developing a long-tail service recommendation system using collaborative filtering and content-based recommendation algorithms
 - IIM_TermProject_Team7.zip
   : Term project for "Industrial Data Management (24-2)",**Leukocyte Donation Management System (LDMS)** using Database
 - FinalProject_StockPrediction.zip
