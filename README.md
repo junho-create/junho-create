@@ -29,8 +29,9 @@ Here are some ideas to get you started:
   : **CGM × IOB MixedLM analysis** for insulin sensitivity
 - 
   : **Multi-agent hospital reservation system** (LangGraph / Supabase / RAG)  
-#### 💼 25-2 Long-term Internship  
+#### 💼 25-2 Long-term Internship(Samsung Electronics) 
 - Summary version only (confidential details omitted)
+  → Samsung Electronics, Semiconductor Research Institute – Process Development Innovation Team (Sep – Dec 2025)
 
 ---
 
