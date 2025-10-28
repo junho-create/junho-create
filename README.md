@@ -21,14 +21,19 @@ Here are some ideas to get you started:
 
 ### 🧩 Projects
 #### 🧪 Major Coursework Projects
+- Longtailservice_Recommendation_teamproject.zip  
+  : Team project for Advanced Programming (24-2), developing a long-tail service recommendation system using collaborative filtering and content-based recommendation algorithms
 - IIM_TermProject_Team7.zip
-  : **Leukocyte Donation Management System (LDMS)** using Database
-- 
+  : Term project for "Industrial Data Management (24-2)",**Leukocyte Donation Management System (LDMS)** using Database
+- FinalProject_StockPrediction.zip
+   : Final project for “Optimization in Artificial Intelligence (25-1)”, predicting stock price trends based on historical financial data using **GARCH**, **LSTM**, and **CatBoost**
+  
 #### 🧠 Academic Club (DSL) Projects ('25.07.~)
 - DSL_Medical_team_EDA.zip
   : **CGM × IOB MixedLM analysis** for insulin sensitivity
-- 
-  : **Multi-agent hospital reservation system** (LangGraph / Supabase / RAG)  
+- 25-2_DSL_Modeling_NLP2_HospitalAgent.zip
+  : **Multi-agent hospital reservation system** (LangGraph / Supabase / RAG)
+  
 #### 💼 25-2 Long-term Internship(Samsung Electronics) ('25.09. ~ 12.)
 - Summary version only (confidential details omitted)
   → Samsung Electronics, Semiconductor Research Institute – Process Development Innovation Team (Sep – Dec 2025)
