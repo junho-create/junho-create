@@ -20,16 +20,16 @@ Here are some ideas to get you started:
 ---
 
 ### 🧩 Projects
-#### 🧪 Major Coursework Projects  
+#### 🧪 Major Coursework Projects
 - IIM_TermProject_Team7.zip
   : **Leukocyte Donation Management System (LDMS)** using Database
 - 
-#### 🧠 Academic Club (DSL) Projects  
+#### 🧠 Academic Club (DSL) Projects ('25.07.~)
 - DSL_Medical_team_EDA.zip
   : **CGM × IOB MixedLM analysis** for insulin sensitivity
 - 
   : **Multi-agent hospital reservation system** (LangGraph / Supabase / RAG)  
-#### 💼 25-2 Long-term Internship(Samsung Electronics) 
+#### 💼 25-2 Long-term Internship(Samsung Electronics) ('25.09. ~ 12.)
 - Summary version only (confidential details omitted)
   → Samsung Electronics, Semiconductor Research Institute – Process Development Innovation Team (Sep – Dec 2025)
 
