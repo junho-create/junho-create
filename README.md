@@ -21,10 +21,14 @@ Here are some ideas to get you started:
 
 ### 🧩 Projects
 #### 🧪 Major Coursework Projects  
-- **Leukocyte Donation Management System (LDMS)** using Database  
+- IIM_TermProject_Team7.zip
+  : **Leukocyte Donation Management System (LDMS)** using Database
+- 
 #### 🧠 Academic Club (DSL) Projects  
-- **CGM × IOB MixedLM analysis** for insulin sensitivity  
-- **Multi-agent hospital reservation system** (LangGraph / Supabase / RAG)  
+- DSL_Medical_team_EDA.zip
+  : **CGM × IOB MixedLM analysis** for insulin sensitivity
+- 
+  : **Multi-agent hospital reservation system** (LangGraph / Supabase / RAG)  
 #### 💼 25-2 Long-term Internship  
 - Summary version only (confidential details omitted)
 
