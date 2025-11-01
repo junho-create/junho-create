@@ -39,6 +39,7 @@ Here are some ideas to get you started:
   → Samsung Electronics, Semiconductor Research Institute – Process Development Innovation Team (Sep – Dec 2025)
 
   Ongoing projects
+  
   => Fault prediction for photomask equipment using SPRT
   
   => CNN-based image classification for fault detection in photomask equipment
