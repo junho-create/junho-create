@@ -30,9 +30,9 @@ Here are some ideas to get you started:
   
 #### 🧠 Academic Club (DSL) Projects ('25.07.~)
 - DSL_Medical_team_EDA.zip
-  : **CGM × IOB MixedLM analysis** for insulin sensitivity
+  : **CGM × IOB MixedLM analysis** for insulin sensitivity ('25.07~08)
 - 25-2_DSL_Modeling_NLP2_HospitalAgent.zip
-  : **Multi-agent hospital reservation system** (LangGraph / Supabase / RAG)
+  : **Multi-agent hospital reservation system** (LangGraph / Supabase / RAG) ('25.08~10)
   
 #### 💼 25-2 Long-term Internship(Samsung Electronics) ('25.09. ~ 12.)
 - In progress — summary version(becasue of security reason) coming soon
