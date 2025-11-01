@@ -25,7 +25,7 @@ Here are some ideas to get you started:
   : Team project for "Advanced Programming (24-2)", developing a long-tail service recommendation system using collaborative filtering and content-based recommendation algorithms
 - IIM_TermProject_Team7.zip
   : Term project for "Industrial Data Management (24-2)",**Leukocyte Donation Management System (LDMS)** using Database
-- FinalProject_StockPrediction.zip
+- Project_StockPrediction.zip
    : Final project for “Optimization in Artificial Intelligence (25-1)”, predicting stock price trends based on historical financial data using **GARCH**, **LSTM**, and **CatBoost**
   
 #### 🧠 Academic Club (DSL) Projects ('25.07.~)
@@ -35,8 +35,12 @@ Here are some ideas to get you started:
   : **Multi-agent hospital reservation system** (LangGraph / Supabase / RAG)
   
 #### 💼 25-2 Long-term Internship(Samsung Electronics) ('25.09. ~ 12.)
-- Summary version only (confidential details omitted)
+- In progress — summary version(becasue of security reason) coming soon
   → Samsung Electronics, Semiconductor Research Institute – Process Development Innovation Team (Sep – Dec 2025)
+
+  Ongoing projects
+  => Fault prediction for photomask equipment using SPRT
+  => CNN-based image classification for fault detection in photomask equipment
 
 ---
 
