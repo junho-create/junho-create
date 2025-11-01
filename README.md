@@ -40,6 +40,7 @@ Here are some ideas to get you started:
 
   Ongoing projects
   => Fault prediction for photomask equipment using SPRT
+  
   => CNN-based image classification for fault detection in photomask equipment
 
 ---
