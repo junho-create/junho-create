@@ -44,6 +44,8 @@ Here are some ideas to get you started:
   
   => CNN-based image classification for fault detection in photomask equipment
 
+  => Deep learning-based image classification scoring method using Deep SVDD and SAD for fault detection in photomask equipment
+
 ---
 
 📫 Contact: [asap03153@yonsei.ac.kr] 
