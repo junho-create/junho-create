@@ -36,7 +36,7 @@ Here are some ideas to get you started:
   
   => Fault prediction for photomask equipment using SPRT
 
-#### 🔬 BISPL winter Internship('25.12.~'26.03.)
+#### 🔬 BISPL winter Internship ('25.12.~'26.03.)
 - **ISBI 2026 Low Concentration Reconstruction MPI Challenge**
   : Achieved **Top 5 finalist** and accepted challenge paper; contributed to experiment analysis and presentation materials for the international conference
 - **Hypothesis-Conditioned Query Rewriting for Decision-Useful Retrieval**
