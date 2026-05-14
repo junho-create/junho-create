@@ -27,13 +27,7 @@ Here are some ideas to get you started:
   : Term project for "Industrial Data Management (24-2)",**Leukocyte Donation Management System (LDMS)** using Database
 - Project_StockPrediction.zip
    : Final project for “Optimization in Artificial Intelligence (25-1)”, predicting stock price trends based on historical financial data using **GARCH**, **LSTM**, and **CatBoost**
-  
-#### 🧠 Academic Club (DSL) Projects ('25.07.~)
-- DSL_Medical_team_EDA.zip
-  : **CGM × IOB MixedLM analysis** for insulin sensitivity ('25.07~08)
-- 25-2_DSL_Modeling_NLP2_HospitalAgent.zip
-  : **Multi-agent hospital reservation system** (LangGraph / Supabase / RAG) ('25.08~09)
-  
+
 #### 💼 25-2 Long-term Internship(Samsung Electronics) ('25.09. ~ 12.)
 - In progress — summary version(becasue of security reason) coming soon
   → Samsung Electronics, Semiconductor Research Institute – Process Development Innovation Team (Sep – Dec 2025)
@@ -41,6 +35,26 @@ Here are some ideas to get you started:
   Ongoing projects
   
   => Fault prediction for photomask equipment using SPRT
+
+#### 🧠 BISPL winter Internship('25.12.~'26.03.)
+- **ISBI 2026 Low Concentration Reconstruction MPI Challenge**
+  : Achieved **Top 5 finalist** and accepted challenge paper; contributed to experiment analysis and presentation materials for the international conference
+- **Hypothesis-Conditioned Query Rewriting for Decision-Useful Retrieval**
+  : Participated in a RAG-focused research project on hypothesis-conditioned query rewriting for improving decision-useful retrieval
+  
+#### 🧠 Academic Club (DSL) Projects ('25.07.~)
+- 25_2_DSL_Medical_team_EDA.zip
+  : **CGM × IOB MixedLM analysis** for insulin sensitivity ('25.07~08)
+- 25-2_DSL_Modeling_NLP2_HospitalAgent.zip
+  : **Multi-agent hospital reservation system** (LangGraph / Supabase / RAG) ('25.08~09)
+- 26-1_DSL_Semiconductor_team_EDA.zip
+  : **Semiconductor process data EDA** for analyzing process variables, anomaly patterns, and quality-related indicators
+- 26-1_DSL_Multimodal_AIAvater.zip
+  : **Multimodal AI avatar prototype** integrating LLM-based dialogue, STT, TTS, RAG, and real-time lip-sync rendering
+
+
+  
+
   
   => CNN-based image classification for fault detection in photomask equipment
 
