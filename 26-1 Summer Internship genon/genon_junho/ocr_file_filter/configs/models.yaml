@@ -1,0 +1,91 @@
+# CMCV 3모델 브링업 매니페스트.
+# 흐름: download(HF에서 받아 cache_dir 에 모음) → bundle(tar로 묶어 폐쇄망 이동)
+#      → serve(vLLM 3개 기동) → status(헬스체크).
+#
+# 2026-07-13 확정: target/dots.ocr/paddle 3개 전부 이 B200 서버에서 직접 서빙.
+# 이 서버는 huggingface.co 에 직접 나가지므로(200 OK 확인, VPN 불필요) dots.ocr 도
+# ocr_filter 자체 download/serve 파이프라인으로 받아서 로컬 GPU 에 띄운다.
+
+cache_dir: ./_models            # 다운로드 대상 루트. 폐쇄망 업로드 시 이 폴더째 tar.
+log_dir:   ./_work/serve        # vLLM 로그/pid 저장
+host:      0.0.0.0
+
+# 모든 모델 공통 vLLM 인자 (외부 원격/serve_script 모델에는 적용 안 됨)
+default_vllm_args:
+  - --trust-remote-code
+
+models:
+  # 타겟: Qwen3.5-9B + e24 ckpt-1450 LoRA(r=64/alpha=256) — **오프라인 병합된 단일
+  # 체크포인트**(_models/Qwen3.5-9B-e24-merged, 17GB)를 서빙한다. --enable-lora 런타임
+  # 경로가 아니다.
+  #
+  # 2026-07-30: 당초 --enable-lora 로 서빙 시도(base+lora_path 조합)했으나 이 vLLM 0.17 +
+  # Qwen3_5ForConditionalGeneration 조합에서 `set_lora()` 가 `IndexError: list index out
+  # of range`로 죽는 걸 확인(column_parallel_linear.py). 구 어댑터(e18align r=128)로도
+  # 동일하게 재현돼 이 체크포인트만의 문제가 아니라 vLLM LoRA 런타임 자체의 버그로 판단.
+  # → peft 로 오프라인 병합해 우회. 병합 시 **PeftModel.from_pretrained() 를 그대로 쓰면
+  # 안 됨** — 어댑터 키가 `...language_model.layers.X...`인데 이 transformers(5.3.0.dev0)
+  # 로 로드한 실제 base 파라미터는 `model.layers.X...`(language_model 세그먼트 없음)라
+  # PEFT 가 대부분의 레이어를 "missing adapter keys" 경고만 내고 조용히 스킵한다(mlp
+  # 대부분 + self_attn 상당수 미적용, 자칫 그대로 저장될 뻔함). 대신 수동으로 키를
+  # 매핑해 W += (alpha/r)·B@A 를 직접 계산 + 128/128 모듈 전수 매칭 검증 후 저장
+  # (스크립트는 이 세션의 스크래치패드에 있음, 재현 필요시 같은 로직으로 재작성).
+  # Qwen3.5 는 attention/Mamba 혼합 구조라 일부 레이어엔 self_attn 자체가 없다(정상).
+  target:
+    served_name: e24_r64_px1m_ckpt1450
+    local_path: ./_models/Qwen3.5-9B-e24-merged
+    vllm_bin: /usr/local/bin/vllm
+    port: 8001
+    gpus: "0"          # mineru_work 가 쓰던 GPU, 종료시켜 확보함 (2026-07-13)
+    # target(Qwen3.5-9B)도 thinking 모델이라 max_tokens=16384(cmcv/client.py) 응답을
+    # 받으려면 max-model-len 이 그보다 커야 함 — 16384 였을 때 이미지+프롬프트 넣을 자리가
+    # 없어서 vLLM 이 400 Bad Request 로 거부했었음 (2026-07-13 재현·확인).
+    vllm_args: ["--max-model-len", "32768"]
+
+  # 외부 A: dots.ocr — HF 캐시(로컬에 이미 받아져 있음, /root/.cache/huggingface/hub/
+  # models--rednote-hilab--dots.ocr)에서 바로 서빙. repo_id 를 local_path 처럼 그대로
+  # --model 에 넘기면 vLLM/transformers 가 표준 HF_HOME 캐시로 알아서 resolve 한다
+  # (download_dir=./_models/... 로 새로 받으려 하지 않음 — 커스텀 아키텍처라
+  # modeling_dots_ocr_vllm.py 포함 → --trust-remote-code 필수, default_vllm_args 에 이미 있음).
+  external_a:
+    served_name: dots.ocr
+    local_path: rednote-hilab/dots.ocr
+    vllm_bin: /usr/local/bin/vllm
+    port: 8002
+    gpus: "2"
+    vllm_args: ["--max-model-len", "32768"]  # target 과 같은 이유로 인상 (2026-07-13)
+
+  # 외부 B: PaddleOCR-VL 1.6 — paddlex 가 자체 관리하는 캐시(/root/.paddlex/official_models/
+  # PaddleOCR-VL-1.6)에 이미 받아져 있음(report/paddle_layout.py 의 배치 파이프라인이 쓰는
+  # 것과 동일 실체). 2026-07-30: NHN serve_script(venv_vllm 깨짐) 대신 시스템 vllm 으로
+  # 직접 서빙 + GPU1 은 이 컨테이너에서 안 보이는 다른 프로세스가 점유 중이라(nvidia-smi
+  # 에는 잡히지만 /proc·ps 어디서도 안 보임 — 다른 컨테이너/사용자 소유로 추정, 우리가
+  # 못 내림) GPU3(유일하게 비어 있던 GPU)로 옮김.
+  external_b:
+    served_name: PaddleOCR-VL-1.6-0.9B
+    local_path: /root/.paddlex/official_models/PaddleOCR-VL-1.6
+    vllm_bin: /usr/local/bin/vllm
+    port: 8080
+    gpus: "3"
+    vllm_args: ["--max-model-len", "16384", "--gpu-memory-utilization", "0.5"]
+
+  # hardcase judge: 397B(NVFP4, 251GB)는 이 머신(H100×4, 총 320GB인데 실사용 가능은 3장
+  # =240GB)에 물리적으로 안 들어가 폐기(B200 전용 커널이기도 함). 대체:
+  # Qwen3.5-122B-A10B-FP8(127.2GB) — num_attention_heads=32/num_key_value_heads=2 라
+  # TP=3 이 불가능(32,2 모두 3으로 안 나눠짐)해서 **PP(pipeline-parallel)=3**으로 GPU
+  # 0/2/3 전부에 걸쳐 띄운다(48레이어가 3으로 정확히 나눠짐, 16레이어씩). CMCV 단계가
+  # 끝나 target/dots.ocr/paddle 을 내린 뒤(hardcase 단계는 순차라 GPU 재사용 가능) 이
+  # 설정으로 기동. vllm_command() 는 pipeline_parallel_size 를 안 만들어주므로 vllm_args
+  # 에 직접 넣는다.
+  judge:
+    served_name: Qwen3.5-122B-A10B-FP8
+    local_path: ./_models/Qwen3.5-122B-A10B-FP8
+    vllm_bin: /usr/local/bin/vllm
+    port: 8004
+    gpus: "0,2,3"
+    parallel_mode: pipeline   # TP=3 은 head 수(32,2) 제약으로 불가 — PP=3 로 대체
+    # 2026-07-31: 기본 gpu-memory-utilization(~0.9)으로 첫 실제 이미지 요청(멀티모달
+    # 인코더 캐시) 처리 중 GPU3 에서 NCCL "Failed to CUDA calloc" 로 엔진 전체가 죽음
+    # (GPU3 는 이전 paddle 서버 잔여로 추정되는 유령 점유 ~4.8GB 가 항상 남아 있어 다른
+    # GPU보다 가용 메모리가 좁음). 여유를 두기 위해 0.85 로 낮춤.
+    vllm_args: ["--max-model-len", "32768", "--gpu-memory-utilization", "0.85"]

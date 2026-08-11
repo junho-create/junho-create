@@ -1,0 +1,49 @@
+# Core
+torch>=2.1.0
+# NOTE:
+# Qwen3-VL-235B(A22B, MoE) 호환을 위해 공식 저장소 최신 코드를 사용.
+git+https://github.com/huggingface/transformers
+accelerate>=0.34.0
+peft>=0.13.0
+trl>=0.12.0             # GRPOTrainer 지원 (GRPO 강화학습)
+bitsandbytes>=0.44.0
+deepspeed>=0.15.0
+
+# Qwen3-VL specific
+qwen-vl-utils>=0.0.8
+
+# Data processing
+Pillow>=10.0.0
+pandas>=2.0.0
+# NOTE:
+# 기본(Transformers backend) 환경은 NumPy 1.x를 사용한다.
+# vLLM backend를 쓸 때는 아래 vLLM 섹션 안내대로 NumPy/OpenCV를 재설치해 ABI를 맞춰야 한다.
+numpy>=1.24.0,<2.0.0
+
+# Evaluation
+editdistance>=0.8.1
+beautifulsoup4>=4.12.0
+lxml>=5.0.0
+
+# Image augmentation
+albumentations>=1.4.0
+
+# Utilities
+pyyaml>=6.0
+tqdm>=4.65.0
+wandb>=0.16.0
+
+# vLLM (teacher generation with FP8/large models)
+# Install in a dedicated env (recommended):
+#   pip uninstall -y opencv-python opencv-contrib-python opencv-python-headless
+#   pip install -U --force-reinstall "numpy==2.2.6" "opencv-python-headless==4.13.0.92"
+#   pip install -U --force-reinstall pandas pyarrow scikit-learn vllm
+# vllm>=0.8.0
+
+# Distillation (optional, for logit storage)
+# numpy is already included via other deps
+
+# OCR sampling pipeline (sample_aihub_with_ocr.py)
+# Note: for CUDA environments you may want paddlepaddle-gpu instead.
+paddleocr>=2.8.1
+paddlepaddle>=2.6.2

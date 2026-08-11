@@ -1,0 +1,81 @@
+# =============================================================================
+# Qwen3-VL-235B TSR Fine-tuning Configuration (TEST - 파이프라인 검증용)
+# =============================================================================
+# 최소 데이터·스텝으로 end-to-end 동작 확인용.
+# 본 학습 시에는 training_config.yaml 사용.
+
+# Model (2B로 변경 - 80GB GPU 1개로 학습 가능)
+model:
+  # name_or_path: "Qwen/Qwen2.5-VL-7B-Instruct"
+  # name_or_path: "Qwen/Qwen3-VL-32B-Instruct"
+  name_or_path: "qwen/qwen3-vl-235b-a22b-instruct"  # 또는 로컬 경로
+  # name_or_path: "Qwen/Qwen3-VL-235B-A22B-Instruct-FP8"  # 또는 로컬 경로
+  trust_remote_code: true
+  torch_dtype: "bfloat16"
+  attn_implementation: "flash_attention_2"
+
+# Image processing
+vision:
+  max_pixels: 4194304      # 2048 * 2048
+  min_pixels: 262144        # 512 * 512
+  image_resolution: 2048
+
+# Training
+training:
+  output_dir: "./output/qwen3_vl_tsr_qlora_test"
+  num_train_epochs: 1
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 2
+  learning_rate: 2.0e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.05
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+  bf16: true
+  tf32: true
+  max_seq_length: 4096
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 8192
+  long_table_context_margin_tokens: 256
+  gradient_checkpointing: true
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  remove_unused_columns: false
+
+# Logging
+logging:
+  logging_strategy: "steps"
+  logging_steps: 1
+  save_strategy: "steps"
+  save_steps: 10
+  save_total_limit: 2
+  eval_strategy: "steps"
+  eval_steps: 10
+  report_to: "none"
+  run_name: "qwen3_vl_tsr_test"
+
+# Phase-specific overrides
+phases:
+  phase1:
+    description: "구조 인식 기초 학습 (테스트)"
+    epochs: 1
+    learning_rate: 2.0e-5
+    data_sampling: "uniform"
+
+  phase2:
+    description: "Span 특화 강화 학습 (테스트)"
+    epochs: 1
+    learning_rate: 5.0e-6
+    data_sampling: "span_weighted"
+    span_upsample_factor: 2
+
+# Data
+data:
+  train_file: "./data/processed/train.jsonl"
+  eval_file: "./data/processed/eval.jsonl"
+  image_dir: "./data/images/"
+  strip_ocr_score: true
+  html_audit_sample_limit: 200
+  prompt_variation: true
+  include_thinking: true

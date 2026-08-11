@@ -1,0 +1,109 @@
+# =============================================================================
+# E27 SFT — Qwen3.5-9B(Instruct) + combined_e27_30000, e26 대비 데이터셋만 확장
+#
+# - 베이스 config: e26_qwen35_9b_28484_r64_px1m_nowt.yaml
+# - e26 대비 바뀐 것 딱 1개(변인 1개 원칙):
+#     데이터셋: combined_e26_28484(28,484) -> combined_e27_30000(30,000)
+#   나머지(LoRA r64/alpha256/dropout0.15, LR 1.5e-5, 7 epoch, max_pixels 1024²,
+#   seq 8192(cap 12288), ocr_mix 0.5, token_weighting off)는 e26과 완전히 동일.
+#
+# - 데이터: combined_e27_30000 (train 24,609 / valid 2,940 / test 2,451)
+#   = combined_e26_28484(28,484) + arxiv_formula/dataset_formula_crop(17,078,
+#   전부 chandra_no_ocr, KaTeX 렌더 검증된 수식 크롭)를 합친 45,562건에서
+#   build_e27.py 로 split별 비율(37375:4465:3722) 유지한 채 30,000으로 무작위
+#   다운샘플(seed 20260810). e26:crop 비율(약 62.5:37.5)도 균일 샘플링이라
+#   기대값으로 보존됨 — 실측 train 15,580(e26) : 9,029(crop).
+#   (직전에 45,562 그대로 한 번 돌렸다가 사용자가 "30000장 정도로 맞춰서
+#   다시" 요청해 재구성함.)
+#
+# - 예상 스텝: 24,609 / (1 x 8 x 3 GPU) = 1,026 step/epoch x 7 = 약 7,178 step.
+#   e26 실측(~46s/step 평균, eval 포함) 기준 약 3.8~4.3일.
+#
+# - 실행:
+#   cd /home/jhyeo/finetuning/vlm
+#   CUDA_VISIBLE_DEVICES=0,2,3 NUM_GPUS=3 MASTER_PORT=29691 WANDB_MODE=online \
+#   WANDB_PROJECT="tsr_vlm_train" WANDB_ENTITY="aisearch260330-genon" \
+#   CONFIG=config/e27_qwen35_9b_30000_r64_px1m_nowt.yaml PHASE=sft \
+#   bash distill/run_distill.sh 2>&1 | tee _run_logs/e27_$(date +%Y%m%d_%H%M%S).log
+#   ※ GPU1 은 다른 네임스페이스가 77GB 를 물고 있어 사용 불가 — 실행 전 재확인.
+# =============================================================================
+
+student:
+  name_or_path: "/home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  output_dir: "./output/e27_qwen35_9b_30000_r64_px1m_nowt/student_sft"
+  # ===== e26 대비 변경 (1/1): 데이터셋 =====
+  train_file: "../finetuning_dataset/combined_e27_30000/train.jsonl"
+  eval_file: "../finetuning_dataset/combined_e27_30000/valid.jsonl"
+  # image_path 가 절대경로라 image_dir 불필요(e22~e26 와 동일 사유).
+
+  # ===== 아래는 e26 와 완전히 동일 =====
+  num_train_epochs: 7
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.5e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.08
+  max_seq_length: 8192
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 12288
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  max_eval_samples: 700
+
+  task_mix_sampling: false
+  span_weighted_sampling: false
+  include_thinking: false
+  annotate_empty_cells: true
+  empty_cell_token: "__EMPTY__"
+  single_quote_html_attrs: false
+  strip_ocr_score: true
+
+  train_ocr_mix_ratio: 0.5
+  train_ocr_mix_seed: 20260320
+
+  # 해상도: e22~e26 와 동일(1024²). dp500 실측에서 bbox 평행이동을 잡은 핵심 설정이라 유지.
+  max_pixels: 1048576
+  min_pixels: 65536
+
+
+  use_lora: true
+  quantization:
+    load_in_4bit: false
+  lora_r: 64
+  lora_alpha: 256       # scaling(alpha/r) = 4.0 — e22~e26 와 동일하게 유지
+  lora_dropout: 0.15
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  report_to: "wandb"
+  run_name: "e27_qwen35_9b_30000_r64_px1m_nowt"
+  logging_steps: 50
+  save_steps: 50
+  save_total_limit: null
+  eval_steps: 50
+  early_stopping:
+    enabled: true
+    patience: 6
+    threshold: 0.0003
+    metric: "eval_loss"
+    greater_is_better: false

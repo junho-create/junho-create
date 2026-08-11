@@ -1,0 +1,120 @@
+# =============================================================================
+# E23 SFT — Qwen3.5-9B(Instruct) + combined_e21_grid 36,873 (grid 0~1000)
+# - 베이스 config: e22_qwen35_9b_16886_r64_px1m.yaml — **데이터만 교체**하고 모델/
+#   하이퍼파라미터/LoRA/해상도/token_weighting 은 e22 그대로 둔다(변인 1개).
+#
+# - e22 대비 바뀐 것은 학습/검증 파일 경로뿐이다:
+#     reference_16886 (train 13,988 / valid 1,650)
+#       -> combined_e21_grid (train 30,557 / valid 3,600 / test 2,716 = 36,873)
+#
+# - 왜 combined_e20 이 아니라 combined_e21_grid 인가 (2026-07-28 사용자 확인):
+#   두 데이터셋은 문서 구성이 동일하고 좌표계만 다르다.
+#     combined_e20      : bbox_space=image_px (원본 픽셀, 프롬프트에 WxH 명시)
+#     combined_e21_grid : bbox_scale=1000     (e22/e19 와 동일한 grid)
+#   e22 와 좌표계를 맞춰야 "데이터만 바꾼" 비교가 성립하므로 grid 쪽을 쓴다.
+#   (픽셀 좌표계는 e20 에서 bbox 편향이 크게 나빴던 조건이라 같이 바꾸면 해석이 섞인다 —
+#    dp500 매칭쌍 실측: e20-4000 중심오차 12.16% vs e22-1400 1.05%)
+#
+# - image_dir 없음: combined_e21_grid 의 image_path 는 절대경로다(reference_16886/images
+#   아래를 그대로 가리킨다). e22 는 상대경로라 image_dir 이 필요했지만 여기선 불필요.
+#
+# - 데이터 구성: unified_layout 24,557 + unified_table_with_ocr 6,000,
+#   ocr_info 보유 30,496/30,557. 내용은 combined_e20 의 개선분(dots.ocr 라벨 교정 +
+#   new_63541 저품질 필터링)을 물려받고 좌표만 grid 로 역변환한 것이다.
+#
+# - 예상 스텝: 30,557 / (1 x 8 x 3 GPU) = 1,273 step/epoch x 7 = 약 8,900 step.
+#   e22 실측 속도(약 39s/step, 1024² 해상도, 3 GPU)면 약 4일. eval/save 가 50 step 마다
+#   돌고 early stopping(patience 6)이 걸려 있으니 중간에 끊어도 체크포인트는 남는다.
+#
+# - 실행:
+#   CUDA_VISIBLE_DEVICES=0,2,3 NUM_GPUS=3 MASTER_PORT=29660 WANDB_MODE=online \
+#   WANDB_PROJECT="tsr_vlm_train" WANDB_ENTITY="aisearch260330-genon" \
+#   CONFIG=config/e23_qwen35_9b_e20data_r64_px1m.yaml PHASE=sft \
+#   bash distill/run_distill.sh 2>&1 | tee _run_logs/e23_$(date +%Y%m%d_%H%M%S).log
+#   ※ GPU1 은 죽은 프로세스가 75GB 를 물고 있어 제외한다(2026-07-28 기준).
+# =============================================================================
+
+student:
+  name_or_path: "/home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  output_dir: "./output/e23_qwen35_9b_e20data_r64_px1m/student_sft"
+  # ===== e22 대비 유일한 변경: 데이터셋 =====
+  train_file: "../finetuning_dataset/combined_e21_grid/train.jsonl"
+  eval_file: "../finetuning_dataset/combined_e21_grid/valid.jsonl"
+  # image_path 가 절대경로라 image_dir 불필요(e22 의 image_dir 항목은 의도적으로 뺐다).
+
+  # ===== 아래는 e22 와 완전히 동일 =====
+  num_train_epochs: 7
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.5e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.08
+  max_seq_length: 8192
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 12288
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  max_eval_samples: 700
+
+  task_mix_sampling: false
+  span_weighted_sampling: false
+  include_thinking: false
+  annotate_empty_cells: true
+  empty_cell_token: "__EMPTY__"
+  single_quote_html_attrs: false
+  strip_ocr_score: true
+
+  train_ocr_mix_ratio: 0.5
+  train_ocr_mix_seed: 20260320
+
+  # 해상도: e22 와 동일(1024²). dp500 실측에서 bbox 평행이동을 잡은 핵심 설정이라 유지한다.
+  max_pixels: 1048576
+  min_pixels: 65536
+
+  # bbox 좌표 토큰 loss 가중치: e22 와 동일하게 3.0 유지.
+  token_weighting:
+    enabled: true
+    span_attribute_weight: 1.0
+    bbox_weight: 3.0
+
+  use_lora: true
+  quantization:
+    load_in_4bit: false
+  lora_r: 64
+  lora_alpha: 256       # scaling(alpha/r) = 4.0 — e22 와 동일하게 유지
+  lora_dropout: 0.15
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  report_to: "wandb"
+  run_name: "e23_qwen35_9b_e20data_r64_px1m"
+  logging_steps: 50
+  save_steps: 50
+  save_total_limit: null
+  eval_steps: 50
+  early_stopping:
+    enabled: true
+    patience: 6
+    threshold: 0.0003
+    metric: "eval_loss"
+    greater_is_better: false

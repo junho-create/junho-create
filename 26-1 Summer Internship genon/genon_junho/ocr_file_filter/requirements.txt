@@ -1,0 +1,26 @@
+# 필터 파이프라인 (가벼움)
+pyyaml
+requests
+
+# 모델 다운로드
+huggingface_hub
+
+# 시각화 갤러리 (report)
+Pillow
+
+# CDM(수식 채점, ocr_filter/metrics/cdm.py) — TeX Live 는 별도로 scripts/setup_cdm_texlive.sh 필요
+numpy
+scipy
+tqdm
+
+# 서빙 (GPU 서버에서만; CMCV 3모델 추론용)
+# vLLM 은 CUDA/환경에 맞춰 별도 설치 권장:
+#   pip install vllm
+# dots.ocr / PaddleOCR-VL 은 커스텀 아키텍처라 vLLM 버전/플러그인 요구사항 확인 필요.
+
+# cluster 스테이지 (ViT 임베딩 + K-Means) — 무거움, 별도 venv 권장:
+#   python3 -m venv --system-site-packages venv && ./venv/bin/pip install transformers
+#   (torch/scikit-learn 은 이미 시스템에 있으면 --system-site-packages 로 재사용, 없으면 같이 설치)
+#   시스템 python 이 PEP 668 로 막혀있으면(Ubuntu 24.04+) venv 필수.
+# transformers
+# scikit-learn (또는 시스템 파이썬에 이미 있으면 생략)

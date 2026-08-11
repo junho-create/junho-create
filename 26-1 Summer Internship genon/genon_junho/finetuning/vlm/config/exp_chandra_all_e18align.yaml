@@ -1,0 +1,92 @@
+# =============================================================================
+# Chandra Table+Layout SFT — "e18 정렬(parity)" 실험
+# - 목적: chandra_all_20260622(테이블+레이아웃 통합)에서 테이블 데이터를
+#   table-only e18 정렬과 동일하게 교체하고, 학습 하이퍼파라미터도 e18 에 맞춘다.
+# - 데이터: train = (e18 공통 6000 테이블, div 유지) + (레이아웃 7988 전체) = 13988.
+#   586개 table extra 만 제외. 레이아웃은 그대로. valid 는 기존과 동일(테이블 652 +
+#   레이아웃)이며 unified valid 가 이미 e18 valid stem 과 일치하므로 재사용.
+# - 유지(데이터 jsonl 내장 → 건드리지 않음): <div data-bbox> 래퍼, prompt_style,
+#   bbox_scale=1000, output_format=html, 이미지(table=.jpg / layout=.png).
+# - e18 에 맞춘 항목: epoch/batch/accum, annotate_empty_cells, mix seed,
+#   single_quote_html_attrs, max_pixels, 체크포인트 저장 cadence 등(전체 run 적용).
+# =============================================================================
+
+student:
+  name_or_path: "/NHNHOME/WORKSPACE/0426030039_A/shkim/models/Qwen3.5-9B"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  output_dir: "./output/chandra_all_e18align_20260623/student_sft"
+  # 테이블(e18 공통 6000, div 유지) + 레이아웃(7988 전체).
+  train_file: "./_train_data/chandra_table_layout_divhtml_16886/data/train.jsonl"
+  # 기존 통합 valid 재사용 (테이블 652 = e18 valid + 레이아웃).
+  eval_file: "./_train_data/chandra_table_layout_divhtml_16886/data/valid.jsonl"
+  image_dir: "./_train_data/chandra_table_layout_divhtml_16886"
+
+  # ===== e18 학습 하이퍼파라미터 =====
+  num_train_epochs: 7
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 2
+  gradient_accumulation_steps: 2
+  learning_rate: 1.5e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.08
+  max_seq_length: 8192
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 12288
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  max_eval_samples: 700
+
+  # 통합 파이프라인 옵션(데이터 형식 유지, 학습 동작만 e18 정렬) ----------------
+  task_mix_sampling: false
+  span_weighted_sampling: false
+  include_thinking: false
+  annotate_empty_cells: true
+  empty_cell_token: "__EMPTY__"
+  single_quote_html_attrs: false
+  strip_ocr_score: true
+
+  train_ocr_mix_ratio: 0.5
+  train_ocr_mix_seed: 20260320
+
+  max_pixels: 262144
+  min_pixels: 65536
+
+  use_lora: true
+  quantization:
+    load_in_4bit: false
+  lora_r: 128
+  lora_alpha: 256
+  lora_dropout: 0.15
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  report_to: "wandb"
+  run_name: "chandra_all_e18align_20260623"
+  logging_steps: 50
+  save_steps: 50
+  save_total_limit: null
+  eval_steps: 50
+  early_stopping:
+    enabled: true
+    patience: 6
+    threshold: 0.0003
+    metric: "eval_loss"
+    greater_is_better: false

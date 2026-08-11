@@ -1,0 +1,124 @@
+# =============================================================================
+# E22 SFT — Qwen3.5-9B(Instruct) + 레퍼런스 16,886 (Chandra div-HTML)
+# - 베이스 config: exp_chandra_all_e18align.yaml — 모델부터 하이퍼파라미터까지 e18 그대로.
+#   (Base 모델 실험은 폐기: e22_qwen35_9b_base_16886.yaml)
+#
+# - e18 대비 의도적으로 바꾼 것:
+#     (1) lora_r      : 128 -> 64     (LoRA 용량 축소)
+#     (2) max_pixels  : 262144(≈512²) -> 1048576(1024²)
+#     (3) token_weighting.bbox_weight : e20 에서 차용, 5.0 -> 3.0
+#         (e18 에는 없던 옵션. 좌표 토큰 loss 가중치)
+#
+# - 그 외 경로/네이밍은 이 프로젝트 기준으로 맞춘 것뿐이고, batch/accum 만
+#   서버 사정으로 조정했다(아래 주석 참고).
+#
+# - 데이터: reference_16886 = chandra_table_layout_divhtml_16886 원본 복사본.
+#   train 13,988 (table 6,000 + layout 7,988) / valid 1,650 (652 + 998) / test 1,248.
+#   jsonl 의 image_path 가 "images/{table,layout}/xxx" 상대경로라서 image_dir 필요.
+#   images/ 는 ../../imagedata 심볼릭링크(table 8,290 / layout 9,984장).
+#
+# - lora_alpha 는 e18 값 256 을 **의도적으로 유지**한다(2026-07-27 사용자 확인).
+#   r 만 128->64 로 줄었으므로 LoRA scaling = alpha/r 이 2.0 -> 4.0 으로 2배가 된다.
+#   즉 "어댑터 용량은 절반, 출력 배율은 2배" 조합이다 — 오타나 누락이 아니니 그대로 둘 것.
+# =============================================================================
+
+student:
+  name_or_path: "/home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  output_dir: "./output/e22_qwen35_9b_16886_r64_px1m/student_sft"
+  train_file: "../finetuning_dataset/reference_16886/data/train.jsonl"
+  eval_file: "../finetuning_dataset/reference_16886/data/valid.jsonl"
+  # image_path 가 "images/layout/xxx.png" 상대경로 -> 이 루트 기준으로 해석된다.
+  image_dir: "../finetuning_dataset/reference_16886"
+
+  # ===== e18 학습 하이퍼파라미터 =====
+  # batch/accum 만 이 서버 기준 조정: 원본 e18align 은 batch=4/accum=2 였으나 이 서버
+  # (H100 80GB)에서 batch=2 에서도 OOM 이력이 있고(e19/exp_chandra_combined 주석 참고),
+  # 이번엔 max_pixels 를 4배로 올려 비전 토큰이 256 -> 1024 로 늘어나므로 batch=1/accum=8
+  # 로 간다. effective batch = 1 x 8 x NUM_GPUS.
+  num_train_epochs: 7
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.5e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.08
+  max_seq_length: 8192
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 12288
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  max_eval_samples: 700
+
+  # 통합 파이프라인 옵션(데이터 형식 유지, 학습 동작만 e18 정렬) ----------------
+  task_mix_sampling: false
+  span_weighted_sampling: false
+  include_thinking: false
+  annotate_empty_cells: true
+  empty_cell_token: "__EMPTY__"
+  single_quote_html_attrs: false
+  strip_ocr_score: true
+
+  train_ocr_mix_ratio: 0.5
+  train_ocr_mix_seed: 20260320
+
+  # ===== 변경 (2) 해상도 상향 =====
+  # 262144(≈512²) -> 1048576(1024²). patch_size=16, merge_size=2 이므로 비전 토큰 1개가
+  # 32x32 px 를 담당 -> 이미지당 비전 토큰 최대 256 -> 1024 개(+768). ViT 패치 수는
+  # 1024 -> 4096 개라 비전 인코더 self-attention 비용이 크게 늘어난다(스텝 시간/메모리 증가).
+  # min_pixels 는 e18 값 유지.
+  max_pixels: 1048576
+  min_pixels: 65536
+
+  # ===== 변경 (3) bbox 좌표 토큰 loss 가중치 (e20 에서 차용, 5.0 -> 3.0) =====
+  # data-bbox="x0 y0 x1 y1" 의 좌표 숫자 토큰에만 가중치를 준다(collator._build_span_token_weights).
+  # e20 은 픽셀 좌표계에서 5.0 을 썼고, 200 step 스윕 bbox CE 는
+  #   1.0=0.9947 / 2.0=0.9720 / 3.0=0.9651 / 5.0=0.9532 였다(낮을수록 좋음).
+  # 여기서는 3.0 으로 낮춘다 — 나머지 토큰(텍스트/표 구조) 학습 신호가 덜 눌린다.
+  # 주의: 이 데이터는 픽셀이 아니라 0~1000 정규화 좌표(bbox_scale=1000)라 좌표당 토큰 수가
+  # e20 과 달라, e20 스윕의 최적값이 그대로 옮겨진다는 보장은 없다.
+  token_weighting:
+    enabled: true
+    span_attribute_weight: 1.0   # colspan/rowspan 은 미가중(e20 과 동일)
+    bbox_weight: 3.0             # e20: 5.0
+
+  use_lora: true
+  quantization:
+    load_in_4bit: false
+  # ===== 변경 (1) LoRA 용량 축소 =====
+  lora_r: 64            # e18: 128
+  lora_alpha: 256       # e18 값 유지 -> scaling(alpha/r) 2.0 -> 4.0 (위 주석 참고)
+  lora_dropout: 0.15
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  report_to: "wandb"
+  run_name: "e22_qwen35_9b_16886_r64_px1m"
+  logging_steps: 50
+  save_steps: 50
+  save_total_limit: null
+  eval_steps: 50
+  early_stopping:
+    enabled: true
+    patience: 6
+    threshold: 0.0003
+    metric: "eval_loss"
+    greater_is_better: false

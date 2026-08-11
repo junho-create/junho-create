@@ -1,0 +1,83 @@
+# =============================================================================
+# E6: Span 성능 최대화 - Phase 3 (극한 Span 특화)
+# - Phase 2 (e6_span_phase2) 체크포인트에서 이어서 학습
+# - 극히 낮은 LR (Phase 2의 1/5) + complex 90% 집중
+# - OCR: ON (chandra_table_with_ocr)
+# =============================================================================
+
+teacher:
+  name_or_path: "Qwen/Qwen3-VL-235B-A22B-Instruct-FP8"
+  base_model: null
+  backend: "vllm"
+  fallback_to_transformers: false
+  fallback_name_or_path: "Qwen/Qwen3-VL-235B-A22B-Instruct"
+
+  # vLLM 옵션
+  tensor_parallel_size: 4
+  gpu_memory_utilization: 0.85
+  max_model_len: 10240
+  max_pixels: 1048576   # 1024*1024
+  min_pixels: 262144    # 512*512
+
+student:
+  name_or_path: "Qwen/Qwen3-VL-8B-Instruct"
+  torch_dtype: "bfloat16"
+  attn_implementation: "flash_attention_2"
+
+prompting:
+  style: "chandra_table_with_ocr"
+  bbox_scale: 1024
+
+student_sft:
+  output_dir: "./output/e6_span_phase3/student_sft"
+  resume_from_adapter: "./output/e6_span_phase2/student_sft/final"
+  train_file: "./data/experiments/e6_span/train_augmented.jsonl"
+  eval_file: "./data/experiments/shared/eval.jsonl"
+
+  num_train_epochs: 3
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 2
+  learning_rate: 1.0e-6           # Phase 2의 1/5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.15
+  max_seq_length: 3072
+  bf16: true
+  tf32: true
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 8
+  dataloader_pin_memory: true
+  max_eval_samples: 300
+
+  # LoRA 설정 (resume_from_adapter 사용 시 새 LoRA 초기화 건너뜀)
+  use_lora: true
+  lora_r: 64
+  lora_alpha: 128
+
+  # Span 가중 샘플링 (극한 complex 집중)
+  span_weighted_sampling: true
+  span_sampling_ratios:
+    simple: 0.02
+    medium: 0.08
+    complex: 0.90
+
+  report_to: "none"
+  run_name: "e6_span_phase3"
+  logging_steps: 50
+  save_steps: 300
+  save_total_limit: 3
+  eval_steps: 300
+  early_stopping:
+    enabled: true
+    patience: 3
+    threshold: 0.0005
+    metric: "eval_loss"
+    greater_is_better: false
+
+logit_distillation:
+  enabled: false
+
+feature_distillation:
+  enabled: false

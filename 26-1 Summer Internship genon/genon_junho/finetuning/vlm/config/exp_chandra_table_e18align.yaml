@@ -1,0 +1,96 @@
+# =============================================================================
+# Chandra Table-only SFT — "e18 정렬(parity)" 실험
+# - 목적: chandra_table_20260622 와 동일한 div/프롬프트/bbox 데이터를 쓰되,
+#   학습 데이터 구성과 학습 하이퍼파라미터를 e18(exp_e18_6910.yaml)에 맞춘다.
+# - 데이터: unified train_table 에서 e18 6910 train 과 공통인 6000개만 사용
+#   (586개 extra 제외, e18-only 1개 제외). valid 는 e18 와 동일한 652개.
+# - 유지(데이터 jsonl 내장 → 건드리지 않음): <div data-bbox> 래퍼, prompt_style,
+#   bbox_scale=1000, output_format=html, 이미지(.jpg, images/table/).
+# - e18 에 맞춘 항목: epoch/batch/accum, annotate_empty_cells, mix seed,
+#   single_quote_html_attrs, max_pixels, 체크포인트 저장 cadence 등.
+# =============================================================================
+
+student:
+  name_or_path: "/NHNHOME/WORKSPACE/0426030039_A/shkim/models/Qwen3.5-9B"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  output_dir: "./output/chandra_table_e18align_20260623/student_sft"
+  # e18 6910 train 과 공통인 6000개(div 유지). 586 extra / e18-only 1개 제외.
+  train_file: "./_train_data/chandra_table_layout_divhtml_16886/data/train_table.jsonl"
+  # e18 valid 와 동일한 652개 (unified valid_table 이 이미 e18 valid stem 과 일치).
+  eval_file: "./_train_data/chandra_table_layout_divhtml_16886/data/valid_table.jsonl"
+  image_dir: "./_train_data/chandra_table_layout_divhtml_16886"
+
+  # ===== e18 학습 하이퍼파라미터 =====
+  num_train_epochs: 7
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 2
+  gradient_accumulation_steps: 2
+  learning_rate: 1.5e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.08
+  max_seq_length: 8192
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 12288
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  max_eval_samples: 700
+
+  # 통합 파이프라인 옵션(데이터 형식 유지, 학습 동작만 e18 정렬) ----------------
+  task_mix_sampling: false
+  span_weighted_sampling: false
+  include_thinking: false
+  # e18 와 동일: empty 셀 토큰 주입.
+  annotate_empty_cells: true
+  empty_cell_token: "__EMPTY__"
+  # e18 와 동일: HTML 속성 작은따옴표 정규화 비활성.
+  single_quote_html_attrs: false
+  strip_ocr_score: true
+
+  # OCR 프롬프트 mix: 비율 동일(0.5), seed 만 e18(20260320) 으로 정렬.
+  train_ocr_mix_ratio: 0.5
+  train_ocr_mix_seed: 20260320
+
+  # 이미지 해상도 토큰 예산: e18 정렬.
+  max_pixels: 262144
+  min_pixels: 65536
+
+  use_lora: true
+  quantization:
+    load_in_4bit: false
+  lora_r: 128
+  lora_alpha: 256
+  lora_dropout: 0.15
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  report_to: "wandb"
+  run_name: "chandra_table_e18align_20260623"
+  # e18 와 동일한 체크포인트 저장 cadence (50 스텝마다 저장/평가, 전체 보존).
+  logging_steps: 50
+  save_steps: 50
+  save_total_limit: null
+  eval_steps: 50
+  early_stopping:
+    enabled: true
+    patience: 6
+    threshold: 0.0003
+    metric: "eval_loss"
+    greater_is_better: false

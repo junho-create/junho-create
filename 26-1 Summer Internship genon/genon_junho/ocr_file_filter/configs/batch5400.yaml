@@ -1,0 +1,60 @@
+# 5,400장 신규 원본 이미지 배치 (2026-07-30, additional_dataset/5400dataextract).
+# 60,000장 계획에서 5,400장으로 축소 확정(사용자 지시) — new_docs.yaml 을 베이스로
+# work_dir/ddas 예산만 이 규모에 맞게 조정.
+#
+# io 스테이지는 `io build-images`(jpg 직접 인제스천, 렌더링 없음) 를 쓸 것.
+# layout_src/table_src/final_train 은 데모 데이터 전용이라 여기서는 안 씀
+# (다른 스테이지와 스키마만 맞추려고 필드는 남겨둠).
+
+paths:
+  final_train: ""
+  images:      ""
+  layout_src:  ""
+  table_src:   ""
+  work_dir:    /home/jhyeo/ocr_filter_result/batch5400   # 이 배치 전용 산출물 디렉터리
+
+# CMCV: 3모델 vLLM OpenAI-호환 엔드포인트 — models.yaml 서빙 포트와 일치해야 함
+models:
+  target:
+    name: e24_r64_px1m_ckpt1450
+    endpoint: http://localhost:8001/v1
+  external_a:
+    name: dots.ocr
+    endpoint: http://localhost:8002/v1
+  external_b:
+    name: PaddleOCR-VL-1.6-0.9B
+    endpoint: http://localhost:8080/v1
+
+ddas:
+  weights:
+    easy: 0.1
+    medium: 1.5
+    hard: 1.0
+  alpha: 1.0
+  beta: 2.0
+  n_total: 5400     # 전체 배치 규모와 동일 — 부분샘플링 없이 전량을 taster 예산 기준으로 취급
+  with_replacement: false
+  seed: 0
+
+cluster:
+  method: kmeans
+  n_clusters_page: 24    # 5,400장 규모에 맞춰 축소(new_docs.yaml 의 64는 63,541장 기준)
+  n_clusters_element: 0  # 죽은 산출물 — 계산 스킵 (README/MEMORY 참고)
+  taster_per_cluster: 8
+  embed_model: vit
+
+cmcv:
+  match_thresholds:
+    agree_min: 0.85
+    text_min: 0.90     # Medium pseudo-label 텍스트 전용 게이트 (2026-07-30 추가)
+    teds: 0.95
+    cdm: 0.95
+
+hardcase:
+  max_refine_rounds: 3
+  judge_vlm:
+    name: Qwen3.5-122B-A10B-FP8
+    endpoint: http://localhost:8004/v1
+  prelabel_vlm:
+    name: Qwen3.5-122B-A10B-FP8
+    endpoint: http://localhost:8004/v1

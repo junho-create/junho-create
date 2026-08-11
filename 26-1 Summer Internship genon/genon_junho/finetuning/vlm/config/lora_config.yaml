@@ -1,0 +1,39 @@
+# =============================================================================
+# QLoRA Configuration for Qwen3-VL-235B
+# =============================================================================
+
+# Quantization (QLoRA)
+quantization:
+  load_in_4bit: true
+  bnb_4bit_quant_type: "nf4"
+  bnb_4bit_compute_dtype: "bfloat16"
+  bnb_4bit_use_double_quant: true
+
+# LoRA
+lora:
+  r: 64                        # LoRA rank (64~128 권장)
+  lora_alpha: 128              # alpha = 2 * r 이 일반적
+  lora_dropout: 0.05
+  bias: "none"
+  task_type: "CAUSAL_LM"
+
+  # Target modules for Qwen3-VL
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  # Vision encoder LoRA (선택적)
+  # 테이블 구조 인식 특화를 위해 vision encoder도 학습 가능
+  train_vision_encoder: false   # true로 변경 시 vision encoder에도 LoRA 적용
+  vision_lora_r: 32
+  vision_lora_alpha: 64
+
+# Merge settings (학습 후 LoRA 병합)
+merge:
+  merge_after_training: false   # true면 학습 후 자동 병합
+  output_merged_dir: "./output/merged_model"

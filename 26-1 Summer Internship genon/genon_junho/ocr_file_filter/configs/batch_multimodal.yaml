@@ -1,0 +1,56 @@
+# 20.멀티모달 정보검색 데이터 — 9,100장 (55600dataextract).
+# configs/batch5400.yaml 복사본, work_dir/ddas.n_total/cluster 만 이 규모로 조정.
+#
+
+paths:
+  final_train: ""
+  images:      ""
+  layout_src:  ""
+  table_src:   ""
+  work_dir:    /home/jhyeo/ocr_filter_result/batch_multimodal   # 20.멀티모달 정보검색 데이터 전용
+
+# CMCV: 3모델 vLLM OpenAI-호환 엔드포인트 — models.yaml 서빙 포트와 일치해야 함
+models:
+  target:
+    name: e24_r64_px1m_ckpt1450
+    endpoint: http://localhost:8001/v1
+  external_a:
+    name: dots.ocr
+    endpoint: http://localhost:8002/v1
+  external_b:
+    name: PaddleOCR-VL-1.6-0.9B
+    endpoint: http://localhost:8080/v1
+
+ddas:
+  weights:
+    easy: 0.1
+    medium: 1.5
+    hard: 1.0
+  alpha: 1.0
+  beta: 2.0
+  n_total: 9100     # 이 코퍼스 전량
+  with_replacement: false
+  seed: 0
+
+cluster:
+  method: kmeans
+  n_clusters_page: 32    # 9,100장 규모 (5,400장 기준 24에서 비례 확대)
+  n_clusters_element: 0  # 죽은 산출물 — 계산 스킵 (README/MEMORY 참고)
+  taster_per_cluster: 8
+  embed_model: vit
+
+cmcv:
+  match_thresholds:
+    agree_min: 0.85
+    text_min: 0.90     # Medium pseudo-label 텍스트 전용 게이트 (2026-07-30 추가)
+    teds: 0.95
+    cdm: 0.95
+
+hardcase:
+  max_refine_rounds: 3
+  judge_vlm:
+    name: Qwen3.5-122B-A10B-FP8
+    endpoint: http://localhost:8004/v1
+  prelabel_vlm:
+    name: Qwen3.5-122B-A10B-FP8
+    endpoint: http://localhost:8004/v1

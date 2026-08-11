@@ -1,0 +1,121 @@
+# =============================================================================
+# E6: Span 성능 최대화 - Phase 1 (GT SFT + 증강 데이터)
+# - 학습 방법: SFT only (Teacher 불필요)
+# - OCR: ON (chandra_table_with_ocr)
+# - 데이터: span-only 증강 데이터 (train_augmented.jsonl)
+# - e1과 동일한 baseline 설정 + 증강 데이터 사용
+# =============================================================================
+
+teacher:
+  name_or_path: "Qwen/Qwen3-VL-235B-A22B-Instruct-FP8"
+  base_model: null
+  backend: "vllm"
+  fallback_to_transformers: false
+  fallback_name_or_path: "Qwen/Qwen3-VL-235B-A22B-Instruct"
+
+  # vLLM 옵션
+  tensor_parallel_size: 4
+  gpu_memory_utilization: 0.85
+  max_model_len: 10240
+  max_pixels: 1048576   # 1024*1024
+  min_pixels: 262144    # 512*512
+
+student:
+  name_or_path: "Qwen/Qwen3-VL-8B-Instruct"
+  torch_dtype: "bfloat16"
+  attn_implementation: "flash_attention_2"
+
+prompting:
+  style: "chandra_table_with_ocr"
+  bbox_scale: 1024
+
+synthetic_generation:
+  image_sources:
+    - "./data/extracted/aihub/Training/01.원천데이터"
+  output_path: "./data/experiments/e6_span/synthetic_raw.jsonl"
+  num_generations_per_image: 1
+  temperature: 0.0
+  max_new_tokens: 7000
+  max_errors: 30
+  batch_size: 1
+  enable_thinking: true
+  target_samples: 3000
+
+quality_filter:
+  input_path: "./data/experiments/e6_span/synthetic_raw.jsonl"
+  output_path: "./data/experiments/e6_span/synthetic_filtered.jsonl"
+  min_consistency_teds: 0.0
+  min_table_rows: 2
+  min_table_cols: 2
+  max_table_rows: 80
+  max_table_cols: 30
+  require_thinking: false
+  require_valid_html: true
+  max_html_length: 20000
+  target_distribution:
+    simple: 0.40
+    medium: 0.35
+    complex: 0.25
+
+student_sft:
+  output_dir: "./output/e6_span/student_sft"
+  train_file: "./data/experiments/e6_span/train_augmented.jsonl"
+  eval_file: "./data/experiments/shared/eval.jsonl"
+
+  num_train_epochs: 10
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 2
+  learning_rate: 2.0e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.05
+  max_seq_length: 3072
+  bf16: true
+  tf32: true
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 8
+  dataloader_pin_memory: true
+  max_eval_samples: 300
+
+  use_lora: true
+  lora_r: 64
+  lora_alpha: 128
+
+  report_to: "none"
+  run_name: "e6_span_phase1"
+  logging_steps: 50
+  save_steps: 300
+  save_total_limit: 3
+  eval_steps: 300
+  early_stopping:
+    enabled: true
+    patience: 3
+    threshold: 0.001
+    metric: "eval_loss"
+    greater_is_better: false
+
+logit_distillation:
+  enabled: false
+  output_dir: "./output/e6_span/student_logit_distill"
+  teacher_logits_dir: "./data/experiments/e6_span/teacher_logits"
+  online_mode: false
+  student_init_path: "./output/e6_span/student_sft/final"
+  temperature: 2.0
+  alpha: 0.5
+  num_train_epochs: 50
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.0e-5
+  bf16: true
+  tf32: true
+  use_fused_adamw: true
+  save_top_k_logits: 50
+  early_stopping:
+    enabled: true
+    patience: 2
+    min_delta: 0.001
+
+feature_distillation:
+  enabled: false

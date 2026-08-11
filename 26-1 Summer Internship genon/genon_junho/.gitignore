@@ -1,0 +1,75 @@
+# /home/jhyeo 전체를 한 레포로 push 하기 위한 최상위 ignore.
+# 원칙: README.md 에 언급된 코드/설정/문서만 남기고, 대용량 데이터·모델·산출물·로그와
+# README에 안 나온(파이프라인과 무관한) 디렉터리는 전부 제외한다.
+# (하위 ocr_file_filter/.gitignore, finetuning/vlm/.gitignore 등 각 프로젝트 자체
+#  .gitignore도 그대로 같이 적용됨 — 여기서는 그걸로 안 잡히는 것만 보강.)
+
+# ===== 시크릿 =====
+.env
+
+# ===== 이미 별도 git 레포로 관리되는 중첩 레포 (embedded-repo 방지) =====
+# 아래 전부 자체 .git + origin remote 있음 — 이 레포에 파일째로 얹으면 clone 시
+# 내용이 안 딸려온다(빈 디렉터리만 남음). 필요하면 각자 원격에서 별도로 clone/push할 것.
+tsr_test/
+ocr_file_filter/labeler/
+finetuning/eval_318/tsr_test_eval/
+finetuning/eval_318/upstream_OmniDocBench/
+finetuning/eval_318/upstream_pdf_parse_bench/
+
+# ===== README에 안 쓰인/파이프라인과 무관한 디렉터리 =====
+# tsr_eval/: tsr_test 의 다른 목적 사본(README 참고), 안 씀
+# _transfer_staging/: 서버 이전용 임시 스테이징
+# paddleOCRVL1.6: ocr_file_filter/_models 로 가는 로컬 심볼릭 링크
+tsr_eval/
+_transfer_staging/
+paddleOCRVL1.6
+
+# ===== 순수 입력/산출 데이터 (코드 아님 — 각 스텝 재실행으로 재생성 가능) =====
+# ocr_filter_result/: ocr_file_filter 의 input+산출물 (README 1번)
+# finetuning/imagedata/: 파인튜닝용 원본 이미지
+# finetuning/vlm/output/: 체크포인트(수백 GB)
+ocr_filter_result/
+finetuning/imagedata/
+finetuning/vlm/output/
+finetuning/vlm/wandb/
+finetuning/vlm/logs/
+finetuning/vlm/_run_logs/
+finetuning/eval_318/_infer_shards*/
+
+# ===== 파이썬 가상환경 / 캐시 =====
+# *venv/: venv/, .venv/, _dpbench_venv/, _ppb_venv/ 등 이름이 달라지는 venv 전부 포괄
+*venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+wandb/
+logs/
+
+# ===== 대용량 데이터/모델 가중치/미디어 (일반 확장자 기준) =====
+*.jsonl
+*.html
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.tar
+*.tar.gz
+*.zip
+*.bak
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+images/
+*.log
+*.pid
+
+# ===== OS / 에디터 =====
+.DS_Store
+.vscode/
+.idea/

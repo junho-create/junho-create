@@ -1,0 +1,70 @@
+# =============================================================================
+# E15 Phase 1 SFT (Qwen3.5-9B, merged 6000 train/valid split, W&B online)
+# - Base config: exp_e14_6000.yaml
+# =============================================================================
+
+student:
+  name_or_path: "/home/vlm_train/models/Qwen3.5-9B"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  output_dir: "./output/e17_qwen35_9b_6910/student_sft"
+  train_file: "./_train_data/20260406_7_6910/data/train.jsonl"
+  eval_file: "./_train_data/20260406_7_6910/data/valid.jsonl"
+  image_dir: "./_train_data/20260406_7_6910"
+
+  num_train_epochs: 7
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 4
+  learning_rate: 1.5e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.08
+  max_seq_length: 8192
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 12288
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  max_eval_samples: 700
+  strip_ocr_score: true
+  train_ocr_mix_ratio: 0.5
+  train_ocr_mix_seed: 20260320
+  include_thinking: false
+  max_pixels: 262144
+  min_pixels: 65536
+
+  use_lora: true
+  lora_r: 128
+  lora_alpha: 256
+  lora_dropout: 0.15
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  report_to: "wandb"
+  run_name: "e17_qwen35_9b_6910"
+  logging_steps: 50
+  save_steps: 50
+  save_total_limit: null
+  eval_steps: 50
+  early_stopping:
+    enabled: true
+    patience: 6
+    threshold: 0.0003
+    metric: "eval_loss"
+    greater_is_better: false

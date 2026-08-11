@@ -1,0 +1,98 @@
+# =============================================================================
+# E25_PLUS Cell C (noragged, rank 확대) — cell A_noragged 와 데이터·LR 동일,
+# lora_r/lora_alpha 만 16/64 -> 64/256 로 4배 키운 버전(scaling(alpha/r)=4.0 유지).
+# - 이전 라운드의 cell C(e25_plus_c_synth.yaml, tsrsynth5783 합성 이미지 실험)와는
+#   다른 실험이다 — 이번엔 "합성 이미지"가 아니라 "더 큰 LoRA 용량"이 변수.
+# - r=64/alpha=256 은 e25 원 학습(output/e25_qwen35_9b_e20data_r64_px1m) 과 동일한
+#   rank로, A/B 가 "저rank·저LR" 로 낮춘 것을 다시 원래 용량으로 되돌려 비교한다.
+# - 트레이너블 파라미터가 A/B 대비 4배로 늘어나므로 step당 소요시간이 조금 더 걸릴 수
+#   있다(LoRA 행렬 크기만 커지고 forward/backward 나머지는 동일이라 큰 차이는 아님).
+#
+# - 실행 (tmux, GPU3):
+#   cd /home/jhyeo/finetuning/vlm
+#   source .venv/bin/activate
+#   CUDA_VISIBLE_DEVICES=3 NUM_GPUS=1 WANDB_MODE=online \
+#   WANDB_PROJECT="tsr_vlm_train" WANDB_ENTITY="aisearch260330-genon" WANDB_RUN_GROUP="e25_plus_noragged" \
+#   CONFIG=config/e25_plus_c_r64a256_noragged.yaml PHASE=sft \
+#   bash distill/run_distill.sh 2>&1 | tee _run_logs/e25p_c_noragged_$(date +%Y%m%d_%H%M%S).log
+# =============================================================================
+
+student:
+  name_or_path: "/home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B-e25ck3900-merged"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  output_dir: "./output/e25_plus_c_r64a256_noragged/student_sft"
+  train_file: "../finetuning_dataset/combined_e25plus_tsr6598_noragged/train.jsonl"
+  eval_file: "../finetuning_dataset/combined_e25plus_tsr6598_noragged/valid.jsonl"
+
+  max_steps: 900
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.0e-5        # cell A_noragged 와 동일 — rank/alpha 만 변인
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.05
+  max_seq_length: 12288
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 16384
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  max_eval_samples: 160
+
+  task_mix_sampling: false
+  span_weighted_sampling: false
+  include_thinking: false
+  annotate_empty_cells: true
+  empty_cell_token: "__EMPTY__"
+  single_quote_html_attrs: false
+  strip_ocr_score: true
+
+  train_ocr_mix_ratio: 0.5
+  train_ocr_mix_seed: 20260320
+
+  max_pixels: 1568000
+  min_pixels: 65536
+
+  token_weighting:
+    enabled: true
+    span_attribute_weight: 1.0
+    bbox_weight: 3.0
+
+  use_lora: true
+  quantization:
+    load_in_4bit: false
+  lora_r: 64
+  lora_alpha: 256        # scaling(alpha/r) = 4.0 유지. e25 원 rank 로 복귀(A/B 의 4배 용량)
+  lora_dropout: 0.05
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  report_to: "wandb"
+  run_name: "e25_plus_c_r64a256_noragged"
+  logging_steps: 25
+  save_steps: 100
+  save_total_limit: null
+  eval_steps: 100
+  early_stopping:
+    enabled: true
+    patience: 4
+    threshold: 0.0
+    metric: "eval_loss"
+    greater_is_better: false

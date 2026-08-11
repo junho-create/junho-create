@@ -1,0 +1,90 @@
+================================================================================
+ e22 (Qwen3.5-9B, reference_16886, LoRA r64 / alpha256, max_pixels 1M, bbox_w 3.0)
+ 평가 명령어 — 2026-07-28 실행분
+ - 파이프라인은 COMMANDS_e19_eval.txt 와 동일(0~1000 grid 좌표계). e20(픽셀)이 아니다.
+ - 평가 체크포인트 6개: step 200 / 500 / 1000 / 1300 / 1400 / 1450
+     초반 3 = 200/500/1000 (e19·e20 sweep 과 같은 step 이라 직접 비교 가능)
+     eval최적 3 = 1400(0.08231) / 1450(0.08288) / 1300(0.08342)
+   ※ 학습이 step 1451(36%, epoch 2.49)에서 죽어서, "eval최적 3" 은 수렴 구간이 아니라
+     현재까지의 최저 3개(= 사실상 마지막 3개)다. 해석할 때 감안할 것.
+ - dp500(문서 500장, WITH-OCR) + tsr200(표 crop 200장, WITH-OCR) 추론 → dp-bench / LLM-Judge
+   ※ dp500 을 WITH-OCR 로 가는 건 2026-07-28 지정. e19/e20 sweep 은 dp500 이 NO-OCR 이었으므로
+     그 표와 직접 비교하면 안 된다. 비교 대상은 e19 의 WITHOCR 런(eval_results/dp500_e19_ckpt*_WITHOCR).
+
+ ★ e19 대비 바뀐 것 (2가지뿐):
+   ① 체크포인트 루트가 e22_qwen35_9b_16886_r64_px1m
+   ② 추론 해상도를 학습과 일치시킴: --max_pixels 1048576 --min_pixels 65536
+      (evaluate_unified 기본값은 max 1048576 / min 262144 라 min 이 학습과 다르다)
+   좌표계는 e19와 동일하므로 dp-bench 채점도 PRED_COORD_SPACE=grid PRED_GRID=1000.
+================================================================================
+
+--------------------------------------------------------------------------------
+[0] 환경 / 경로
+--------------------------------------------------------------------------------
+학습 체크포인트(어댑터): /home/jhyeo/finetuning/vlm/output/e22_qwen35_9b_16886_r64_px1m/student_sft/checkpoint-<STEP>
+베이스 모델          : /home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B
+merge/변환용 venv    : /home/jhyeo/finetuning/vlm/.venv
+vLLM 추론용 venv     : /home/workspace/tsr_test/.venv            (vllm 0.18.1)
+dp-bench 채점용 venv : /home/jhyeo/finetuning/eval_318/_dpbench_venv
+LLM-Judge(ppb) venv  : /home/jhyeo/finetuning/eval_318/_ppb_venv
+dp500 이미지+GT      : /home/jhyeo/tsr_eval/data/500_genos_val_set/
+tsr200 GT/메타       : /home/jhyeo/tsr_eval/data/20260317_4_6000/data_split/test.jsonl
+e22 산출물 루트      : /home/jhyeo/finetuning/eval_318/_infer_shards_e22
+
+--------------------------------------------------------------------------------
+[1] 평가 입력(매니페스트) — e19 것을 그대로 재사용
+--------------------------------------------------------------------------------
+/home/jhyeo/finetuning/eval_318/_infer_shards_e22/dp500_withocr_abs.jsonl  (500줄, chandra_with_ocr) ★
+/home/jhyeo/finetuning/eval_318/_infer_shards/tsr200_html.jsonl            (200줄, chandra_table_with_ocr)
+
+# dp500 WITH-OCR 매니페스트는 원본 inference_manifest_with_ocr.jsonl 의 image_path 만 절대경로화한 것:
+#   /home/jhyeo/finetuning/vlm/.venv/bin/python - <<'EOF'
+#   import json
+#   src="/home/jhyeo/tsr_eval/data/500_genos_val_set/inference_manifest_with_ocr.jsonl"
+#   root="/home/jhyeo/tsr_eval/data/500_genos_val_set/"
+#   out="/home/jhyeo/finetuning/eval_318/_infer_shards_e22/dp500_withocr_abs.jsonl"
+#   with open(src) as f, open(out,"w") as w:
+#       for line in f:
+#           r=json.loads(line); r["image_path"]=root+r["image_path"]
+#           w.write(json.dumps(r,ensure_ascii=False)+"\n")
+#   EOF
+# ocr_info bbox 는 0~1000 정규화(이미지 1675x2175 기준 max ~975 확인)라 프롬프트 규약과 일치한다.
+# NO-OCR 로 돌리려면 _infer_shards/dp500_full_abs.jsonl + TAG 변경. e22 는 e19 와 같은 grid 좌표계라 bbox_space 필드 주입이 불필요하다.
+# (프롬프트 본문의 좌표 안내는 bbox_space=image_px 일 때만 픽셀로 바뀐다 —
+#  utils/prompt_templates.py:_render_prompt_body)
+
+--------------------------------------------------------------------------------
+[2]~[4] merge → dp500/tsr200 추론 → dp-bench 변환 : 워커 스크립트 하나로
+--------------------------------------------------------------------------------
+# GPU 3장에 2개씩 배정해 tmux 로 병렬 실행 (실제 실행한 방식)
+cd /home/jhyeo/finetuning/eval_318/_infer_shards_e22
+tmux new-session -d -s e22eval_g0 "GPU=0 CKPTS='200 1300'  bash e22_ckpt_worker.sh 2>&1 | tee /home/jhyeo/finetuning/vlm/logs/e22_ckpt_sweep/worker_gpu0.log"
+tmux new-session -d -s e22eval_g2 "GPU=2 CKPTS='500 1400'  bash e22_ckpt_worker.sh 2>&1 | tee /home/jhyeo/finetuning/vlm/logs/e22_ckpt_sweep/worker_gpu2.log"
+tmux new-session -d -s e22eval_g3 "GPU=3 CKPTS='1000 1450' bash e22_ckpt_worker.sh 2>&1 | tee /home/jhyeo/finetuning/vlm/logs/e22_ckpt_sweep/worker_gpu3.log"
+# 워커가 하는 일: LoRA merge -> dp500 추론 -> tsr200 추론 -> dp-bench 변환 -> merged 삭제
+# 진행 로그: /home/jhyeo/finetuning/vlm/logs/e22_ckpt_sweep/ckpt<STEP>_gpu<G>.log
+
+--------------------------------------------------------------------------------
+[5]~[6] dp-bench 채점 + tsr200 LLM-Judge : 채점 스크립트 하나로 (GPU 불필요)
+--------------------------------------------------------------------------------
+cd /home/jhyeo/finetuning/eval_318/_infer_shards_e22
+CKPTS="200 500 1000 1300 1400 1450" bash e22_score_all.sh
+# dp-bench: GT_COORD_SPACE=image PRED_COORD_SPACE=grid PRED_GRID=1000
+#           NID_CONVERT_TABLE_TEXT=false TABLE_MATCH_MODE=bbox
+#           TABLE_BBOX_UNMATCHED_GTS="zero skip"
+# LLM-Judge: GenOS 서빙 776(Qwen3.5-397B), 키는 tsr_test_eval/.env 의 genos_key
+# SKIP_JUDGE=1 을 주면 dp-bench 만 채점한다.
+
+================================================================================
+ 산출물 (<STEP> = 200/500/1000/1300/1400/1450)
+================================================================================
+dp500 예측    : /home/jhyeo/finetuning/vlm/eval_results/e22_sweep_dp500_ckpt<STEP>_WITHOCR/predictions_unified.jsonl
+tsr200 예측   : /home/jhyeo/finetuning/vlm/eval_results/e22_sweep_tsr200_ckpt<STEP>_WITHOCR/{predictions_unified.jsonl, metrics_unified.json}
+dp-bench 결과 : .../genos500_dpbench/dp_out/e22_ckpt<STEP>_WITHOCR/eval_result_gitlab.txt
+LLM-Judge     : .../genos500_dpbench/ppb_out/e22_tsr200_ckpt<STEP>_WITHOCR/
+
+공통 조건: no-thinking, chandra div-HTML(0~1000 grid), dp500=WITH-OCR, tsr200=WITH-OCR,
+          max_pixels=1048576 / min_pixels=65536 (학습 설정과 동일)
+비교 대상 : e19 WITHOCR 런(eval_results/dp500_e19_ckpt{200,2400,3550,4150}_WITHOCR) — dp500 은 반드시 OCR 조건이 같은 런끼리,
+          e19 tsr200(ppb_out/e19_tsr200_ckpt*) — tsr200 은 원래부터 WITH-OCR 이라 그대로 비교 가능,
+          e20 (dp_out/e20_ckpt*) — 단 e20 은 픽셀 좌표계 실험이라 좌표 관련 지표는 조건이 다름

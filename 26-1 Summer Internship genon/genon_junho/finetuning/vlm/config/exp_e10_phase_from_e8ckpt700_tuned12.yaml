@@ -1,0 +1,73 @@
+# =============================================================================
+# E10 Educational Fine-tuning (Tuned from E9)
+# - Apply tuning #1: LR up + warmup down
+# - Apply tuning #2: longer epochs + relaxed early stopping + denser eval/save
+# =============================================================================
+
+student:
+  name_or_path: "/home/vlm_train/models/Qwen3.5-9B"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  output_dir: "./output/e10_phase_from_e8ckpt700_tuned12_20260311_2_3000_gpu0123/student_sft"
+  train_file: "./_train_data/20260311_2_3000/data_split/train.jsonl"
+  eval_file: "./_train_data/20260311_2_3000/data_split/valid.jsonl"
+  image_dir: "./_train_data/20260311_2_3000/data_split/images"
+
+  # Resume from E8 intermediate adapter checkpoint
+  resume_from_adapter: "./output/e8_phase1_qwen35_9b_3000_online/student_sft/checkpoint-700"
+
+  # Tuning #1 (from review)
+  learning_rate: 1.0e-5
+  warmup_ratio: 0.05
+
+  # Tuning #2 (from review)
+  num_train_epochs: 8
+  save_steps: 50
+  eval_steps: 50
+
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 4
+  lr_scheduler_type: "cosine"
+  max_seq_length: 8192
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 12288
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 0
+  dataloader_pin_memory: true
+  max_eval_samples: 300
+  strip_ocr_score: true
+  max_pixels: 262144
+  min_pixels: 65536
+
+  # Ignored when resume_from_adapter is set, kept for explicitness
+  use_lora: true
+  lora_r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+
+  report_to: "wandb"
+  run_name: "e10_phase_from_e8ckpt700_tuned12_20260311_2_3000_gpu0123"
+  logging_steps: 50
+  save_total_limit: null
+  early_stopping:
+    enabled: true
+    patience: 5
+    threshold: 0.0005
+    metric: "eval_loss"
+    greater_is_better: false

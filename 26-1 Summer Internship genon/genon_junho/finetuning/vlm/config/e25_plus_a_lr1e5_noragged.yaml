@@ -1,0 +1,98 @@
+# =============================================================================
+# E25_PLUS Cell A (noragged 재실행) — e25_plus_a_lr1e5.yaml 과 전부 동일, 데이터만
+# combined_e25plus_tsr6598_noragged 로 교체.
+# - 원본 tsr6598 6,598건 중 GT 표 HTML 이 렌더링하면 사각형이 아닌(rowspan/colspan
+#   불일치로 오른쪽/아래가 계단처럼 빈) 42건을 실제 Chromium 렌더 + 픽셀 비교로 확인해
+#   제외한 6,556건(train 5,748 / valid 595 / test 213) 버전.
+# - 나머지 하이퍼파라미터(rank/alpha/LR/스케줄 등)는 e25_plus_a_lr1e5.yaml 과 동일 —
+#   A/B/C 세 셀을 정제 데이터 기준으로 다시 비교하기 위한 재실행.
+#
+# - 실행 (tmux, GPU0):
+#   cd /home/jhyeo/finetuning/vlm
+#   source .venv/bin/activate
+#   CUDA_VISIBLE_DEVICES=0 NUM_GPUS=1 WANDB_MODE=online \
+#   WANDB_PROJECT="tsr_vlm_train" WANDB_ENTITY="aisearch260330-genon" WANDB_RUN_GROUP="e25_plus_noragged" \
+#   CONFIG=config/e25_plus_a_lr1e5_noragged.yaml PHASE=sft \
+#   bash distill/run_distill.sh 2>&1 | tee _run_logs/e25p_a_noragged_$(date +%Y%m%d_%H%M%S).log
+# =============================================================================
+
+student:
+  name_or_path: "/home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B-e25ck3900-merged"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  output_dir: "./output/e25_plus_a_lr1e5_noragged/student_sft"
+  train_file: "../finetuning_dataset/combined_e25plus_tsr6598_noragged/train.jsonl"
+  eval_file: "../finetuning_dataset/combined_e25plus_tsr6598_noragged/valid.jsonl"
+  # image_path 가 절대경로라 image_dir 불필요.
+
+  max_steps: 900              # num_train_epochs 대신 사용 — int() 내림 회피
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.0e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.05           # 900 step 기준 45 step
+  max_seq_length: 12288        # e25 의 8192 에서 명시 상향 — landmine 참고(원본 a 파일)
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 16384
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  max_eval_samples: 160
+
+  task_mix_sampling: false
+  span_weighted_sampling: false
+  include_thinking: false
+  annotate_empty_cells: true
+  empty_cell_token: "__EMPTY__"
+  single_quote_html_attrs: false
+  strip_ocr_score: true
+
+  train_ocr_mix_ratio: 0.5
+  train_ocr_mix_seed: 20260320
+
+  max_pixels: 1568000
+  min_pixels: 65536
+
+  token_weighting:
+    enabled: true
+    span_attribute_weight: 1.0
+    bbox_weight: 3.0
+
+  use_lora: true
+  quantization:
+    load_in_4bit: false
+  lora_r: 16
+  lora_alpha: 64        # scaling(alpha/r) = 4.0 — e25 와 동일 유지(LR 직접 비교용)
+  lora_dropout: 0.05
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  report_to: "wandb"
+  run_name: "e25_plus_a_lr1e5_noragged"
+  logging_steps: 25
+  save_steps: 100
+  save_total_limit: null
+  eval_steps: 100
+  early_stopping:
+    enabled: true
+    patience: 4
+    threshold: 0.0
+    metric: "eval_loss"
+    greater_is_better: false

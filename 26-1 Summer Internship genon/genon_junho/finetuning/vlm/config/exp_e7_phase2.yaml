@@ -1,0 +1,144 @@
+# =============================================================================
+# E7 Phase 2: Span 특화 Fine-tuning
+# - 학습 방법: SFT + Span 가중 샘플링 (Phase 1 checkpoint 이어서)
+# - OCR: ON (chandra_table_with_ocr)
+# - 데이터: e7_scale/train.jsonl (동일 데이터, medium+complex 가중)
+# - Phase 1 best checkpoint에서 resume, 낮은 LR로 Span 성능 집중 개선
+# - 주의: max_train_samples와 span_weighted_sampling 동시 사용 금지
+# =============================================================================
+
+teacher:
+  name_or_path: "Qwen/Qwen3-VL-235B-A22B-Instruct-FP8"
+  base_model: null
+  backend: "vllm"
+  fallback_to_transformers: false
+  fallback_name_or_path: "Qwen/Qwen3-VL-235B-A22B-Instruct"
+
+  # vLLM 옵션
+  tensor_parallel_size: 4
+  gpu_memory_utilization: 0.85
+  max_model_len: 10240
+  max_pixels: 1048576   # 1024*1024
+  min_pixels: 262144    # 512*512
+
+student:
+  name_or_path: "Qwen/Qwen3-VL-8B-Instruct"
+  torch_dtype: "bfloat16"
+  attn_implementation: "flash_attention_2"
+
+prompting:
+  style: "chandra_table_with_ocr"
+  bbox_scale: 1024
+
+synthetic_generation:
+  image_sources:
+    - "./data/extracted/aihub/Training/01.원천데이터"
+  output_path: "./data/experiments/e7_scale/synthetic_raw.jsonl"
+  num_generations_per_image: 1
+  temperature: 0.0
+  max_new_tokens: 7000
+  max_errors: 30
+  batch_size: 1
+  enable_thinking: true
+  target_samples: 3000
+
+quality_filter:
+  input_path: "./data/experiments/e7_scale/synthetic_raw.jsonl"
+  output_path: "./data/experiments/e7_scale/synthetic_filtered.jsonl"
+  min_consistency_teds: 0.0
+  min_table_rows: 2
+  min_table_cols: 2
+  max_table_rows: 80
+  max_table_cols: 30
+  require_thinking: false
+  require_valid_html: true
+  max_html_length: 20000
+  target_distribution:
+    simple: 0.40
+    medium: 0.35
+    complex: 0.25
+
+student_sft:
+  output_dir: "./output/e7_phase2/student_sft"
+  train_file: "./data/experiments/e7_gtfilter/train.jsonl"
+  eval_file: "./data/experiments/e7_gtfilter/validation.jsonl"
+  resume_from_adapter: "./output/e7_phase1/student_sft/final"  # Phase 1 이어서
+
+  # 학습 하이퍼파라미터 (Phase 1의 1/4 LR, 짧은 추가 학습)
+  num_train_epochs: 3
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 4
+  learning_rate: 5.0e-6                  # Phase 1의 1/4
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.10                     # 짧은 학습에 충분한 warmup
+  max_seq_length: 8192
+  bf16: true
+  tf32: true
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 8
+  dataloader_pin_memory: true
+  max_eval_samples: 1000
+
+  # LoRA 설정 (Phase 1과 동일, resume_from_adapter에서 자동 로드)
+  use_lora: true
+  lora_r: 64
+  lora_alpha: 128
+  lora_dropout: 0.05
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  # Span 가중 샘플링 (medium+complex 집중)
+  span_weighted_sampling: true
+  span_sampling_ratios:
+    simple: 0.05                         # 최소
+    medium: 0.45                         # medium 집중 (F1=0.31 개선 목표)
+    complex: 0.50                        # complex 유지
+
+  # 로깅/저장 설정
+  report_to: "wandb"
+  run_name: "e7_phase2"
+  logging_steps: 50
+  save_steps: 200
+  save_total_limit: 3
+  eval_steps: 200
+  early_stopping:
+    enabled: true
+    patience: 3
+    threshold: 0.001
+    metric: "loss"   # eval_ prefix는 HF Trainer가 자동 추가; NaNSafeTrainer로 NaN도 방지됨
+    greater_is_better: false
+
+logit_distillation:
+  enabled: false
+  output_dir: "./output/e7_phase2/student_logit_distill"
+  teacher_logits_dir: "./data/experiments/e7_scale/teacher_logits"
+  online_mode: false
+  student_init_path: "./output/e7_phase2/student_sft/final"
+  temperature: 2.0
+  alpha: 0.5
+  num_train_epochs: 50
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.0e-5
+  bf16: true
+  tf32: true
+  use_fused_adamw: true
+  save_top_k_logits: 50
+  early_stopping:
+    enabled: true
+    patience: 2
+    min_delta: 0.001
+
+feature_distillation:
+  enabled: false

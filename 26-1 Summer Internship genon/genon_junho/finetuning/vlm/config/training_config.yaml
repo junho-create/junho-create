@@ -1,0 +1,80 @@
+# =============================================================================
+# Qwen3-VL-235B TSR Fine-tuning Configuration
+# =============================================================================
+
+# Model
+model:
+  # name_or_path: "qwen/qwen3-vl-235b-a22b-instruct"  # 또는 로컬 경로
+  name_or_path: "Qwen/Qwen3-VL-32B-Instruct"
+  trust_remote_code: true
+  torch_dtype: "bfloat16"
+  attn_implementation: "flash_attention_2"
+
+# Image processing
+vision:
+  max_pixels: 4194304      # 2048 * 2048
+  min_pixels: 262144        # 512 * 512
+  image_resolution: 2048    # 테이블 이미지는 고해상도 유지
+
+# Training
+training:
+  output_dir: "./output/qwen3_vl_tsr_qlora"
+  num_train_epochs: 5
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 2.0e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.05
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+  bf16: true
+  tf32: true
+  max_seq_length: 8192
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 12288
+  long_table_context_margin_tokens: 512
+  gradient_checkpointing: true
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  remove_unused_columns: false
+
+# Logging
+logging:
+  logging_strategy: "steps"
+  logging_steps: 10
+  save_strategy: "steps"
+  save_steps: 200
+  save_total_limit: 5
+  eval_strategy: "steps"
+  eval_steps: 200
+  report_to: "wandb"        # or "none"
+  run_name: "qwen3_vl_tsr_span"
+
+# Phase-specific overrides
+phases:
+  phase1:
+    description: "구조 인식 기초 학습"
+    epochs: 2
+    learning_rate: 2.0e-5
+    data_sampling: "uniform"
+
+  phase2:
+    description: "Span 특화 강화 학습"
+    epochs: 3
+    learning_rate: 5.0e-6
+    data_sampling: "span_weighted"  # span 데이터 2x upsampling
+    span_upsample_factor: 2
+
+# Data
+data:
+  train_file: "./data/processed/train.jsonl"
+  eval_file: "./data/processed/eval.jsonl"
+  image_dir: "./data/images/"
+  strip_ocr_score: true
+  # Optional train-time OCR mix:
+  # train_ocr_mix_ratio: 0.5   # 50% OCR-on / 50% OCR-off
+  # train_ocr_mix_seed: 20260320
+  html_audit_sample_limit: 2000
+  prompt_variation: true       # 프롬프트 다양화 사용 여부
+  include_thinking: true       # thinking chain 포함 여부

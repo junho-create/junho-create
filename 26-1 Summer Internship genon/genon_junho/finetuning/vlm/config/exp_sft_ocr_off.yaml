@@ -1,0 +1,134 @@
+# =============================================================================
+# E2: SFT + OCR off
+# - 학습 방법: SFT only (Teacher 불필요)
+# - OCR: OFF (chandra_table_without_ocr)
+# - 데이터: shared/train_ocr_off.jsonl (GT, no OCR)
+# =============================================================================
+
+teacher:
+  name_or_path: "Qwen/Qwen3-VL-235B-A22B-Instruct-FP8"
+  base_model: null
+  backend: "vllm"
+  fallback_to_transformers: false
+  fallback_name_or_path: "Qwen/Qwen3-VL-235B-A22B-Instruct"
+
+  # vLLM 옵션
+  tensor_parallel_size: 4
+  gpu_memory_utilization: 0.85
+  max_model_len: 10240
+  max_pixels: 1048576   # 1024*1024
+  min_pixels: 262144    # 512*512
+
+student:
+  name_or_path: "Qwen/Qwen3-VL-8B-Instruct"
+  torch_dtype: "bfloat16"
+  attn_implementation: "flash_attention_2"
+
+prompting:
+  style: "chandra_table_without_ocr"
+  bbox_scale: 1024
+
+synthetic_generation:
+  image_sources:
+    - "./data/extracted/aihub/Training/01.원천데이터"
+  output_path: "./data/experiments/e2_sft_ocr_off/synthetic_raw.jsonl"
+  num_generations_per_image: 1
+  temperature: 0.0
+  max_new_tokens: 7000
+  max_errors: 30
+  batch_size: 1
+  enable_thinking: true
+  target_samples: 3000
+
+quality_filter:
+  input_path: "./data/experiments/e2_sft_ocr_off/synthetic_raw.jsonl"
+  output_path: "./data/experiments/e2_sft_ocr_off/synthetic_filtered.jsonl"
+  min_consistency_teds: 0.0
+  min_table_rows: 2
+  min_table_cols: 2
+  max_table_rows: 80
+  max_table_cols: 30
+  require_thinking: false
+  require_valid_html: true
+  max_html_length: 20000
+  target_distribution:
+    simple: 0.40
+    medium: 0.35
+    complex: 0.25
+
+student_sft:
+  output_dir: "./output/e2_sft_ocr_off/student_sft"
+  train_file: "./data/experiments/shared/train_ocr_off.jsonl"
+  eval_file: "./data/experiments/shared/eval_ocr_off.jsonl"
+
+  num_train_epochs: 50
+  per_device_train_batch_size: 6
+  per_device_eval_batch_size: 2
+  gradient_accumulation_steps: 1
+  learning_rate: 2.0e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.03
+  max_seq_length: 3072
+  bf16: true
+  tf32: true
+  gradient_checkpointing: false
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 8
+  dataloader_pin_memory: true
+  max_train_samples: 3000
+  max_eval_samples: 300
+
+  use_lora: true
+  lora_r: 64
+  lora_alpha: 128
+
+  report_to: "none"
+  run_name: "e2_sft_ocr_off"
+  logging_steps: 20
+  save_steps: 100
+  save_total_limit: 2
+  eval_steps: 100
+  early_stopping:
+    enabled: true
+    patience: 2
+    threshold: 0.001
+    metric: "eval_loss"
+    greater_is_better: false
+
+logit_distillation:
+  enabled: false
+  output_dir: "./output/e2_sft_ocr_off/student_logit_distill"
+  teacher_logits_dir: "./data/experiments/e2_sft_ocr_off/teacher_logits"
+  online_mode: false
+  student_init_path: "./output/e2_sft_ocr_off/student_sft/final"
+  temperature: 2.0
+  alpha: 0.5
+  num_train_epochs: 50
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.0e-5
+  bf16: true
+  tf32: true
+  use_fused_adamw: true
+  save_top_k_logits: 50
+  early_stopping:
+    enabled: true
+    patience: 2
+    min_delta: 0.001
+
+feature_distillation:
+  enabled: false
+  output_dir: "./output/e2_sft_ocr_off/student_feature_distill"
+  layer_mapping:
+    12: 4
+    24: 8
+    47: 16
+    70: 24
+    94: 32
+  teacher_hidden_dim: 8192
+  student_hidden_dim: 4096
+  projection_type: "linear"
+  feature_loss_weight: 0.3
+  logit_loss_weight: 0.5
+  hard_loss_weight: 0.2

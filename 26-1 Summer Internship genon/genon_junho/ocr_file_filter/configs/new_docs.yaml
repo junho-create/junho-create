@@ -1,0 +1,57 @@
+# 신규 원본 PDF 배치용 설정 — configs/default.yaml 과 동일하되 work_dir 만 다른 곳을 가리킨다.
+# (2026-07-14: /NHNHOME/WORKSPACE/0426030039_A/shkim/doc_data 에 올라온 원본 PDF 3종 세트 처리용)
+#
+# io 스테이지는 `io build-raw` 를 쓸 것 — layout_src/table_src/final_train 은 데모 데이터
+# 전용이라 이 설정에서는 안 쓰지만, 다른 스테이지(models 등)와 스키마를 맞추려고 남겨둔다.
+
+paths:
+  final_train: /NHNHOME/WORKSPACE/0426030039_A/jhshin/tsr_test/train/vlm/_train_data/chandra_table_layout_divhtml_16886
+  images:      /NHNHOME/WORKSPACE/0426030039_A/jhshin/tsr_test/train/vlm/_train_data/chandra_table_layout_divhtml_16886/images
+  layout_src:  /NHNHOME/WORKSPACE/0426030039_A/jhshin/tsr_test/train/vlm/_train_data/layout_src_9984/labeler_converter_layout_source_9984.jsonl
+  table_src:   /NHNHOME/WORKSPACE/0426030039_A/jhshin/tsr_test/train/vlm/_train_data/table_src_6902
+  work_dir:    /NHNHOME/WORKSPACE/0426030039_A/jhyeo/ocr_filter_result   # 중간 산출물 (신규 PDF 배치)
+
+# CMCV: 3모델 vLLM OpenAI-호환 엔드포인트 (default.yaml 과 동일 — 같은 서버 재사용)
+models:
+  target:
+    name: e24_r64_px1m_ckpt1450
+    endpoint: http://localhost:8001/v1
+  external_a:
+    name: dots.ocr
+    endpoint: http://localhost:8002/v1
+  external_b:
+    name: PaddleOCR-VL-1.6-0.9B
+    endpoint: http://localhost:8080/v1
+
+ddas:
+  weights:
+    easy: 0.1
+    medium: 1.5
+    hard: 1.0
+  alpha: 1.0
+  beta: 2.0
+  n_total: 16886    # 전체 예산 기본값 — 새 데이터 규모에 맞게 --ddas-n-total 로 오버라이드 권장
+  with_replacement: false
+  seed: 0
+
+cluster:
+  method: kmeans
+  n_clusters_page: 64
+  n_clusters_element: 32
+  taster_per_cluster: 8
+  embed_model: vit
+
+cmcv:
+  match_thresholds:
+    agree_min: 0.85
+    teds: 0.95
+    cdm: 0.95
+
+hardcase:
+  max_refine_rounds: 3
+  judge_vlm:
+    name: Qwen3.5-397B-A17B-FP8
+    endpoint: http://localhost:8004/v1
+  prelabel_vlm:
+    name: Qwen3.5-397B-A17B-FP8
+    endpoint: http://localhost:8004/v1

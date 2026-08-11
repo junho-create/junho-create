@@ -1,0 +1,45 @@
+# ===== 무거운 산출물 (레포에 올리지 않음) =====
+# _models/: 259GB 모델 weight (configs/models.yaml 로 각자 받기)
+_models/
+# _work/: 중간 산출물 + 갤러리 HTML (재생성 가능)
+_work/
+# _texlive/, _texlive_installer/: CDM(수식 채점)용 유저 TeX Live —
+# scripts/setup_cdm_texlive.sh 로 재현
+_texlive/
+_texlive_installer/
+# filtering_result/: 최종 SFT 산출물(gt_html_dataset.jsonl, 200MB+) — 코드로 재생성 가능
+# (python -m ocr_filter.cli export gt-html), git엔 안 올림
+filtering_result/
+backups/
+*.tar.gz
+# labeler/: 별도 git 레포(자체 origin: gitlab.genon.ai/aisearch/labeler.git) — 이 레포에
+# 파일째로 얹으면 embedded-repo 취급되어 clone 시 내용이 안 딸려온다. 필요하면 submodule로
+# 등록할 것(`git submodule add https://.../labeler.git labeler`), 그 전까지는 제외.
+labeler/
+
+# ===== 파이썬 가상환경 / 캐시 =====
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ===== 데이터 / 대용량 산출물 =====
+# *.html: 갤러리/리뷰 UI (재생성 가능)
+*.html
+*.png
+*.jpg
+*.jpeg
+*.pdf
+images/
+*.log
+*.pid
+
+# ===== OS / 에디터 =====
+.DS_Store
+.vscode/
+.idea/

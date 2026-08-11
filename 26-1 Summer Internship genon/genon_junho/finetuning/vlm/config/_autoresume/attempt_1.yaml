@@ -1,0 +1,100 @@
+# =============================================================================
+# Chandra Table+Layout SFT — 레퍼런스(16,886) + 신규 큐레이션(Medium+Hard만, 20,932) 통합
+# - exp_chandra_all_e18align.yaml(원본, jhshin 소유 절대경로 참조)을 베이스로
+#   경로만 이 프로젝트(jhyeo/finetuning) 기준으로 바꾼 파생 config.
+# - 데이터: reference_16886(사람 GT) + new_63541(ocr_file_filter 로 cmcv+hardcase 자동
+#   큐레이션, resolved=True 56,553건 중 카테고리 레이블 정규화 + 복구 불가능한 깨진 표
+#   1,494페이지 제외 + **Easy tier 제외**(target 모델 자기 자신의 출력이라 재학습 신호
+#   없음, 2026-07-20 사용자 확인) 후 Medium+Hard만 20,932건)을 레퍼런스와 같은 비율
+#   (≈83:10:7)로 train/valid/test 합침 -- ../../finetuning_dataset/README.md 참고.
+#   train 31,328 / valid 3,695 / test 2,795 (합계 37,818).
+# - image_path 는 합칠 때 전부 절대경로로 고정해뒀음(레퍼런스/신규 두 데이터셋이
+#   서로 다른 이미지 루트를 쓰기 때문에 상대경로 한 벌로는 둘 다 못 맞춤) --
+#   image_dir 설정 불필요.
+# =============================================================================
+
+student:
+  # 원본은 shkim 소유 절대경로였는데, 이 프로젝트(jhyeo/ocr_file_filter/_models)에
+  # 이미 같은 가중치가 로컬로 있어서 그걸 씀 -- 서버 이전해도 jhyeo/ 만 있으면 동작.
+  name_or_path: "/home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  resume_from_adapter: "output/chandra_combined_37818_20260720/student_sft/checkpoint-350"
+  output_dir: "./output/chandra_combined_37818_20260720_resume1/student_sft"
+  train_file: "../finetuning_dataset/combined/train.jsonl"
+  eval_file: "../finetuning_dataset/combined/valid.jsonl"
+  # image_path 가 합친 데이터셋 안에서 이미 절대경로라 image_dir 는 안 쓰임(설정 무의미,
+  # train_qlora.py 의 _resolve_image_path 가 절대경로면 그대로 반환).
+
+  # ===== e18 학습 하이퍼파라미터 (batch/accum 조정, 나머지 원본 그대로) =====
+  # 2026-07-20: 같은 batch=4/accum=2 조합으로 exp_chandra_resume_new63541.yaml 런이
+  # step 64/813에서 CUDA OOM(45.47GiB 요청) 발생 -- auto_expand_max_seq_length 로 큰 표
+  # 문서가 배치에 몰리면 순간 메모리 스파이크가 남. batch 4->2, accum 2->4 로 바꿔
+  # effective batch(=64)는 그대로 유지한 채 배치당 최악의 메모리만 절반으로 줄임.
+  num_train_epochs: 7
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.5e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.08
+  max_seq_length: 8192
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 12288
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  max_eval_samples: 700
+
+  # 통합 파이프라인 옵션(데이터 형식 유지, 학습 동작만 e18 정렬) ----------------
+  task_mix_sampling: false
+  span_weighted_sampling: false
+  include_thinking: false
+  annotate_empty_cells: true
+  empty_cell_token: "__EMPTY__"
+  single_quote_html_attrs: false
+  strip_ocr_score: true
+
+  train_ocr_mix_ratio: 0.5
+  train_ocr_mix_seed: 20260320
+
+  max_pixels: 262144
+  min_pixels: 65536
+
+  use_lora: true
+  quantization:
+    load_in_4bit: false
+  lora_r: 128
+  lora_alpha: 256
+  lora_dropout: 0.15
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  report_to: "wandb"
+  run_name: "chandra_combined_37818_20260720_resume1"
+  logging_steps: 50
+  save_steps: 50
+  save_total_limit: null
+  eval_steps: 50
+  early_stopping:
+    enabled: true
+    patience: 6
+    threshold: 0.0003
+    metric: "eval_loss"
+    greater_is_better: false

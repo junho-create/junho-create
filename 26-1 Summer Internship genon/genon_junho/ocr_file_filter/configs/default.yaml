@@ -1,0 +1,68 @@
+# ocr_file_filter 설정. 어느 서버든 클론 후 경로/엔드포인트만 고치면 동작.
+
+paths:
+  # 원본 3소스 (현재는 다른 서버 /NHNHOME/... 기준)
+  final_train: /NHNHOME/WORKSPACE/0426030039_A/jhshin/tsr_test/train/vlm/_train_data/chandra_table_layout_divhtml_16886
+  images:      /NHNHOME/WORKSPACE/0426030039_A/jhshin/tsr_test/train/vlm/_train_data/chandra_table_layout_divhtml_16886/images
+  layout_src:  /NHNHOME/WORKSPACE/0426030039_A/jhshin/tsr_test/train/vlm/_train_data/layout_src_9984/labeler_converter_layout_source_9984.jsonl
+  table_src:   /NHNHOME/WORKSPACE/0426030039_A/jhshin/tsr_test/train/vlm/_train_data/table_src_6902
+  work_dir:    ./_work   # 중간 산출물
+
+# CMCV: 3모델 vLLM OpenAI-호환 엔드포인트
+models:
+  target:                       # base Qwen3.5-9B + LoRA (--enable-lora 로 서빙, GPU 0)
+    name: e24_r64_px1m_ckpt1450
+    endpoint: http://localhost:8001/v1
+  external_a:                   # dots.ocr — HF 에서 받아 이 서버에서 직접 서빙, GPU 2
+    name: dots.ocr
+    endpoint: http://localhost:8002/v1
+  external_b:                   # PaddleOCR-VL 1.6 — jhyeo/paddleOCRVL1.6 자체 서버 위임, GPU 1
+    name: PaddleOCR-VL-1.6-0.9B
+    endpoint: http://localhost:8080/v1
+
+# ---- DDAS (구현 완료 스테이지) ----
+ddas:
+  # S_i 난이도 가중치 (문서 추천값)
+  weights:
+    easy: 0.1
+    medium: 1.5
+    hard: 1.0
+  # N_i 다항식 파라미터
+  alpha: 1.0        # 평탄화(베이스라인 보장)
+  beta: 2.0         # 증폭(가치 높은 클러스터에 예산 집중)
+  n_total: 16886    # 전체 샘플링 예산 (기본: 최종셋 크기)
+  with_replacement: false  # true면 소형 고가치 클러스터 업샘플링 허용
+  seed: 0
+
+# ---- 아래는 아직 미구현 (내일 클론해서 채울 예정) ----
+cluster:
+  method: kmeans
+  n_clusters_page: 64
+  n_clusters_element: 32
+  taster_per_cluster: 8   # 클러스터 난이도 추정용 소량 CMCV
+  embed_model: vit        # ViT 임베딩
+
+cmcv:
+  match_thresholds:
+    # 쌍별(pairwise) "일치" 판정 임계값 — edit_distance 기반 유사도가 이 이상이면 두 모델
+    # 출력이 "같다"고 본다. Easy/Medium/Hard 판정 규칙은 ocr_filter/cmcv/run.py 의
+    # _tier_and_pseudo_label() 참고 (평균이 아니라 쌍별 일치/불일치 조합으로 분기).
+    agree_min: 0.85
+    teds: 0.95   # (참고용, 아직 티어 판정에 안 씀)
+    cdm: 0.95    # (참고용, CDM 자체가 미구현)
+
+hardcase:
+  max_refine_rounds: 3
+  # [1] Judge-and-Refine: 렌더링된 예측 vs 원본을 비교해 판정 + 재시도.
+  judge_vlm:
+    name: Qwen3.5-397B-A17B-NVFP4
+    endpoint: http://localhost:8004/v1
+  # [2] Targeted Expert Annotation 사전 라벨링: "독립된" 모델이어야 함(데이터 누출 방지 —
+  # 판정에 쓴 모델과 같은 계열이면 같은 맹점을 공유해서 사전 라벨도 못 잡음).
+  # 지금은 임시로 judge_vlm 과 같은 엔드포인트를 씀. OpenRouter 키 생기면 이 블록만
+  # provider/model 바꾸면 됨 (코드 수정 없음 — ocr_filter/hardcase/client.py 가 범용 호출기).
+  prelabel_vlm:
+    name: Qwen3.5-397B-A17B-NVFP4
+    endpoint: http://localhost:8004/v1
+    # provider: openrouter          # 나중에: OpenRouter 등 외부 제공자로 교체할 때 사용
+    # api_key_env: OPENROUTER_API_KEY

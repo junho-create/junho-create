@@ -1,0 +1,15 @@
+{
+  "data_dir": "/NHNHOME/WORKSPACE/0426030039_A/jhshin/tsr_test/train/vlm/_train_data/chandra_table_layout_divhtml_16886",
+  "scale": 1000,
+  "splits": {
+    "train": 14575,
+    "valid": 1650,
+    "test": 1248
+  },
+  "stats": {
+    "layout": 9984,
+    "table_matched": 7488,
+    "table_fallback_bbox": 99,
+    "table_unmatched": 1
+  }
+}

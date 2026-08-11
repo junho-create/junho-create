@@ -1,0 +1,107 @@
+# =============================================================================
+# E24 재개(resume1) — checkpoint-1550(epoch 1.637, eval_loss 0.09044)에서 웜스타트
+# - 2026-07-29: 원본 e24 학습이 15:23 무렵 traceback 없이 조용히 죽음(e22 때와 동일 패턴).
+# - 이 프로젝트의 재개 방식은 resume_from_checkpoint(옵티마이저/스케줄러/step 완전 복원)가
+#   student_sft.py 에 있지만 trainer.train() 에 실제로 전달되지 않아 동작하지 않는다.
+#   실제로 쓰이는 건 resume_from_adapter 뿐이다 — LoRA 가중치만 이어받고 step 은 0부터,
+#   LR(cosine) 스케줄도 warmup 부터 재시작한다(e19/e20/e21 watchdog 스크립트와 동일 방식).
+# - num_train_epochs 를 7 -> 5.363 으로 줄였다(7 - 1550/(22727/24) = 5.363). 그대로 7을
+#   쓰면 이미 노출된 1.637 epoch 분량이 이중으로 더해져 계획(7 epoch)을 초과한다.
+# - output_dir/run_name 을 별도로 둬서 원본 e24_.../checkpoint-1550 까지의 기록을 보존한다.
+# - 나머지(모델/LoRA/해상도/token_weighting/데이터 경로)는 원본 e24 config 와 완전히 동일.
+#
+# 실행(tmux):
+#   tmux new-session -s e24resume
+#   cd /home/jhyeo/finetuning/vlm
+#   CUDA_VISIBLE_DEVICES=0,2,3 NUM_GPUS=3 MASTER_PORT=29670 WANDB_MODE=online \
+#   WANDB_PROJECT="tsr_vlm_train" WANDB_ENTITY="aisearch260330-genon" \
+#   CONFIG=config/e24_qwen35_9b_e20data_r64_px1m_resume1.yaml PHASE=sft \
+#   bash distill/run_distill.sh 2>&1 | tee _run_logs/e24_resume1_$(date +%Y%m%d_%H%M%S).log
+#   (tmux 분리: Ctrl+b d)
+# =============================================================================
+
+student:
+  name_or_path: "/home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  output_dir: "./output/e24_qwen35_9b_e20data_r64_px1m_resume1/student_sft"
+  resume_from_adapter: "./output/e24_qwen35_9b_e20data_r64_px1m/student_sft/checkpoint-1550"
+  # ===== e23 대비 유일한 변경: 데이터셋(라벨 정제본) =====
+  train_file: "../finetuning_dataset/combined_e24_refined/train.jsonl"
+  eval_file: "../finetuning_dataset/combined_e24_refined/valid.jsonl"
+  # image_path 가 절대경로라 image_dir 불필요(e22/e23 와 동일 사유).
+
+  # ===== 아래는 e23 와 완전히 동일 =====
+  num_train_epochs: 5.363  # 7 - 1550/(22727/24), 원본 config 는 7
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.5e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.08
+  max_seq_length: 8192
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 12288
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  max_eval_samples: 700
+
+  task_mix_sampling: false
+  span_weighted_sampling: false
+  include_thinking: false
+  annotate_empty_cells: true
+  empty_cell_token: "__EMPTY__"
+  single_quote_html_attrs: false
+  strip_ocr_score: true
+
+  train_ocr_mix_ratio: 0.5
+  train_ocr_mix_seed: 20260320
+
+  # 해상도: e22/e23 와 동일(1024²). dp500 실측에서 bbox 평행이동을 잡은 핵심 설정이라 유지한다.
+  max_pixels: 1048576
+  min_pixels: 65536
+
+  # bbox 좌표 토큰 loss 가중치: e22/e23 와 동일하게 3.0 유지.
+  token_weighting:
+    enabled: true
+    span_attribute_weight: 1.0
+    bbox_weight: 3.0
+
+  use_lora: true
+  quantization:
+    load_in_4bit: false
+  lora_r: 64
+  lora_alpha: 256       # scaling(alpha/r) = 4.0 — e22/e23 와 동일하게 유지
+  lora_dropout: 0.15
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  report_to: "wandb"
+  run_name: "e24_qwen35_9b_e20data_r64_px1m_resume1"
+  logging_steps: 50
+  save_steps: 50
+  save_total_limit: null
+  eval_steps: 50
+  early_stopping:
+    enabled: true
+    patience: 6
+    threshold: 0.0003
+    metric: "eval_loss"
+    greater_is_better: false

@@ -1,0 +1,110 @@
+# =============================================================================
+# Distillation Test Config: Feature Distillation + LoRA(QLoRA)
+# =============================================================================
+
+teacher:
+  name_or_path: "Qwen/Qwen3-VL-235B-A22B-Instruct"
+  base_model: null
+  torch_dtype: "bfloat16"
+  device_map: "auto"
+  revision: "main"
+  force_download: false
+
+student:
+  name_or_path: "Qwen/Qwen3-VL-8B-Instruct"
+  torch_dtype: "bfloat16"
+  attn_implementation: "flash_attention_2"
+
+prompting:
+  # chandra_table_with_ocr | chandra_table_without_ocr
+  style: "chandra_table_with_ocr"
+  bbox_scale: 1024
+
+synthetic_generation:
+  image_sources:
+    - "./data/extracted/aihub/Training/01.원천데이터"
+  output_path: "./data/distill/modes/feature_lora/synthetic_raw.jsonl"
+  num_generations_per_image: 1
+  temperature: 0.0
+  max_new_tokens: 3072
+  batch_size: 1
+  enable_thinking: true
+  target_samples: 64
+
+quality_filter:
+  input_path: "./data/distill/modes/feature_lora/synthetic_raw.jsonl"
+  output_path: "./data/distill/modes/feature_lora/synthetic_filtered.jsonl"
+  min_consistency_teds: 0.0
+  min_table_rows: 2
+  min_table_cols: 2
+  max_table_rows: 80
+  max_table_cols: 30
+  require_thinking: false
+  require_valid_html: true
+  max_html_length: 20000
+  target_distribution:
+    simple: 0.40
+    medium: 0.35
+    complex: 0.25
+
+student_sft:
+  output_dir: "./output/feature_lora/student_sft"
+  train_file: "./data/distill/modes/feature_lora/train.jsonl"
+  eval_file: "./data/distill/modes/feature_lora/eval.jsonl"
+
+  num_train_epochs: 1
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 2.0e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.03
+  max_seq_length: 4096
+  bf16: true
+  gradient_checkpointing: true
+  dataloader_num_workers: 2
+  dataloader_pin_memory: true
+  max_train_samples: 32
+  max_eval_samples: 8
+
+  use_lora: true
+  lora_r: 64
+  lora_alpha: 128
+
+  report_to: "none"
+  run_name: "test_feature_lora_sft"
+  logging_steps: 5
+  save_steps: 50
+  save_total_limit: 2
+  eval_steps: 50
+
+logit_distillation:
+  enabled: false
+  output_dir: "./output/feature_lora/student_logit_distill"
+  teacher_logits_dir: "./data/distill/modes/feature_lora/teacher_logits"
+  online_mode: false
+  student_init_path: "./output/feature_lora/student_sft/final"
+  temperature: 2.0
+  alpha: 0.5
+  num_train_epochs: 1
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.0e-5
+  bf16: true
+  save_top_k_logits: 50
+  max_seq_length: 4096
+
+feature_distillation:
+  enabled: true
+  output_dir: "./output/feature_lora/student_feature_distill"
+  layer_mapping:
+    12: 4
+    24: 8
+    47: 16
+    70: 24
+    94: 32
+  teacher_hidden_dim: 8192
+  student_hidden_dim: 4096
+  projection_type: "linear"
+  feature_loss_weight: 0.3
+  logit_loss_weight: 0.5
+  hard_loss_weight: 0.2

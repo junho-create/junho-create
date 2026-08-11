@@ -1,0 +1,38 @@
+{
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are an expert at analyzing document tables. Given a table image, produce the precise HTML markup that represents its structure, paying special attention to merged cells."
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "image",
+          "image": "../aihub_table_data/Sample/01.원천데이터/T01_C01_50012_1594_302.jpg"
+        },
+        {
+          "type": "text",
+          "text": "Convert this table to HTML. Pay careful attention to cells that span multiple rows or columns, and include the appropriate span attributes."
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "content": "<think>\n1. 테이블 크기 분석: 3행 × 8열\n2. 구조 영역 분석:\n   - 헤더 영역: 0~0행 (총 1행)\n   - 바디 영역: 1~2행 (총 2행)\n3. Span 셀 탐지:\n   - Span 셀 없음: 모든 셀이 1×1 크기\n4. HTML 구조 생성 계획:\n   - <table>: 3개 <tr>\n   - Span 셀 수: 0개\n   - 헤더에 <thead> 사용, 바디에 <tbody> 사용\n</think>\n<table><tr><td>구분</td><td>2011</td><td>2012</td><td>2013</td><td>2014</td><td>2015</td><td>2016</td><td>2017</td></tr><tr><td>예산(억 원)</td><td>148,902</td><td>160,244</td><td>171,471</td><td>177,793</td><td>188,900</td><td>190,942</td><td>194,371</td></tr><tr><td>증가율(%)</td><td>8.7</td><td>7.6</td><td>7.0</td><td>3.7</td><td>6.3</td><td>1.1</td><td>1.8</td></tr></table>"
+    }
+  ],
+  "metadata": {
+    "image_path": "../aihub_table_data/Sample/01.원천데이터/T01_C01_50012_1594_302.jpg",
+    "file_id": "T01_C01_50012_1594_302",
+    "num_rows": 3,
+    "num_cols": 8,
+    "num_span_cells": 0,
+    "complexity": "simple",
+    "complexity_score": 0.0,
+    "source": "aihub",
+    "table_type": "기본표",
+    "table_field": "경제",
+    "has_header": true
+  }
+}

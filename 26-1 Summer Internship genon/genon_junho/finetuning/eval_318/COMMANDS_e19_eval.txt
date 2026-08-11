@@ -1,0 +1,165 @@
+================================================================================
+ e19 (Qwen3.5-9B, combined 37,818) 평가 재현 명령어 총정리
+ - 이번 세션에서 실제로 실행한 순서 그대로 정리 (경로는 이 서버 기준 절대경로)
+ - 학습 중간 체크포인트 6개(step 200/500/1850/2400/3550/4150)에 대해
+   dp500(문서 500장) + tsr200(표 crop 200장) 추론 → dp-bench / LLM-Judge 채점
+================================================================================
+
+--------------------------------------------------------------------------------
+[0] 환경 / 경로 요약
+--------------------------------------------------------------------------------
+학습 프로젝트 코드   : /home/jhyeo/finetuning/vlm
+학습 체크포인트(어댑터): /home/jhyeo/finetuning/vlm/output/e19_qwen35_9b_37818/student_sft/checkpoint-<STEP>
+베이스 모델          : /home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B
+
+# venv (용도별로 다름 — 옛 서버 venv들이 이 서버에서 안 돌아가 새로 만든 것 포함)
+merge/dp-bench변환용 : /home/jhyeo/finetuning/vlm/.venv          (peft/transformers, bs4)
+vLLM 추론용          : /home/workspace/tsr_test/.venv            (vllm 0.18.1, py3.12, Qwen3_5 지원)
+dp-bench 채점용      : /home/jhyeo/finetuning/eval_318/_dpbench_venv   (rapidfuzz/apted/distance/lxml/bs4)
+LLM-Judge(ppb)용     : /home/jhyeo/finetuning/eval_318/_ppb_venv       (python3.12, pdf_parse_bench)
+
+# 평가 데이터셋 (원본)
+dp500 이미지+GT      : /home/jhyeo/tsr_eval/data/500_genos_val_set/
+                        images/doc_0001~0500.png
+                        inference_manifest_noocr.jsonl   (이미지만, NO-OCR)
+                        (GT: eval_318/.../genos-500-set/reference_dp_bench.json 와 동일 500장)
+tsr200 GT/메타       : /home/jhyeo/tsr_eval/data/20260317_4_6000/data_split/test.jsonl  (200줄)
+tsr200 표 이미지     : /home/jhyeo/tsr_eval/data/20260311_2_3000/data_split/images/  (+ 20260225_1_3000)
+
+
+--------------------------------------------------------------------------------
+[1] 평가 입력(매니페스트) 만들기
+--------------------------------------------------------------------------------
+# 1-1. dp500: 매니페스트 image_path 를 절대경로로 (evaluate_unified 가 test_data 폴더기준
+#       상대경로로 이미지를 찾기 때문에, 원본 위치와 다른 곳에서 돌리려면 절대경로화 필수)
+python3 - <<'PY'
+import json
+src="/home/jhyeo/tsr_eval/data/500_genos_val_set/inference_manifest_noocr.jsonl"
+root="/home/jhyeo/tsr_eval/data/500_genos_val_set/"
+out="/home/jhyeo/finetuning/eval_318/_infer_shards/dp500_full_abs.jsonl"
+with open(src) as f, open(out,"w") as w:
+    for line in f:
+        r=json.loads(line); r["image_path"]=root+r["image_path"]
+        w.write(json.dumps(r,ensure_ascii=False)+"\n")
+PY
+
+# 1-2. tsr200: output_format=html 강제 + image_path 절대경로화
+#       (test.jsonl 은 output_format 이 None 이라 그냥 넣으면 JSON 모드로 잘못 채점됨)
+python3 - <<'PY'
+import json, os
+src="/home/jhyeo/tsr_eval/data/20260317_4_6000/data_split/test.jsonl"
+base="/home/jhyeo/tsr_eval/data/20260317_4_6000/data_split"
+out="/home/jhyeo/finetuning/eval_318/_infer_shards/tsr200_html.jsonl"
+with open(src) as f, open(out,"w") as w:
+    for line in f:
+        r=json.loads(line); r["output_format"]="html"
+        r["image_path"]=os.path.normpath(os.path.join(base, r["image_path"]))
+        w.write(json.dumps(r,ensure_ascii=False)+"\n")
+PY
+
+
+--------------------------------------------------------------------------------
+[2] (LoRA 어댑터 → 통짜 모델 merge)  ※ 왜 필요한가
+--------------------------------------------------------------------------------
+# vLLM 0.18.1 이 우리 LoRA 어댑터를 런타임 로딩할 때 set_lora IndexError(fused qkv/gate_up)
+# 로 죽어서, 어댑터를 베이스에 미리 합쳐(merge) 통짜 모델로 추론한다.
+# (merged 모델은 임시라 추론 끝나면 삭제)
+CUDA_VISIBLE_DEVICES=0 /home/jhyeo/finetuning/vlm/.venv/bin/python - <<'PY'
+import os, torch
+from peft import PeftModel
+from transformers import AutoModelForImageTextToText, AutoProcessor
+base="/home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B"
+adapter="/home/jhyeo/finetuning/vlm/output/e19_qwen35_9b_37818/student_sft/checkpoint-<STEP>"
+out="/home/jhyeo/finetuning/vlm/output/e19_qwen35_9b_37818/_sweep_merged/ckpt-<STEP>"
+m=AutoModelForImageTextToText.from_pretrained(base,torch_dtype=torch.bfloat16,trust_remote_code=True,device_map="auto")
+m=PeftModel.from_pretrained(m,adapter).merge_and_unload()
+os.makedirs(out,exist_ok=True); m.save_pretrained(out)
+AutoProcessor.from_pretrained(base,trust_remote_code=True).save_pretrained(out)
+print("MERGED:",out)
+PY
+
+
+--------------------------------------------------------------------------------
+[3] 추론 (vLLM, no-thinking, chandra div-HTML)
+--------------------------------------------------------------------------------
+cd /home/jhyeo/finetuning/vlm
+MERGED=output/e19_qwen35_9b_37818/_sweep_merged/ckpt-<STEP>
+INFER=/home/workspace/tsr_test/.venv/bin/python
+
+# 3-1. dp500 추론 (500장, GPU 1장) → predictions_unified.jsonl
+CUDA_VISIBLE_DEVICES=0 $INFER -m eval.evaluate_unified --backend vllm \
+  --test_data /home/jhyeo/finetuning/eval_318/_infer_shards/dp500_full_abs.jsonl \
+  --output_dir eval_results/sweep_dp500_ckpt<STEP> \
+  --model $MERGED --max_model_len 16384 --batch_size 16 --no-thinking
+
+# 3-2. tsr200 추론 (200장, TEDS 자동계산) → predictions_unified.jsonl + metrics_unified.json
+CUDA_VISIBLE_DEVICES=0 $INFER -m eval.evaluate_unified --backend vllm \
+  --test_data /home/jhyeo/finetuning/eval_318/_infer_shards/tsr200_html.jsonl \
+  --output_dir eval_results/sweep_tsr200_ckpt<STEP> \
+  --model $MERGED --max_model_len 16384 --batch_size 16 --no-thinking
+
+# (실제로는 GPU 0/2/3 에 체크포인트를 나눠 배정해 병렬 실행 —
+#  worker: eval_318/_infer_shards/ckpt_worker.sh, GPU=<n> CKPTS="<step ...>" 로 호출)
+
+
+--------------------------------------------------------------------------------
+[4] dp500 → dp-bench prediction 변환
+--------------------------------------------------------------------------------
+DPB=/home/jhyeo/finetuning/eval_318/tsr_test_eval/genos500_dpbench
+/home/jhyeo/finetuning/vlm/.venv/bin/python \
+  $DPB/scripts/prepare/convert_qwen_pred_to_dpbench.py \
+  --input  /home/jhyeo/finetuning/vlm/eval_results/sweep_dp500_ckpt<STEP>/predictions_unified.jsonl \
+  --output $DPB/dp_out/e19_ckpt<STEP>/pred_dp_bench_full.json
+
+
+--------------------------------------------------------------------------------
+[5] dp500 dp-bench 채점 (rule-based: NID / TEDS / matched / extra_pred)
+--------------------------------------------------------------------------------
+DPB=/home/jhyeo/finetuning/eval_318/tsr_test_eval/genos500_dpbench
+cd $DPB
+# GT bbox 정규화용 이미지 심볼릭 (우리 서버 경로)
+ln -sfn /home/jhyeo/tsr_eval/data/500_genos_val_set/images genos-500-set/qwen_infer_images
+
+MODEL=e19_ckpt<STEP> OUT_ROOT=dp_out \
+PYTHON=/home/jhyeo/finetuning/eval_318/_dpbench_venv/bin/python \
+GT_COORD_SPACE=image PRED_COORD_SPACE=grid PRED_GRID=1000 \
+NID_CONVERT_TABLE_TEXT=false TABLE_MATCH_MODE=bbox \
+TABLE_BBOX_UNMATCHED_GTS="zero skip" \
+bash scripts/run_eval_genos500.sh
+# 결과: dp_out/e19_ckpt<STEP>/eval_result_gitlab.txt  (NID, TEDS zero/skip, matched/GT, extra_pred)
+
+
+--------------------------------------------------------------------------------
+[6] tsr200 LLM-Judge (GenOS 서빙 776, Qwen3.5-397B judge)
+--------------------------------------------------------------------------------
+# 6-1. 우리 예측(predictions_unified.jsonl) → run_ppb_tsr 가 먹는 형식으로 변환
+#      (gt_html/pred_html/complexity/teds 필드명 매핑 + pred 에서 <table> 추출)
+python3 /home/jhyeo/finetuning/eval_318/_infer_shards/conv_tsr_for_ppb.py \
+  /home/jhyeo/finetuning/vlm/eval_results/sweep_tsr200_ckpt<STEP>/predictions_unified.jsonl \
+  /home/jhyeo/finetuning/eval_318/_infer_shards/tsr200_html.jsonl \
+  /home/jhyeo/finetuning/eval_318/_infer_shards/ppb_pred_tsr_ckpt<STEP>.jsonl
+
+# 6-2. LLM-Judge 실행 (키는 .env 의 genos_key 에서 읽음 — 채팅/로그 노출 방지)
+DPB=/home/jhyeo/finetuning/eval_318/tsr_test_eval/genos500_dpbench
+KEY=$(grep -i genos_key /home/jhyeo/finetuning/eval_318/tsr_test_eval/.env | head -1 | cut -d= -f2 | tr -d ' "')
+cd $DPB
+/home/jhyeo/finetuning/eval_318/_ppb_venv/bin/python pdfparsebench/run_ppb_tsr.py \
+  --predictions /home/jhyeo/finetuning/eval_318/_infer_shards/ppb_pred_tsr_ckpt<STEP>.jsonl \
+  --out_dir ppb_out/e19_tsr200_ckpt<STEP> \
+  --base_url https://genos.genon.ai/api/gateway/rep/serving/776/v1 \
+  --api_key "$KEY" --model model --max_workers 4
+# 결과: ppb_out/e19_tsr200_ckpt<STEP>/{tables.json, llm_vs_teds.csv}
+
+
+================================================================================
+ 산출물 경로 요약 (체크포인트별, <STEP> = 200/500/1850/2400/3550/4150)
+================================================================================
+dp500 예측    : /home/jhyeo/finetuning/vlm/eval_results/sweep_dp500_ckpt<STEP>/predictions_unified.jsonl
+                (4150은 eval_results/dp500_ckpt4150_merged/predictions_unified.jsonl)
+tsr200 예측   : /home/jhyeo/finetuning/vlm/eval_results/sweep_tsr200_ckpt<STEP>/predictions_unified.jsonl
+                (4150은 eval_results/tsr200_ckpt4150_html/predictions_unified.jsonl)
+dp-bench pred : .../genos500_dpbench/dp_out/e19_ckpt<STEP>/pred_dp_bench_full.json
+dp-bench 결과 : .../genos500_dpbench/dp_out/e19_ckpt<STEP>/eval_result_gitlab.txt
+LLM-Judge     : .../genos500_dpbench/ppb_out/e19_tsr200_ckpt<STEP>/
+
+공통 조건: no-thinking, chandra div-HTML(0-1000 grid), dp500=NO-OCR, tsr200=WITH-OCR

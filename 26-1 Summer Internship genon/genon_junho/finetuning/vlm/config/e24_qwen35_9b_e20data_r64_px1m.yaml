@@ -1,0 +1,136 @@
+# =============================================================================
+# E24 SFT — Qwen3.5-9B(Instruct) + combined_e24_refined 22,727 (grid 0~1000, 라벨 정제본)
+# - 베이스 config: e23_qwen35_9b_e20data_r64_px1m.yaml — **데이터만 교체**하고 모델/
+#   하이퍼파라미터/LoRA/해상도/token_weighting 은 e23 그대로 둔다(변인 1개).
+#
+# - e23 대비 바뀐 것은 학습/검증 파일 경로뿐이다:
+#     combined_e21_grid       (train 30,557 / valid 3,600 / test 2,716 = 36,873, 원본)
+#       -> combined_e24_refined (train 22,727 / valid 2,629 / test 1,964 = 27,320, 정제본)
+#
+# - combined_e24_refined 는 combined_e21_grid 를 5가지 라벨 품질 기준으로 필터링한
+#   결과다(2026-07-28, finetuning_dataset/filter_e21grid.py). 원본 대비 전체 25.9% 제거.
+#   (경로 히스토리: filter_e21grid.py 의 out_dir 은 "combined_e23_refined" 인데, 산출물
+#    디렉터리를 이후 combined_e24_refined 로 rename 했다 — 내부 filter_report.json 에는
+#    옛 이름이 메타데이터로 남아 있지만 e24 학습 데이터가 맞다. 카운트 전수 재검증 완료.)
+#
+#   제거 사유(전체 9,553건, train/valid/test 합산):
+#     uncovered_ocr(8,254)     : OCR 이 잡은 영역을 라벨 박스가 못 덮는 비율이 임계 초과.
+#                                new_63541 는 >0.05, reference_16886 은 >0.10 (소스별 상이,
+#                                new 쪽이 라벨 누락이 더 잦다는 육안 검수 결과 반영).
+#                                페이지 전면(면적>0.85)을 덮는 Picture/Page-footer 더미 박스는
+#                                이 계산 전에 먼저 제거한다(안 그러면 그 박스가 모든 OCR 을
+#                                가짜로 "덮은 것"처럼 만들어 필터를 무력화시킨다).
+#     irregular_table_shape(730): new_63541 레이아웃 페이지의 <table> 이 사각형이 아님.
+#                                rowspan 을 반영한 행별 실효 폭이 행마다 달라지면(튀어나옴
+#                                또는 좁아짐 모두) 셀 라벨링 오류로 판정.
+#     invented_ellipsis(628)   : gt_html 에 "..."/"…" 가 있는데 원본 OCR 텍스트엔 없음
+#                                (라벨이 원본에 없는 축약을 임의로 만들어낸 케이스).
+#     short_ocr(564)           : new_63541 페이지의 OCR 총 글자수 <=100 (거의 빈 페이지).
+#     tiny_table_bbox(19)      : reference_16886 표 crop(T*/nested*) 인데 Table bbox 가
+#                                페이지 조각 수준으로 작음(라벨러가 표를 못 잡은 케이스).
+#
+# - image_dir 없음: combined_e24_refined 의 image_path 도 절대경로다(e23 과 동일 성격).
+#
+# - 데이터 구성(train 22,727): reference_16886 12,306 + new_63541 10,421,
+#   unified_layout 16,944 + unified_table_with_ocr 5,783.
+#   new_63541 이 원본 대비 63% 만 남아 reference_16886(88% 잔존) 대비 더 크게 줄었다
+#   — uncovered_ocr 을 new 쪽에 더 엄격히(0.05) 적용하고, irregular_table_shape 은
+#   new 에만 적용했기 때문이다.
+#
+# - 예상 스텝: 22,727 / (1 x 8 x 3 GPU) = 947 step/epoch x 7 = 약 6,630 step.
+#   e22/e23 실측 속도(약 39s/step, 1024² 해상도, 3 GPU) 기준 약 3일. eval/save 가 50 step
+#   마다 돌고 early stopping(patience 6)이 걸려 있으니 중간에 끊어도 체크포인트는 남는다.
+#
+# - 실행:
+#   cd /home/jhyeo/finetuning/vlm
+#   CUDA_VISIBLE_DEVICES=0,2,3 NUM_GPUS=3 MASTER_PORT=29660 WANDB_MODE=online \
+#   WANDB_PROJECT="tsr_vlm_train" WANDB_ENTITY="aisearch260330-genon" \
+#   CONFIG=config/e24_qwen35_9b_e20data_r64_px1m.yaml PHASE=sft \
+#   bash distill/run_distill.sh 2>&1 | tee _run_logs/e24_$(date +%Y%m%d_%H%M%S).log
+#   ※ GPU1 은 죽은 프로세스가 75GB 를 물고 있어 제외한다(2026-07-28 기준).
+# =============================================================================
+
+student:
+  name_or_path: "/home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  output_dir: "./output/e24_qwen35_9b_e20data_r64_px1m/student_sft"
+  # ===== e23 대비 유일한 변경: 데이터셋(라벨 정제본) =====
+  train_file: "../finetuning_dataset/combined_e24_refined/train.jsonl"
+  eval_file: "../finetuning_dataset/combined_e24_refined/valid.jsonl"
+  # image_path 가 절대경로라 image_dir 불필요(e22/e23 와 동일 사유).
+
+  # ===== 아래는 e23 와 완전히 동일 =====
+  num_train_epochs: 7
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.5e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.08
+  max_seq_length: 8192
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 12288
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  max_eval_samples: 700
+
+  task_mix_sampling: false
+  span_weighted_sampling: false
+  include_thinking: false
+  annotate_empty_cells: true
+  empty_cell_token: "__EMPTY__"
+  single_quote_html_attrs: false
+  strip_ocr_score: true
+
+  train_ocr_mix_ratio: 0.5
+  train_ocr_mix_seed: 20260320
+
+  # 해상도: e22/e23 와 동일(1024²). dp500 실측에서 bbox 평행이동을 잡은 핵심 설정이라 유지한다.
+  max_pixels: 1048576
+  min_pixels: 65536
+
+  # bbox 좌표 토큰 loss 가중치: e22/e23 와 동일하게 3.0 유지.
+  token_weighting:
+    enabled: true
+    span_attribute_weight: 1.0
+    bbox_weight: 3.0
+
+  use_lora: true
+  quantization:
+    load_in_4bit: false
+  lora_r: 64
+  lora_alpha: 256       # scaling(alpha/r) = 4.0 — e22/e23 와 동일하게 유지
+  lora_dropout: 0.15
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  report_to: "wandb"
+  run_name: "e24_qwen35_9b_e20data_r64_px1m"
+  logging_steps: 50
+  save_steps: 50
+  save_total_limit: null
+  eval_steps: 50
+  early_stopping:
+    enabled: true
+    patience: 6
+    threshold: 0.0003
+    metric: "eval_loss"
+    greater_is_better: false

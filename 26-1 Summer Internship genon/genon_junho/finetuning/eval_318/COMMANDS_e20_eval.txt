@@ -1,0 +1,210 @@
+================================================================================
+ e20 (Qwen3.5-9B, combined_e20 36,873, 픽셀좌표 + bbox_weight=5.0) 평가 명령어
+ - e19 파이프라인(COMMANDS_e19_eval.txt) 그대로, ★표시 2군데만 e20용으로 변경.
+ - 평가 체크포인트 6개: step 200 / 500 / 1000 / 3700 / 3800 / 4000
+   (초반 3 = e19에서 bbox 좋던 구간 / eval최적 3 = 수렴 구간)
+ - dp500(문서 500장) + tsr200(표 crop 200장) 추론 → dp-bench / LLM-Judge
+
+ ★ e19 대비 핵심 차이 (e20는 "원본 이미지 픽셀" 좌표계):
+   ① 추론 매니페스트에 bbox_space=image_px + image_width/height 를 넣어야
+      e20가 학습한 픽셀 프롬프트("Image size WxH")가 뜬다.
+      (evaluate_unified._build_user_prompt 가 이 필드를 읽도록 패치돼 있음)
+   ② dp-bench 채점을 PRED_COORD_SPACE=image (실제 이미지 크기로 나눔)로.
+      e19의 grid+PRED_GRID=1000 이 아니다.
+================================================================================
+
+--------------------------------------------------------------------------------
+[0] 환경 / 경로 (e19와 동일 venv/데이터, 체크포인트만 e20)
+--------------------------------------------------------------------------------
+학습 체크포인트(어댑터): /home/jhyeo/finetuning/vlm/output/e20_qwen35_9b_pixel_bboxw/student_sft/checkpoint-<STEP>
+베이스 모델          : /home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B
+merge/변환용 venv    : /home/jhyeo/finetuning/vlm/.venv
+vLLM 추론용 venv     : /home/workspace/tsr_test/.venv            (vllm 0.18.1)
+dp-bench 채점용 venv : /home/jhyeo/finetuning/eval_318/_dpbench_venv
+LLM-Judge(ppb) venv  : /home/jhyeo/finetuning/eval_318/_ppb_venv
+dp500 이미지+GT      : /home/jhyeo/tsr_eval/data/500_genos_val_set/  (inference_manifest_noocr.jsonl)
+tsr200 GT/메타       : /home/jhyeo/tsr_eval/data/20260317_4_6000/data_split/test.jsonl
+
+# e20 산출물 루트(구분 위해 _e20 접미사)
+INFER_SHARDS=/home/jhyeo/finetuning/eval_318/_infer_shards_e20
+mkdir -p $INFER_SHARDS
+
+
+--------------------------------------------------------------------------------
+[1] ★ 평가 입력(매니페스트) 만들기 — 픽셀 프롬프트용 필드 추가
+--------------------------------------------------------------------------------
+# 1-1. dp500 (NO-OCR): image_path 절대경로화 + bbox_space=image_px + 실제 W/H 주입
+/home/jhyeo/finetuning/vlm/.venv/bin/python - <<'PY'
+import json
+from PIL import Image
+src="/home/jhyeo/tsr_eval/data/500_genos_val_set/inference_manifest_noocr.jsonl"
+root="/home/jhyeo/tsr_eval/data/500_genos_val_set/"
+out="/home/jhyeo/finetuning/eval_318/_infer_shards_e20/dp500_full_abs.jsonl"
+with open(src) as f, open(out,"w") as w:
+    for line in f:
+        r=json.loads(line); ip=root+r["image_path"]; r["image_path"]=ip
+        wid,hei=Image.open(ip).size
+        r["bbox_space"]="image_px"; r["image_width"]=wid; r["image_height"]=hei
+        r["bbox_scale"]=None
+        w.write(json.dumps(r,ensure_ascii=False)+"\n")
+print("dp500 ->",out)
+PY
+
+# 1-2. tsr200 (WITH-OCR): output_format=html + 절대경로 + bbox_space=image_px + W/H
+/home/jhyeo/finetuning/vlm/.venv/bin/python - <<'PY'
+import json, os
+from PIL import Image
+src="/home/jhyeo/tsr_eval/data/20260317_4_6000/data_split/test.jsonl"
+base="/home/jhyeo/tsr_eval/data/20260317_4_6000/data_split"
+out="/home/jhyeo/finetuning/eval_318/_infer_shards_e20/tsr200_html.jsonl"
+with open(src) as f, open(out,"w") as w:
+    for line in f:
+        r=json.loads(line); r["output_format"]="html"
+        ip=os.path.normpath(os.path.join(base, r["image_path"])); r["image_path"]=ip
+        wid,hei=Image.open(ip).size
+        r["bbox_space"]="image_px"; r["image_width"]=wid; r["image_height"]=hei
+        r["bbox_scale"]=None
+        w.write(json.dumps(r,ensure_ascii=False)+"\n")
+print("tsr200 ->",out)
+PY
+# 주의(minor): tsr200 은 WITH-OCR 라 ocr_info 좌표가 프롬프트에 들어가는데,
+#   원본 eval 데이터의 OCR 좌표계가 픽셀이 아닐 수 있다. TEDS(구조)·bbox IoU 주지표엔
+#   영향 미미하나, 엄밀히 맞추려면 ocr_info bbox 도 픽셀로 변환 필요. 우선 그대로 진행.
+
+
+--------------------------------------------------------------------------------
+[2] LoRA 어댑터 → 통짜 모델 merge  (vLLM 0.18.1 LoRA 런타임로딩 버그 회피)
+--------------------------------------------------------------------------------
+# <STEP> 를 200/500/1000/3700/3800/4000 각각에 대해 반복. (merged 는 추론 후 삭제 가능)
+CUDA_VISIBLE_DEVICES=0 /home/jhyeo/finetuning/vlm/.venv/bin/python - <<'PY'
+import os, torch
+from peft import PeftModel
+from transformers import AutoModelForImageTextToText, AutoProcessor
+STEP="<STEP>"
+base="/home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B"
+adapter=f"/home/jhyeo/finetuning/vlm/output/e20_qwen35_9b_pixel_bboxw/student_sft/checkpoint-{STEP}"
+out=f"/home/jhyeo/finetuning/vlm/output/e20_qwen35_9b_pixel_bboxw/_sweep_merged/ckpt-{STEP}"
+m=AutoModelForImageTextToText.from_pretrained(base,torch_dtype=torch.bfloat16,trust_remote_code=True,device_map="auto")
+m=PeftModel.from_pretrained(m,adapter).merge_and_unload()
+os.makedirs(out,exist_ok=True); m.save_pretrained(out)
+AutoProcessor.from_pretrained(base,trust_remote_code=True).save_pretrained(out)
+print("MERGED:",out)
+PY
+
+
+--------------------------------------------------------------------------------
+[3] 추론 (vLLM, no-thinking, chandra div-HTML)  ※ <STEP> 반복
+--------------------------------------------------------------------------------
+cd /home/jhyeo/finetuning/vlm
+MERGED=output/e20_qwen35_9b_pixel_bboxw/_sweep_merged/ckpt-<STEP>
+INFER=/home/workspace/tsr_test/.venv/bin/python
+SH=/home/jhyeo/finetuning/eval_318/_infer_shards_e20
+
+# 3-1. dp500 추론
+CUDA_VISIBLE_DEVICES=0 $INFER -m eval.evaluate_unified --backend vllm \
+  --test_data $SH/dp500_full_abs.jsonl \
+  --output_dir eval_results/e20_sweep_dp500_ckpt<STEP> \
+  --model $MERGED --max_model_len 16384 --batch_size 16 --no-thinking
+
+# 3-2. tsr200 추론 (TEDS 자동계산)
+CUDA_VISIBLE_DEVICES=0 $INFER -m eval.evaluate_unified --backend vllm \
+  --test_data $SH/tsr200_html.jsonl \
+  --output_dir eval_results/e20_sweep_tsr200_ckpt<STEP> \
+  --model $MERGED --max_model_len 16384 --batch_size 16 --no-thinking
+
+# (병렬: GPU 0/2/3 에 체크포인트를 나눠 배정. 아래 [7] 워커 루프 참고)
+
+
+--------------------------------------------------------------------------------
+[4] dp500 → dp-bench prediction 변환  ※ <STEP> 반복
+--------------------------------------------------------------------------------
+DPB=/home/jhyeo/finetuning/eval_318/tsr_test_eval/genos500_dpbench
+/home/jhyeo/finetuning/vlm/.venv/bin/python \
+  $DPB/scripts/prepare/convert_qwen_pred_to_dpbench.py \
+  --input  /home/jhyeo/finetuning/vlm/eval_results/e20_sweep_dp500_ckpt<STEP>/predictions_unified.jsonl \
+  --output $DPB/dp_out/e20_ckpt<STEP>/pred_dp_bench_full.json
+
+
+--------------------------------------------------------------------------------
+[5] ★ dp500 dp-bench 채점 — PRED_COORD_SPACE=image (픽셀)
+--------------------------------------------------------------------------------
+DPB=/home/jhyeo/finetuning/eval_318/tsr_test_eval/genos500_dpbench
+cd $DPB
+ln -sfn /home/jhyeo/tsr_eval/data/500_genos_val_set/images genos-500-set/qwen_infer_images
+
+MODEL=e20_ckpt<STEP> OUT_ROOT=dp_out \
+PYTHON=/home/jhyeo/finetuning/eval_318/_dpbench_venv/bin/python \
+GT_COORD_SPACE=image PRED_COORD_SPACE=image \
+NID_CONVERT_TABLE_TEXT=false TABLE_MATCH_MODE=bbox \
+TABLE_BBOX_UNMATCHED_GTS="zero skip" \
+bash scripts/run_eval_genos500.sh
+# 결과: dp_out/e20_ckpt<STEP>/eval_result_gitlab.txt  (NID, TEDS zero/skip, matched/GT, extra_pred)
+# ※ PRED_GRID 불필요(image 좌표계는 --images_dir 의 실제 이미지 크기로 나눔).
+
+
+--------------------------------------------------------------------------------
+[6] tsr200 LLM-Judge (GenOS 서빙 776)  ※ <STEP> 반복
+--------------------------------------------------------------------------------
+SH=/home/jhyeo/finetuning/eval_318/_infer_shards_e20
+python3 /home/jhyeo/finetuning/eval_318/_infer_shards/conv_tsr_for_ppb.py \
+  /home/jhyeo/finetuning/vlm/eval_results/e20_sweep_tsr200_ckpt<STEP>/predictions_unified.jsonl \
+  $SH/tsr200_html.jsonl \
+  $SH/ppb_pred_tsr_ckpt<STEP>.jsonl
+
+DPB=/home/jhyeo/finetuning/eval_318/tsr_test_eval/genos500_dpbench
+KEY=$(grep -i genos_key /home/jhyeo/finetuning/eval_318/tsr_test_eval/.env | head -1 | cut -d= -f2 | tr -d ' "')
+cd $DPB
+/home/jhyeo/finetuning/eval_318/_ppb_venv/bin/python pdfparsebench/run_ppb_tsr.py \
+  --predictions $SH/ppb_pred_tsr_ckpt<STEP>.jsonl \
+  --out_dir ppb_out/e20_tsr200_ckpt<STEP> \
+  --base_url https://genos.genon.ai/api/gateway/rep/serving/776/v1 \
+  --api_key "$KEY" --model model --max_workers 4
+
+
+--------------------------------------------------------------------------------
+[7] (참고) GPU 0/2/3 병렬 워커 — [2]+[3] 을 체크포인트별로 나눠 실행
+--------------------------------------------------------------------------------
+# 예: GPU0=200,3700 / GPU2=500,3800 / GPU3=1000,4000
+# 아래를 3개 tmux 창(또는 &)으로 GPU 만 바꿔 실행. merge→dp500→tsr200 순서.
+run_ckpts() {  # $1=gpu  $2..=steps
+  local gpu=$1; shift
+  cd /home/jhyeo/finetuning/vlm
+  for STEP in "$@"; do
+    CUDA_VISIBLE_DEVICES=$gpu /home/jhyeo/finetuning/vlm/.venv/bin/python - "$STEP" <<'PY'
+import os,sys,torch
+from peft import PeftModel
+from transformers import AutoModelForImageTextToText, AutoProcessor
+STEP=sys.argv[1]; base="/home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B"
+ad=f"/home/jhyeo/finetuning/vlm/output/e20_qwen35_9b_pixel_bboxw/student_sft/checkpoint-{STEP}"
+out=f"/home/jhyeo/finetuning/vlm/output/e20_qwen35_9b_pixel_bboxw/_sweep_merged/ckpt-{STEP}"
+m=AutoModelForImageTextToText.from_pretrained(base,torch_dtype=torch.bfloat16,trust_remote_code=True,device_map="auto")
+PeftModel.from_pretrained(m,ad).merge_and_unload().save_pretrained(out)
+AutoProcessor.from_pretrained(base,trust_remote_code=True).save_pretrained(out); print("MERGED",out)
+PY
+    MERGED=output/e20_qwen35_9b_pixel_bboxw/_sweep_merged/ckpt-$STEP
+    INFER=/home/workspace/tsr_test/.venv/bin/python
+    SH=/home/jhyeo/finetuning/eval_318/_infer_shards_e20
+    CUDA_VISIBLE_DEVICES=$gpu $INFER -m eval.evaluate_unified --backend vllm \
+      --test_data $SH/dp500_full_abs.jsonl \
+      --output_dir eval_results/e20_sweep_dp500_ckpt$STEP \
+      --model $MERGED --max_model_len 16384 --batch_size 16 --no-thinking
+    CUDA_VISIBLE_DEVICES=$gpu $INFER -m eval.evaluate_unified --backend vllm \
+      --test_data $SH/tsr200_html.jsonl \
+      --output_dir eval_results/e20_sweep_tsr200_ckpt$STEP \
+      --model $MERGED --max_model_len 16384 --batch_size 16 --no-thinking
+  done
+}
+# tmux 3창:  run_ckpts 0 200 3700   /   run_ckpts 2 500 3800   /   run_ckpts 3 1000 4000
+# 추론 다 끝난 뒤 [4]~[6] 을 체크포인트별로 돌려 채점.
+
+
+================================================================================
+ 산출물 요약 (<STEP> = 200/500/1000/3700/3800/4000)
+================================================================================
+dp500 예측    : /home/jhyeo/finetuning/vlm/eval_results/e20_sweep_dp500_ckpt<STEP>/predictions_unified.jsonl
+tsr200 예측   : /home/jhyeo/finetuning/vlm/eval_results/e20_sweep_tsr200_ckpt<STEP>/{predictions_unified.jsonl, metrics_unified.json}
+dp-bench 결과 : .../genos500_dpbench/dp_out/e20_ckpt<STEP>/eval_result_gitlab.txt
+LLM-Judge     : .../genos500_dpbench/ppb_out/e20_tsr200_ckpt<STEP>/
+
+공통 조건: no-thinking, chandra div-HTML(★픽셀좌표), dp500=NO-OCR, tsr200=WITH-OCR
+비교 대상 : e19 동일 <STEP> 결과 (dp_out/e19_ckpt*, ppb_out/e19_tsr200_ckpt*)

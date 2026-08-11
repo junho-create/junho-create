@@ -1,0 +1,52 @@
+# 레플리카 B(GPU4-7, :8005) 전용 — replica_a.yaml 과 동일, judge_vlm/prelabel_vlm 엔드포인트만 8005.
+
+paths:
+  final_train: /NHNHOME/WORKSPACE/0426030039_A/jhshin/tsr_test/train/vlm/_train_data/chandra_table_layout_divhtml_16886
+  images:      /NHNHOME/WORKSPACE/0426030039_A/jhshin/tsr_test/train/vlm/_train_data/chandra_table_layout_divhtml_16886/images
+  layout_src:  /NHNHOME/WORKSPACE/0426030039_A/jhshin/tsr_test/train/vlm/_train_data/layout_src_9984/labeler_converter_layout_source_9984.jsonl
+  table_src:   /NHNHOME/WORKSPACE/0426030039_A/jhshin/tsr_test/train/vlm/_train_data/table_src_6902
+  work_dir:    /NHNHOME/WORKSPACE/0426030039_A/jhyeo/ocr_filter_result
+
+models:
+  target:
+    name: e24_r64_px1m_ckpt1450
+    endpoint: http://localhost:8001/v1
+  external_a:
+    name: dots.ocr
+    endpoint: http://localhost:8002/v1
+  external_b:
+    name: PaddleOCR-VL-1.6-0.9B
+    endpoint: http://localhost:8080/v1
+
+ddas:
+  weights:
+    easy: 0.1
+    medium: 1.5
+    hard: 1.0
+  alpha: 1.0
+  beta: 2.0
+  n_total: 16886
+  with_replacement: false
+  seed: 0
+
+cluster:
+  method: kmeans
+  n_clusters_page: 64
+  n_clusters_element: 32
+  taster_per_cluster: 8
+  embed_model: vit
+
+cmcv:
+  match_thresholds:
+    agree_min: 0.85
+    teds: 0.95
+    cdm: 0.95
+
+hardcase:
+  max_refine_rounds: 3
+  judge_vlm:
+    name: Qwen3.5-397B-A17B-FP8
+    endpoint: http://localhost:8005/v1
+  prelabel_vlm:
+    name: Qwen3.5-397B-A17B-FP8
+    endpoint: http://localhost:8005/v1

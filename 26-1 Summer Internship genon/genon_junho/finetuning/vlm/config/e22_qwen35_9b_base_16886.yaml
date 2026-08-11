@@ -1,0 +1,107 @@
+# =============================================================================
+# E22 SFT — Qwen3.5-9B-**Base** + 레퍼런스 16,886 (Chandra div-HTML)
+# - 베이스 config: exp_chandra_all_e18align.yaml (하이퍼파라미터 그대로 유지)
+# - 바뀐 것은 4가지뿐:
+#     (1) student.name_or_path  : Qwen3.5-9B(Instruct) -> Qwen3.5-9B-Base
+#     (2) train/eval_file       : jhshin 절대경로 -> finetuning_dataset/reference_16886
+#     (3) image_dir             : 위 데이터셋 루트(= data/ 와 images/ 의 부모)
+#     (4) output_dir / run_name : e22 네이밍
+#   batch/accum 만 이 서버 OOM 이력 때문에 추가로 조정(아래 주석 참고).
+#
+# - 데이터: reference_16886 = chandra_table_layout_divhtml_16886 원본 복사본.
+#   train 13,988 / valid 1,650 / test 1,248 (합계 16,886).
+#   jsonl 안의 image_path 가 "images/{table,layout}/xxx" 상대경로라서 image_dir 필요.
+#   images/ 는 ../../imagedata 심볼릭링크(table 8,290 / layout 9,984장).
+#
+# - 주의(Base 모델): Qwen3.5-9B-Base 는 chat_template 이 Instruct 와 **바이트 단위로
+#   동일**하고 <|im_start|>/<|im_end|> 컨트롤 토큰도 사전학습되어 있어 LoRA 만으로
+#   SFT 가능하다(공식 README 명시). 단 tokenizer_config.json 의 eos_token 이
+#   Instruct = <|im_end|>(248046) 인 반면 Base = <|endoftext|>(248044) 다.
+#   * 학습에는 영향 없음 — collator 는 <|im_end|> id 를 직접 찾아 라벨을 자르고
+#     (train/collator.py:398), 패딩은 pad_token_id(=248044, 양쪽 동일)를 쓴다.
+#     레포 어디에도 tokenizer.eos_token 을 쓰는 학습 코드는 없다.
+#   * 대신 **merge 후 서빙할 때** 머지 산출물의 tokenizer_config.json 에서
+#     eos_token 을 "<|im_end|>" 로 고쳐줘야 vLLM 이 생성을 제대로 멈춘다.
+# =============================================================================
+
+student:
+  name_or_path: "/home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B-Base"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  output_dir: "./output/e22_qwen35_9b_base_16886/student_sft"
+  train_file: "../finetuning_dataset/reference_16886/data/train.jsonl"
+  eval_file: "../finetuning_dataset/reference_16886/data/valid.jsonl"
+  # image_path 가 "images/layout/xxx.png" 상대경로 -> 이 루트 기준으로 해석된다.
+  image_dir: "../finetuning_dataset/reference_16886"
+
+  # ===== e18 학습 하이퍼파라미터 =====
+  # batch/accum 만 이 서버 기준으로 조정: 원본 e18align 은 batch=4/accum=2 였는데
+  # 같은 조합이 이 서버(H100 80GB)에서 CUDA OOM 이력이 있어(e19/exp_chandra_combined
+  # 주석 참고, batch=2 에서도 터짐) batch=1/accum=8 로 낮췄다. 나머지는 원본 그대로.
+  num_train_epochs: 7
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.5e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.08
+  max_seq_length: 8192
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 12288
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  max_eval_samples: 700
+
+  # 통합 파이프라인 옵션(데이터 형식 유지, 학습 동작만 e18 정렬) ----------------
+  task_mix_sampling: false
+  span_weighted_sampling: false
+  include_thinking: false
+  annotate_empty_cells: true
+  empty_cell_token: "__EMPTY__"
+  single_quote_html_attrs: false
+  strip_ocr_score: true
+
+  train_ocr_mix_ratio: 0.5
+  train_ocr_mix_seed: 20260320
+
+  max_pixels: 262144
+  min_pixels: 65536
+
+  use_lora: true
+  quantization:
+    load_in_4bit: false
+  lora_r: 128
+  lora_alpha: 256
+  lora_dropout: 0.15
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  report_to: "wandb"
+  run_name: "e22_qwen35_9b_base_16886"
+  logging_steps: 50
+  save_steps: 50
+  save_total_limit: null
+  eval_steps: 50
+  early_stopping:
+    enabled: true
+    patience: 6
+    threshold: 0.0003
+    metric: "eval_loss"
+    greater_is_better: false

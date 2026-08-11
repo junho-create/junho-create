@@ -1,0 +1,20 @@
+{
+  "train": {
+    "total": 14575,
+    "ocr_already": 6587,
+    "ocr_filled_from_html": 7932,
+    "ocr_still_missing": 56
+  },
+  "valid": {
+    "total": 1650,
+    "ocr_already": 652,
+    "ocr_filled_from_html": 993,
+    "ocr_still_missing": 5
+  },
+  "test": {
+    "total": 1248,
+    "ocr_already": 250,
+    "ocr_filled_from_html": 989,
+    "ocr_still_missing": 9
+  }
+}

@@ -1,0 +1,62 @@
+# Layout 대량 수집용 config (labeler_feat 프로젝트 루트 기준)
+# review.html Save 없이 convert.json만 자동 저장합니다.
+task: "layout"
+
+input_dir: "input/pdfs_batch"
+output_dir: "output/layout_batch"
+results_dir: "results/layout_batch"
+recursive: true
+
+pdf_loader:
+  dpi: 200
+  skip_existing_page_dumps: true
+
+converter:
+  source: "vlm"
+
+converter_vlm:
+  provider: "vllm"
+  base_url: "http://localhost:9000/v1"
+  api_key_env: "VLLM_API_KEY"
+  model: "rednote-hilab/dots.mocr"
+  max_tokens: -1
+  temperature: 0.1
+  extra_params:
+    top_p: 0.9
+
+# convert_only: dots.mocr 추론 + 렌더만 (evaluator/OpenRouter 비용 없음)
+evaluation:
+  mode: "single"
+  max_retries: 0
+
+annotation:
+  bbox_colors:
+    Text: "#3498db"
+    Title: "#e74c3c"
+    Section-header: "#c0392b"
+    Caption: "#1abc9c"
+    List-item: "#f39c12"
+    Table: "#2ecc71"
+    Picture: "#9b59b6"
+    Formula: "#e67e22"
+    Page-header: "#7f8c8d"
+    Page-footer: "#95a5a6"
+    Footnote: "#34495e"
+  line_width: 2
+  label_font_size: 12
+
+renderer:
+  browser: "chromium"
+  channel: "chrome"
+  viewport_width: 1400
+  viewport_height: 1800
+  wait_after_load_ms: 1500
+  full_page_screenshot: true
+  device_scale_factor: 2
+
+processing:
+  pipeline_mode: "convert_only"
+  parallel_workers: 16
+  skip_already_passed: false
+  retry_failed: false
+  save_intermediate: true

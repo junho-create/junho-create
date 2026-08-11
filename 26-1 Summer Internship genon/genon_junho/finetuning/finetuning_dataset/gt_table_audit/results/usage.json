@@ -1,0 +1,7 @@
+{
+  "calls": 1911,
+  "prompt_tokens": 8815921,
+  "completion_tokens": 7429078,
+  "max_completion": 82616,
+  "truncated": 27
+}

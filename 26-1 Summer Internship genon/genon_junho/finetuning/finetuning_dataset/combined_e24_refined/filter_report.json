@@ -1,0 +1,29 @@
+{
+ "thresholds": {
+  "data_dir": "combined_e21_grid",
+  "out_dir": "combined_e23_refined",
+  "splits": [
+   "train",
+   "valid",
+   "test"
+  ],
+  "tiny_area": 0.1,
+  "tiny_cover": 0.5,
+  "min_chars": 100,
+  "max_uncovered": 0.1,
+  "max_uncovered_new": 0.05,
+  "no_ellipsis_filter": false,
+  "strip_giant_area": 0.85,
+  "no_strip_giant": false,
+  "dry_run": false
+ },
+ "counts": {
+  "invented_ellipsis": 628,
+  "uncovered_ocr": 8254,
+  "tiny_table_bbox": 19,
+  "empty_after_strip": 2,
+  "short_ocr": 564,
+  "irregular_table_shape": 730
+ },
+ "removed": 9553
+}

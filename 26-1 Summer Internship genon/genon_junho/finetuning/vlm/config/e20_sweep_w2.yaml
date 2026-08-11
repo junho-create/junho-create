@@ -1,0 +1,89 @@
+# =============================================================================
+# E20 bbox-weight SWEEP (bbox_weight=2.0) — 200 step 짧은 스윕, 픽셀 좌표계
+# - e19 대비 변경점 2가지만:
+#   (1) 좌표계: 0~1000 정규화 -> 원본 이미지 픽셀 (combined_e20, 프롬프트에 WxH 명시)
+#   (2) loss: data-bbox 좌표 토큰에 bbox_weight 가중치 (tsr_test per-token weighting 차용)
+# - 스윕 목적: bbox_weight 2/3/5 중 dp500 bbox IoU 기준 최적값 선정.
+#   200 optimizer step 까지만 돌려 판정. (1 GPU, effective batch=8)
+# - 하이퍼파라미터는 e19 와 동일하게 고정(변인 최소화).
+# =============================================================================
+
+student:
+  name_or_path: "/home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  output_dir: "./output/e20_sweep_w2/student_sft"
+  train_file: "../finetuning_dataset/combined_e20/train.jsonl"
+  eval_file: "../finetuning_dataset/combined_e20/valid.jsonl"
+
+  # ===== 스윕: step 기반 조기 종료 =====
+  num_train_epochs: 7          # max_steps 가 우선하므로 상한 역할만
+  max_steps: 200
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.5e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.08
+  max_seq_length: 8192
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 12288
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  max_eval_samples: 300
+
+  task_mix_sampling: false
+  span_weighted_sampling: false
+  include_thinking: false
+  annotate_empty_cells: true
+  empty_cell_token: "__EMPTY__"
+  single_quote_html_attrs: false
+  strip_ocr_score: true
+
+  train_ocr_mix_ratio: 0.5
+  train_ocr_mix_seed: 20260320
+
+  max_pixels: 262144
+  min_pixels: 65536
+
+  # ===== e20 신규: bbox 좌표 토큰 loss 가중치 =====
+  token_weighting:
+    enabled: true
+    span_attribute_weight: 1.0   # colspan/rowspan 은 이번 실험에서 미가중
+    bbox_weight: 2.0
+
+  use_lora: true
+  quantization:
+    load_in_4bit: false
+  lora_r: 128
+  lora_alpha: 256
+  lora_dropout: 0.15
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  report_to: "wandb"
+  run_name: "e20_sweep_w2"
+  logging_steps: 10
+  save_steps: 50
+  save_total_limit: null
+  eval_steps: 50
+  # 스윕은 200 step 전부 돌려 비교해야 하므로 조기 종료 비활성화.
+  early_stopping:
+    enabled: false

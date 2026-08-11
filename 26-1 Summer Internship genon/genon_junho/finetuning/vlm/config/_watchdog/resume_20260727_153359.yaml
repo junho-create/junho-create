@@ -1,0 +1,95 @@
+# =============================================================================
+# E21 Phase 1 SFT (Qwen3.5-9B-Base, finetuning_dataset/combined_e21_grid 36873, W&B online)
+# - 목적: e20에서 확인된 두 회귀 요인(픽셀 좌표계, bbox_weight loss)을 데이터 개선분과
+#   분리하는 실험. e19 방식(0~1000 grid 좌표, token_weighting 없음)을 그대로 쓰되,
+#   데이터는 combined_e20 의 개선사항(dots.ocr 라벨 교정 + new_63541 저품질(순수텍스트
+#   ≤50자) 필터링)을 물려받아 combined_e21_grid 로 grid 좌표로 역변환한 것을 사용.
+#   (finetuning_dataset/build_e21_grid.py 참고 — image_width/height 로 산술 역변환만
+#   수행, 이미지 재오픈 없음. 픽셀 변환 자체는 e20와 동일 소스이므로 내용은 동일)
+# - base 모델 사용: 기존 e19/e20은 instruct(chat-tuned) Qwen3.5-9B를 썼는데, 이번엔
+#   Qwen3.5-9B-Base(HF: Qwen/Qwen3.5-9B-Base, instruction-tuning 안 된 순수 base)로
+#   교체. base repo에도 tokenizer_config.json에 chat_template이 동일하게 내장돼 있어
+#   (instruct의 chat_template.jinja와 바이트 수까지 동일) collator.py의
+#   apply_chat_template 경로는 코드 수정 없이 그대로 동작함 — SFT로 처음부터
+#   chat/tag 포맷과 task 를 같이 가르치는 형태가 됨.
+# - 하이퍼파라미터는 e19_qwen35_9b_37818.yaml 과 완전히 동일(변인 최소화).
+#   token_weighting 섹션 없음(e19와 동일하게 비활성).
+# - train 30,557 / valid 3,600 / test 2,716 (합계 36,873, e20과 동일 문서 구성).
+# =============================================================================
+
+student:
+  name_or_path: "/home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B-Base"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  output_dir: "./output/e21_qwen35_9b_base_grid_e20data_resume_20260727_153359/student_sft"
+  train_file: "../finetuning_dataset/combined_e21_grid/train.jsonl"
+  eval_file: "../finetuning_dataset/combined_e21_grid/valid.jsonl"
+
+  num_train_epochs: 7
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.5e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.08
+  max_seq_length: 8192
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 12288
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  max_eval_samples: 700
+
+  task_mix_sampling: false
+  span_weighted_sampling: false
+  include_thinking: false
+  annotate_empty_cells: true
+  empty_cell_token: "__EMPTY__"
+  single_quote_html_attrs: false
+  strip_ocr_score: true
+
+  train_ocr_mix_ratio: 0.5
+  train_ocr_mix_seed: 20260320
+
+  max_pixels: 262144
+  min_pixels: 65536
+
+  # token_weighting 섹션 의도적으로 생략 (e19와 동일하게 비활성 = bbox_weight 이슈 배제)
+
+  use_lora: true
+  quantization:
+    load_in_4bit: false
+  lora_r: 128
+  lora_alpha: 256
+  lora_dropout: 0.15
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  report_to: "wandb"
+  run_name: "e21_qwen35_9b_base_grid_e20data_resume_20260727_153359"
+  logging_steps: 50
+  save_steps: 50
+  save_total_limit: null
+  eval_steps: 50
+  early_stopping:
+    enabled: true
+    patience: 6
+    threshold: 0.0003
+    metric: "eval_loss"
+    greater_is_better: false

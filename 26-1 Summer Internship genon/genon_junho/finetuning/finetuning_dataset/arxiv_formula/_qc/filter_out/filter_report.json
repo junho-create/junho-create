@@ -1,0 +1,24 @@
+{
+ "thresholds": {
+  "data_dir": "arxiv_formula/_qc/filter_in",
+  "out_dir": "arxiv_formula/_qc/filter_out",
+  "splits": [
+   "train",
+   "valid",
+   "test"
+  ],
+  "tiny_area": 0.1,
+  "tiny_cover": 0.5,
+  "min_chars": 100,
+  "max_uncovered": 0.1,
+  "max_uncovered_new": 0.15,
+  "no_ellipsis_filter": true,
+  "strip_giant_area": 0.85,
+  "no_strip_giant": false,
+  "dry_run": false
+ },
+ "counts": {
+  "uncovered_ocr": 291
+ },
+ "removed": 291
+}

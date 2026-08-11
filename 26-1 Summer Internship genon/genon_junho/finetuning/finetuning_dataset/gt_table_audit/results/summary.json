@@ -1,0 +1,75 @@
+{
+  "total_pages": 5030,
+  "status": {
+    "PASS": 618,
+    "FLAG": 1038,
+    "JUDGE_ERROR": 3373,
+    "RENDER_ERROR": 1
+  },
+  "by_split": {
+    "test": {
+      "FLAG": 12,
+      "PASS": 2,
+      "JUDGE_ERROR": 442
+    },
+    "train": {
+      "PASS": 610,
+      "FLAG": 1011,
+      "JUDGE_ERROR": 2479,
+      "RENDER_ERROR": 1
+    },
+    "valid": {
+      "PASS": 6,
+      "FLAG": 15,
+      "JUDGE_ERROR": 452
+    }
+  },
+  "tables_judged": 2556,
+  "metric_avg": {
+    "table_coverage": 4.787,
+    "basic_structure": 4.664,
+    "complex_structure": 4.689,
+    "cell_correspondence": 4.709,
+    "text_accuracy": 4.625,
+    "auxiliary_visual_fidelity": 4.529
+  },
+  "table_min_score_hist": {
+    "1": 58,
+    "2": 179,
+    "3": 305,
+    "4": 565,
+    "5": 1449
+  },
+  "error_types": {
+    "layout_error": 751,
+    "text_error": 562,
+    "missing": 530,
+    "merge_error": 479,
+    "split_error": 211,
+    "extra": 149,
+    "header_error": 101,
+    "caption_note_error": 73,
+    "bbox_error": 62,
+    "numeric_error": 29,
+    "not_a_table": 19,
+    "uncertain_visibility": 13,
+    "cell_correspondence": 1
+  },
+  "static_flags": {
+    "tiny_bbox": 120,
+    "no_table_tag": 120,
+    "empty_table": 7
+  },
+  "judge_error_kinds": {
+    "api_error: InternalServerError: Error co": 2333,
+    "api_error: InternalServerError: exceeded": 490,
+    "parse_error: JSON 을 못 찾음": 455,
+    "empty_response: {'message': 'litellm.API": 42,
+    "empty_response: blank content (finish_re": 28,
+    "api_error: APITimeoutError: Request time": 11,
+    "parse_error: tables 가 배열이 아님": 6,
+    "parse_error: 최상위가 object 가 아님": 4,
+    "parse_error: tables[0].metrics 없음": 3,
+    "api_error: InternalServerError: Internal": 1
+  }
+}

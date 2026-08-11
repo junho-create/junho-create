@@ -1,0 +1,141 @@
+# =============================================================================
+# E25_PLUS Cell C — checkpoint-3900 merge 위에 TSR 합성페이지 데이터로 이어학습
+# - 목적: e25(output/e25_qwen35_9b_e20data_r64_px1m)는 tsr200(TSR 크롭) TEDS 가 step
+#   2150부터 포화됐고, 남은 문제는 레이아웃 페이지 "안에" 있는 표의 추출 정확도
+#   (dp500 TEDS-S zero 0.7370 vs tsr200 0.9017 — 같은 표인데 페이지 안에서는 실효
+#   해상도가 6.8배 낮아져서 떨어짐). checkpoint-3900(dp500 전 지표 최고, matched
+#   280/305)을 base 에 merge 하고, 그 위에 rank/LR 을 낮춘 새 LoRA 를 얹어 이어학습한다.
+# - resume_from_adapter 를 쓰지 않고 merge 를 택한 이유: distill/student_sft.py:273-284
+#   에서 resume_from_adapter 가 설정되면 PeftModel.from_pretrained(is_trainable=True)
+#   분기를 타면서 yaml 의 lora_r/lora_alpha/target_modules 를 읽는 elif use_lora: 블록
+#   (285-342)을 통째로 건너뛴다. rank(64->16)를 바꾸려면 merge 가 유일한 방법.
+# - **cell A/B 와 유일한 차이는 학습 데이터.** combined_e25plus_tsrsynth5783 을 쓴다:
+#   train 5,783행 중 절반(2,891)은 TSR 원본 그대로, 나머지 절반(2,892)은 같은 TSR
+#   크롭을 레이아웃 페이지 크기 캔버스(종횡비 0.735, 총 픽셀 1,568,000 = max_pixels 와
+#   일치)에 실측 면적비 분포([0.10,0.60] clip)로 축소 배치한 합성 이미지다. gt_html 의
+#   data-bbox·ocr_info 는 배치 사각형 기준 affine 변환만 했을 뿐 표 HTML 내용은 원본
+#   그대로 — GT 는 100% 정확한 TSR 라벨이면서 이미지 조건만 "페이지 속 작은 표"에
+#   가깝게 만든 것(finetuning_dataset/build_e25plus_tsr.py 의 build_synth 참고).
+#   unified_layout 의 Table div 는 combined_e24_table_refined 단계에서 PaddleOCR-VL 1.6
+#   추론 결과(pseudo-label)로 교체된 것이라 표 GT 로 신뢰할 수 없어(combined_e24_table_
+#   refined/CHANGES.md) 이렇게 우회했다.
+# - valid 파일은 cell A/B 와 동일한 TSR 601행(합성 없음) — 세 셀 eval_loss 를 서로
+#   비교 가능하게 하기 위함.
+# - max_pixels: 1,568,000 — cell A 와 동일(합성 캔버스 총 픽셀과도 정확히 일치시켜
+#   processor 의 smart-resize 가 추가로 축소하지 않게 함). cell A 와 LR·rank·해상도를
+#   전부 고정하고 데이터만 다르게 해서 "합성 페이지 학습"의 순수 효과를 분리한다.
+# - lora_r/alpha: 16/64 로 scaling(alpha/r)=4.0 을 e25(64/256)와 동일하게 유지해서
+#   표시 learning_rate 를 e25 와 직접 비교 가능하게 한다.
+# - learning_rate: 1.0e-5 — cell A 와 동일값(실효 갱신 스케일 4.0e-5, e25의 6.0e-5
+#   대비 0.67배). C 를 6e-6 등으로 따로 두면 해상도/데이터 효과와 LR 효과가 섞여
+#   버려서 일부러 A 와 같은 값으로 고정했다.
+# - max_seq_length: 12288 로 명시 상향(e25 의 실효값과 동일). TSR-only 데이터는
+#   auto-expand 트리거 조건(추출된 표 HTML 길이만 봄)을 만족 못해 8192 로 눌리면
+#   ocr_mix 를 포함한 전체 시퀀스의 11.6%가 뒤쪽 잘림(표 HTML 끝이 잘림) —
+#   train/monitoring.py 의 auto-expand 는 이미지·OCR 프롬프트 토큰을 안 보기 때문.
+# - max_steps: 900 로 고정(num_train_epochs 는 student_sft.py:497 에서 int() 로 내림되어
+#   소수 epoch 지정 불가 — max_steps 가 우선하므로 이걸로 제어). 5,783/8=723 step/epoch
+#   이므로 900 step ≈ 1.24 epoch. 단일 GPU eff.batch 8 기준 약 40s/step + eval 오버헤드
+#   ≈ 42s/step → 900 step ≈ 10.5시간(12시간 예산 내).
+#
+# - 실행 (tmux, GPU3):
+#   cd /home/jhyeo/finetuning/vlm
+#   source .venv/bin/activate
+#   CUDA_VISIBLE_DEVICES=3 NUM_GPUS=1 WANDB_MODE=online \
+#   WANDB_PROJECT="tsr_vlm_train" WANDB_ENTITY="aisearch260330-genon" WANDB_RUN_GROUP="e25_plus" \
+#   CONFIG=config/e25_plus_c_synth.yaml PHASE=sft \
+#   bash distill/run_distill.sh 2>&1 | tee _run_logs/e25p_c_$(date +%Y%m%d_%H%M%S).log
+#   ※ GPU1 은 다른 네임스페이스(컨테이너)에서 실제 연산 중(99% util) — 사용 불가.
+#     GPU3 는 누수 4.8GB 로 가용 ~76GB(가장 큰 셀은 아니라 배치). 실행 전 nvidia-smi 로 재확인.
+#
+# - 평가: eval_318/_infer_shards_e25/e25p_ckpt_worker.sh (e25_ckpt_worker.sh 를
+#   BASE=merged, PFX=e25pc, MAXPX=1568000 으로 파라미터화한 것) 로 dp500/tsr200 sweep.
+#   MAXPX 를 반드시 학습값(1,568,000)과 일치시킬 것 — 어긋나면 bbox 평행이동 재발.
+#   비교 기준(e25 ckpt-3900 _WITHOCR): dp500 TEDS-S(zero) 0.7370, TEDS(zero) 0.6951,
+#   NID 0.9059, matched 280/305, extra_pred 23, tsr200 TEDS 0.9017.
+# =============================================================================
+
+student:
+  name_or_path: "/home/jhyeo/ocr_file_filter/_models/Qwen3.5-9B-e25ck3900-merged"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  output_dir: "./output/e25_plus_c_synth/student_sft"
+  train_file: "../finetuning_dataset/combined_e25plus_tsrsynth5783/train.jsonl"
+  eval_file: "../finetuning_dataset/combined_e25plus_tsrsynth5783/valid.jsonl"
+  # image_path 가 절대경로라 image_dir 불필요.
+
+  max_steps: 900              # num_train_epochs 대신 사용 — int() 내림 회피
+  per_device_train_batch_size: 1
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.0e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.05           # 900 step 기준 45 step
+  max_seq_length: 12288        # e25 의 8192 에서 명시 상향 — landmine 참고(위 주석)
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 16384
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  max_eval_samples: 160
+
+  task_mix_sampling: false
+  span_weighted_sampling: false
+  include_thinking: false
+  annotate_empty_cells: true
+  empty_cell_token: "__EMPTY__"
+  single_quote_html_attrs: false
+  strip_ocr_score: true
+
+  # e25 와 동일하게 유지 — 이걸 빼면 OCR mix 가 비활성화되고 jsonl 의 prompt_style 이
+  # 그대로 쓰이는데, TSR 행은 with_ocr 로 매핑되어 100% with-OCR 학습이 되어버린다.
+  train_ocr_mix_ratio: 0.5
+  train_ocr_mix_seed: 20260320
+
+  # 해상도: e25(1,048,576)에서 1,568,000 으로 상향 — TSR 크롭 실측 56%가 기존 캡에서
+  # 축소되고 있었다(중앙값 1.11MP, p90 1.47MP). 1,568,000 이면 축소 비율 4%.
+  max_pixels: 1568000
+  min_pixels: 65536
+
+  token_weighting:
+    enabled: true
+    span_attribute_weight: 1.0
+    bbox_weight: 3.0
+
+  use_lora: true
+  quantization:
+    load_in_4bit: false
+  lora_r: 16
+  lora_alpha: 64        # scaling(alpha/r) = 4.0 — e25 와 동일 유지(LR 직접 비교용)
+  lora_dropout: 0.05    # e25 의 0.15 는 7 epoch 용 — 1.24 epoch 저LR 에는 과한 정규화
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  report_to: "wandb"
+  run_name: "e25_plus_c_synth"
+  logging_steps: 25
+  save_steps: 100
+  save_total_limit: null
+  eval_steps: 100
+  early_stopping:
+    enabled: true
+    patience: 4
+    threshold: 0.0
+    metric: "eval_loss"
+    greater_is_better: false

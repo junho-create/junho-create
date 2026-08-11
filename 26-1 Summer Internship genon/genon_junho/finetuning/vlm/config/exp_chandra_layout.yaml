@@ -1,0 +1,90 @@
+# =============================================================================
+# Unified (Table + Layout) Student SFT — JSON 출력 파이프라인 (완전 베이스 모델)
+# - exp_unified_smoke.yaml 과 동일한 JSON 파이프라인이되,
+#   베이스 모델만 e18 머지 체크포인트가 아닌 "순정 Qwen3.5-9B" 로 학습한다.
+# - HTML base 학습(exp_unified_html_base_smoke.yaml)의 JSON 짝.
+# - 데이터/출력 디렉토리를 분리해 e18-base JSON 학습과 동시에 돌릴 수 있다.
+# - SFT + LoRA 학습 방식은 동일하게 유지한다.
+# =============================================================================
+
+student:
+  # 완전 베이스(순정) Qwen3.5-9B — e18 사전학습이 들어가지 않은 원본
+  name_or_path: "/NHNHOME/WORKSPACE/0426030039_A/shkim/models/Qwen3.5-9B"
+  torch_dtype: "bfloat16"
+  attn_implementation: "sdpa"
+
+student_sft:
+  # 베이스 모델 JSON 학습 결과는 별도 디렉토리에 보존(e18-base 결과와 분리)
+  output_dir: "./output/chandra_layout_20260622/student_sft"
+  # 레이아웃에도 ocr_info 를 주입한 통합 JSON 데이터셋(50/50 OCR mix 대상).
+  # OCR 통합 데이터셋의 images/ 디렉토리를 사용한다.
+  train_file: "./_train_data/chandra_table_layout_divhtml_16886/data/train_layout.jsonl"
+  eval_file: "./_train_data/chandra_table_layout_divhtml_16886/data/valid_layout.jsonl"
+  image_dir: "./_train_data/chandra_table_layout_divhtml_16886"
+
+  num_train_epochs: 3
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 1
+  gradient_accumulation_steps: 4
+  learning_rate: 1.5e-5
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.08
+  max_seq_length: 8192
+  truncate_to_assistant: false
+  auto_expand_max_seq_length: true
+  max_seq_length_cap: 12288
+  long_table_context_margin_tokens: 512
+  bf16: true
+  tf32: false
+  gradient_checkpointing: true
+  auto_find_batch_size: false
+  optim: "adamw_torch_fused"
+  dataloader_num_workers: 4
+  dataloader_pin_memory: true
+  max_eval_samples: 300
+
+  # 통합 학습 핵심 옵션 -------------------------------------------------------
+  task_mix_sampling: false
+  span_weighted_sampling: false
+  include_thinking: false
+  annotate_empty_cells: false
+  # 표 HTML 속성을 작은따옴표로 정규화해 JSON 내 \" escape 를 제거(따옴표 깨짐 파싱 실패 완화).
+  single_quote_html_attrs: true
+  strip_ocr_score: true
+
+  # 랜덤 OCR 프롬프트 mix (html_base 와 동일 방식): 샘플 단위로 절반은 OCR 프롬프트
+  # (chandra_with_ocr), 절반은 OCR 미사용(chandra_no_ocr). 테이블/레이아웃 구분(task_type)
+  # 없이 전체에 적용되며, OCR 정보가 없는 샘플은 자동으로 no_ocr 로 처리된다.
+  train_ocr_mix_ratio: 0.5
+  train_ocr_mix_seed: 20260616
+
+  max_pixels: 1048576
+  min_pixels: 65536
+
+  use_lora: true
+  lora_r: 128
+  lora_alpha: 256
+  lora_dropout: 0.15
+  lora_bias: "none"
+  lora_task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+  report_to: "wandb"
+  run_name: "chandra_layout_20260622"
+  logging_steps: 20
+  save_steps: 100
+  save_total_limit: 3
+  eval_steps: 100
+  early_stopping:
+    enabled: true
+    patience: 6
+    threshold: 0.0003
+    metric: "eval_loss"
+    greater_is_better: false
