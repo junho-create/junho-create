@@ -1,0 +1,18 @@
+{
+  "self_serving": {
+    "url": "http://192.168.75.173:8010/v1/chat/completions",
+    "model": ""
+  },
+  "local": {
+    "url": "http://127.0.0.1:8000/v1/chat/completions",
+    "model": ""
+  },
+  "qwen3_vl_8b": {
+    "url": "https://openrouter.ai/api/v1/chat/completions",
+    "model": "qwen/qwen3-vl-8b-instruct"
+  },
+  "qwen3_vl_235b": {
+    "url": "https://openrouter.ai/api/v1/chat/completions",
+    "model": "qwen/qwen3-vl-235b-a22b-instruct"
+  }
+}
