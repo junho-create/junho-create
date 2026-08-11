@@ -24,7 +24,7 @@
 ### 2-1. 데이터셋 — `finetuning/finetuning_dataset`
 
 파인튜닝할 목록을 train/val/test로 나눠 저장. 버전별로 진행 중이며, 버전별 변화 로직은 txt로 기록.
-
+/home/jhyeo/finetuning/vlm/config 여기에서 버전 올려가며 .sh기록해서 돌리는 중.
 **데이터셋 시각화**: `/home/jhyeo/result_rendering/app.py`를 포트에 서빙해서 띄우고, json 파일의 절대경로를 붙여넣으면 bbox + html 렌더링으로 시각화해서 볼 수 있음(파인튜닝 데이터셋뿐 아니라 eval용 추론 json도 지원).
 
 > 오류가 나면 대부분 이미지 파일이 안 잡히는 경우 — 화면 제일 좌측 박스에 원본 이미지 경로를 절대경로로 붙여넣을 것.
