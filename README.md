@@ -39,8 +39,6 @@ Here are some ideas to get you started:
 #### 🔬 BISPL winter Internship ('25.12.~'26.03.)
 - **ISBI 2026 Low Concentration Reconstruction MPI Challenge**
   : Achieved **Top 5 finalist** and accepted challenge paper; contributed to experiment analysis and presentation materials for the international conference
-- **Hypothesis-Conditioned Query Rewriting for Decision-Useful Retrieval**
-  : Participated in a RAG-focused research project on hypothesis-conditioned query rewriting for improving decision-useful retrieval
   
 #### 🧠 Academic Club (DSL) Projects ('25.07.~)
 - 25_2_DSL_Medical_team_EDA.zip
