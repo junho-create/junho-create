@@ -42,15 +42,20 @@ Here are some ideas to get you started:
 - **ISBI 2026 Low Concentration Reconstruction MPI Challenge**
   : Achieved **Top 5 finalist** and accepted challenge paper; contributed to experiment analysis and presentation materials for the international conference
   
-#### 🧠 Academic Club (DSL) Projects ('25.07.~)
-- 25_2_DSL_Medical_team_EDA.zip
-  : **CGM × IOB MixedLM analysis** for insulin sensitivity ('25.07~08)
-- 25-2_DSL_Modeling_NLP2_HospitalAgent.zip
-  : **Multi-agent hospital reservation system** (LangGraph / Supabase / RAG) ('25.08~09)
-- 26-1_DSL_Semiconductor_team_EDA.zip
-  : **Semiconductor process data EDA** for analyzing process variables, anomaly patterns, and quality-related indicators
-- 26-1_DSL_Multimodal_AIAvater.zip
-  : **Multimodal AI avatar prototype** integrating LLM-based dialogue, STT, TTS, RAG, and real-time lip-sync rendering
+#### 🧠 Academic Club (DSL) Projects ('25.07.~'26.06)
+- 25-2_DSL_Medical_team_EDA
+  : **CGM × IOB MixedLM analysis** for insulin sensitivity — per-patient sensitivity estimated with **Linear Mixed Model** and **ARIMA**, quantifying the time lag of insulin/carbohydrate effects on blood glucose ('25.07~08)
+- 25-2_DSL_Modeling_NLP2_HospitalAgent
+  : **Multi-agent hospital reservation system** (LangGraph / MCP / Supabase / RAG) with a multi-turn E2E evaluation suite ('25.08~09)
+- 25-2_DSL_companyproject(DSLXLattice)
+  : **Industry project** — contract PDF information extraction pipeline (OCR + LLM hybrid) auto-extracting 11 key fields with evidence spans and confidence scores
+- 26_1_DSL_Semiconductor_EDA
+  : **LithoBench lithography mask optimization EDA** — stage-wise IoU/XOR error decomposition, FFT-based pattern frequency analysis, and ILT cost–efficiency trade-off analysis ('26.01~02)
+- 26_1_DSL_Modeling_Multimodal_AIAvatar
+  : **Multimodal AI avatar prototype** integrating LLM-based dialogue, STT, TTS, RAG, and real-time lip-sync rendering on LiveKit; evaluated with BLEURT and LLM-as-a-Judge
+- 26-1_DSL_companyproject(DSLXLGAIresearch)
+  : **Industry project** — time-series forecasting with text signals, using **DoubleAdapt**(with K-of-N Loss Function consensus logic) meta-learning for online adaptation to distribution shift
+
 
 #### 🏢 26-1 Summer Internship(genon) ('26.06. ~ 08.)
 - **Document-parsing VLM pipeline** — end-to-end data curation → fine-tuning → benchmark evaluation for a document OCR/layout model (**Qwen3.5-9B**)
