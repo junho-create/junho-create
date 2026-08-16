@@ -15,7 +15,7 @@ Here are some ideas to get you started:
 -->
 ## Hi there I'm Junho Yeo👋
 🎓 Industrial Engineering student at **Yonsei University**  
-💡 Interested in **AI Agents, Computer Vision, and Data Analysis**  
+💡 Interested in **LLM(VLM), Generative Models**  
 
 ---
 
