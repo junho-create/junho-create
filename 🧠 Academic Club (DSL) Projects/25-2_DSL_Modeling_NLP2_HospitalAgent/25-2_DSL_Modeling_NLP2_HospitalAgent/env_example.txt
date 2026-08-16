@@ -1,0 +1,34 @@
+# LangGraph Studio Environment Variables
+# Copy this file to .env and fill in your actual values
+
+# OpenAI API Key (required for LLM)
+OPENAI_API_KEY=
+
+# Supabase Configuration (optional - for database operations)
+SUPABASE_URL=https://lqtdymlqxcihmfrxacqb.supabase.co
+SUPABASE_ANON_KEY=if_you_need_this_contact_sehra
+SUPABASE_SERVICE_ROLE_KEY=if_you_need_this_contact_sehra
+
+# MCP Configuration (optional - for Model Context Protocol)
+MCP_SERVER_URL=http://localhost:3001
+MCP_API_KEY=
+
+# Tavily Search API (required for hospital info search)
+TAVILY_API_KEY=
+
+# # Other API Keys (if needed)
+# GOOGLE_API_KEY=
+# ANTHROPIC_API_KEY=
+# GROQ_API_KEY=
+
+
+LANGSMITH_TRACING=true
+LANGSMITH_ENDPOINT=https://api.smith.langchain.com
+LANGSMITH_API_KEY=
+LANGSMITH_PROJECT=
+
+SUPABASE_HOST=db.lqtdymlqxcihmfrxacqb.supabase.co
+SUPABASE_PORT=5432
+SUPABASE_DB=postgres
+SUPABASE_USER=postgres
+SUPABASE_PASSWORD=if_you_need_this_contact_sehra

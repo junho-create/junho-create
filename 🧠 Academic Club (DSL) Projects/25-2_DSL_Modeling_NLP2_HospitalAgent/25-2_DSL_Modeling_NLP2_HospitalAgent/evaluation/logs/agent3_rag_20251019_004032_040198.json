@@ -1,0 +1,63 @@
+{
+  "timestamp": "20251019_004032_040198",
+  "agent": "agent3_rag",
+  "user_input": "증상: 교통사고. 교통사고가 났어요",
+  "output": {
+    "question": "증상: 교통사고. 교통사고가 났어요",
+    "answer": "👨‍⚕️ **의료진 추천 결과**\n\n📋 **추천 진료과**: 응급의학과/E.M\n🎯 **추천 근거**: RAG 파이프라인을 통한 5명의 의료진 추천\n📊 **신뢰도**: 90.0%\n\n**추천 의료진:**\n1. **김도현/D014 의사**\n  • 전문분야: 증상-전문분야 키워드 일치/근거 문서ID sym-66\n  • 경력: 정보 없음\n  • 평점: ⭐ N/A\n\n2. **양재혁/D003 의사**\n  • 전문분야: 증상-전문분야 키워드 일치/근거 문서ID sym-66\n  • 경력: 정보 없음\n  • 평점: ⭐ N/A\n\n3. **백승하/D005 의사**\n  • 전문분야: 증상-전문분야 키워드 일치/근거 문서ID sym-66\n  • 경력: 정보 없음\n  • 평점: ⭐ N/A\n\n... 외 2명의 의료진이 더 있습니다.\n\n📅 **다음 단계**: 예약을 원하시면 의료진을 선택하고 예약 정보를 알려주세요!\n📞 **추가 문의**: 1599.0015",
+    "contexts": [],
+    "ground_truths": [
+      "응급의학과/E.M"
+    ],
+    "detailed_result": {
+      "success": true,
+      "recommended_doctors": [
+        {
+          "name": "김도현/D014",
+          "department": "응급의학과/E.M",
+          "reasoning": "증상-전문분야 키워드 일치/근거 문서ID sym-66",
+          "symptoms": [
+            "교통사고"
+          ]
+        },
+        {
+          "name": "양재혁/D003",
+          "department": "정형외과/O.P",
+          "reasoning": "증상-전문분야 키워드 일치/근거 문서ID sym-66",
+          "symptoms": [
+            "교통사고"
+          ]
+        },
+        {
+          "name": "백승하/D005",
+          "department": "정형외과/O.P",
+          "reasoning": "증상-전문분야 키워드 일치/근거 문서ID sym-66",
+          "symptoms": [
+            "교통사고"
+          ]
+        },
+        {
+          "name": "이상원/D002",
+          "department": "정형외과/O.P",
+          "reasoning": "증상-전문분야 키워드 일치/근거 문서ID sym-66",
+          "symptoms": [
+            "교통사고"
+          ]
+        },
+        {
+          "name": "정고운/D013",
+          "department": "마취통증의학과/A.P",
+          "reasoning": "증상-전문분야 키워드 일치/근거 문서ID sym-66",
+          "symptoms": [
+            "교통사고"
+          ]
+        }
+      ],
+      "department": "응급의학과/E.M",
+      "confidence": 0.9,
+      "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+      "source": "RAG 파이프라인",
+      "contexts": []
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "timestamp": "20251014_230443_427914",
+  "agent": "agent1_manager",
+  "user_input": "급성 통증이 심해서 응급실에 가야 할 것 같아요",
+  "output": {
+    "success": true,
+    "recommended_doctors": [
+      {
+        "name": "응급의학센터 전문의",
+        "department": "응급의학센터",
+        "reasoning": "응급의학과 전문의 상주, 24시간 응급진료 서비스 제공(문서ID:sym-66)",
+        "symptoms": [
+          "급성 통증",
+          "응급 상황"
+        ]
+      },
+      {
+        "name": "정고운/D013",
+        "department": "마취통증의학과/A.P",
+        "reasoning": "마취·통증치료 전문, 급성 통증 치료 가능(문서ID:team-12)",
+        "symptoms": [
+          "급성 통증"
+        ]
+      }
+    ],
+    "department": "응급의학센터",
+    "confidence": 0.9,
+    "reasoning": "RAG 파이프라인을 통한 2명의 의료진 추천",
+    "source": "RAG 파이프라인",
+    "routing_info": {
+      "target": "agent3_rag",
+      "target_agent": "agent3_rag",
+      "action": "recommend_doctors",
+      "intent": "symptom_doctor"
+    },
+    "primary_intent": "symptom_doctor",
+    "extracted_info": {
+      "symptoms": [
+        "급성 통증"
+      ]
+    }
+  }
+}

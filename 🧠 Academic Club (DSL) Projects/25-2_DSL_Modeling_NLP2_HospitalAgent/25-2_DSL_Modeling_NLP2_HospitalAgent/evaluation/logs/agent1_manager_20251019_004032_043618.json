@@ -1,0 +1,67 @@
+{
+  "timestamp": "20251019_004032_043618",
+  "agent": "agent1_manager",
+  "user_input": "교통사고가 났어요",
+  "output": {
+    "success": true,
+    "recommended_doctors": [
+      {
+        "name": "김도현/D014",
+        "department": "응급의학과/E.M",
+        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID sym-66",
+        "symptoms": [
+          "교통사고"
+        ]
+      },
+      {
+        "name": "양재혁/D003",
+        "department": "정형외과/O.P",
+        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID sym-66",
+        "symptoms": [
+          "교통사고"
+        ]
+      },
+      {
+        "name": "백승하/D005",
+        "department": "정형외과/O.P",
+        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID sym-66",
+        "symptoms": [
+          "교통사고"
+        ]
+      },
+      {
+        "name": "이상원/D002",
+        "department": "정형외과/O.P",
+        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID sym-66",
+        "symptoms": [
+          "교통사고"
+        ]
+      },
+      {
+        "name": "정고운/D013",
+        "department": "마취통증의학과/A.P",
+        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID sym-66",
+        "symptoms": [
+          "교통사고"
+        ]
+      }
+    ],
+    "department": "응급의학과/E.M",
+    "confidence": 0.9,
+    "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+    "source": "RAG 파이프라인",
+    "contexts": [],
+    "routing_info": {
+      "target": "agent3_rag",
+      "target_agent": "agent3_rag",
+      "action": "recommend_doctors",
+      "intent": "symptom_doctor"
+    },
+    "primary_intent": "symptom_doctor",
+    "extracted_info": {
+      "symptoms": [
+        "교통사고"
+      ]
+    }
+  }
+}

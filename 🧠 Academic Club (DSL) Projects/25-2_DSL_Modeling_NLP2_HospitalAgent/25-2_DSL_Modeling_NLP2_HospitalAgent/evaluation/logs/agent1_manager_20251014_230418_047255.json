@@ -1,0 +1,70 @@
+{
+  "timestamp": "20251014_230418_047255",
+  "agent": "agent1_manager",
+  "user_input": "이름은 이민호, 전화번호는 010-9876-5432",
+  "output": {
+    "success": false,
+    "status": "need_doctor_selection",
+    "collected_info": {
+      "symptoms": [
+        "두통",
+        "어지럼증"
+      ],
+      "preferred_date": "2025-10-15",
+      "preferred_time": "",
+      "preferred_doctor": "",
+      "schedule_preference": "최대한 빨리",
+      "notes": [],
+      "환자명": "이민호",
+      "전화번호": "010-9876-5432",
+      "성별": "",
+      "recommended_department": "신경과",
+      "recommended_doctors": [
+        {
+          "name": "우연선",
+          "department": "신경과",
+          "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-6",
+          "symptoms": [
+            "두통",
+            "어지럼증"
+          ]
+        },
+        {
+          "name": "오재인",
+          "department": "신경외과",
+          "reasoning": "어지럼증 관련 신경외과 전문분야/근거 문서ID team-5",
+          "symptoms": [
+            "두통",
+            "어지럼증"
+          ]
+        },
+        {
+          "name": "정고운",
+          "department": "마취통증의학과",
+          "reasoning": "통증치료 전문분야 연관/근거 문서ID team-12",
+          "symptoms": [
+            "두통",
+            "어지럼증"
+          ]
+        }
+      ],
+      "rag_confidence": 0.8
+    },
+    "message": "👨‍⚕️ **추천 의료진을 선택해주세요:**\n\n1. **우연선** (신경과)\n   💡 증상-전문분야 키워드 일치\n\n2. **오재인** (신경외과)\n   💡 어지럼증 관련 신경외과 전문분야\n\n3. **정고운** (마취통증의학과)\n   💡 통증치료 전문분야 연관\n\n**원하시는 의료진 번호를 선택해주세요** (예: 1번, 2번 등)",
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    },
+    "primary_intent": "reservation",
+    "confidence": 1.0,
+    "extracted_info": {
+      "action": "create",
+      "symptoms": [
+        "두통",
+        "어지럼증"
+      ]
+    }
+  }
+}

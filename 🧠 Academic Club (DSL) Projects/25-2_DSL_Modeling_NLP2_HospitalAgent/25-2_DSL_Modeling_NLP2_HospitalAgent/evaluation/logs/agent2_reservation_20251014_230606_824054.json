@@ -1,0 +1,79 @@
+{
+  "timestamp": "20251014_230606_824054",
+  "agent": "agent2_reservation",
+  "user_input": "최지훈, 010-3333-4444",
+  "output": {
+    "success": false,
+    "status": "need_doctor_selection",
+    "collected_info": {
+      "recommended_doctors": [
+        {
+          "name": "양재혁/D003",
+          "department": "정형외과",
+          "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-2",
+          "symptoms": [
+            "어깨 통증",
+            "어깨가 아파요"
+          ]
+        },
+        {
+          "name": "김재훈/D001",
+          "department": "정형외과",
+          "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-0",
+          "symptoms": [
+            "어깨 통증",
+            "어깨가 아파요"
+          ]
+        },
+        {
+          "name": "김상우/D004",
+          "department": "정형외과",
+          "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-3",
+          "symptoms": [
+            "어깨 통증",
+            "어깨가 아파요"
+          ]
+        },
+        {
+          "name": "이상원/D002",
+          "department": "정형외과",
+          "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-1",
+          "symptoms": [
+            "어깨 통증",
+            "어깨가 아파요"
+          ]
+        },
+        {
+          "name": "백승하/D005",
+          "department": "정형외과",
+          "reasoning": "진료과 일치/근거 문서ID team-4",
+          "symptoms": [
+            "어깨 통증",
+            "어깨가 아파요"
+          ]
+        }
+      ],
+      "recommended_department": "정형외과",
+      "rag_confidence": 0.9,
+      "symptoms": [
+        "어깨 통증",
+        "어깨가 아파요"
+      ],
+      "preferred_date": null,
+      "preferred_time": null,
+      "preferred_doctor": null,
+      "schedule_preference": "최대한 빨리",
+      "notes": [],
+      "환자명": "최지훈",
+      "전화번호": "010-3333-4444",
+      "성별": null
+    },
+    "message": "👨‍⚕️ **추천 의료진을 선택해주세요:**\n\n1. **양재혁** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n2. **김재훈** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n3. **김상우** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n4. **이상원** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n5. **백승하** (정형외과)\n   💡 진료과 일치\n\n**원하시는 의료진 번호를 선택해주세요** (예: 1번, 2번 등)",
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    }
+  }
+}

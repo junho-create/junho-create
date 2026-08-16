@@ -1,0 +1,23 @@
+{
+  "patient_name": "강제매핑",
+  "patient_gender": "남",
+  "phone_num": "010-3333-4444",
+  "chat_start_date": "2025-01-15 / 16:00",
+  "symptoms": [
+    "허리가 아파요",
+    "디스크 같아요",
+    "다리까지 저려요"
+  ],
+  "visit_type": "초진",
+  "preference_datetime": [
+    "2025-01-16 / 09:00-12:00",
+    "2025-01-17 / 14:00-18:00"
+  ],
+  "dept": null,
+  "doctor_name": null,
+  "other_info": [
+    "50세 남성",
+    "정명화 교수님께 진료받고 싶어요",
+    "허리 통증으로 고생중"
+  ]
+}

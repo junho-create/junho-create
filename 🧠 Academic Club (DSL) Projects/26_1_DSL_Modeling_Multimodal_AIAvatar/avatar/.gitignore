@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+secrets.env
+.DS_Store
+__pycache__
+.idea
+KMS
+.venv
+.vscode
+*.egg-info
+.pytest_cache
+.ruff_cache
+
+# 테스트: 데모 구동에 불필요 (푸시 제외)
+tests/

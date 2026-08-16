@@ -1,0 +1,25 @@
+# ============================================================
+# 침착맨 아바타 프로젝트 의존성 패키지 목록
+# Python 3.10+ 필요 (conda activate multimodal 환경 사용 권장)
+# 설치: pip install -r requirements.txt
+# ============================================================
+
+# RAG (Retrieval-Augmented Generation) 관련
+chromadb~=1.5            # 벡터 데이터베이스
+sentence-transformers==5.1.2  # 한국어 임베딩 모델 (jhgan/ko-sroberta-multitask)
+
+# LLM API
+openai==2.26.0           # OpenAI / OpenRouter API 클라이언트
+
+# 딥러닝 프레임워크 (sentence-transformers 의존)
+torch
+torchvision
+torchaudio
+transformers==4.57.6
+
+# 환경변수 관리
+python-dotenv==1.0.1
+
+# LiveKit 에이전트 (실시간 아바타 음성 파이프라인)
+livekit-agents[deepgram,elevenlabs,openai,silero,simli,turn-detector]~=1.2
+livekit-plugins-noise-cancellation~=0.2

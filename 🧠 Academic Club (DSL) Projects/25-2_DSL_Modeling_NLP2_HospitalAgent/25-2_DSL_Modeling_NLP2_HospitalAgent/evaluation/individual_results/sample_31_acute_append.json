@@ -1,0 +1,70 @@
+{
+  "test_file": "sample_31_acute_append.json",
+  "execution_time_seconds": 16.654,
+  "user_question": "증상: 우하복부 통증, 발열. 지금 바로 병원으로 가야 하나요? (응급)",
+  "final_answer": "추천 진료과: 외과 - 상세 의료진 정보 없음.",
+  "raw_rag_result": {
+    "patient_name": "고응급",
+    "patient_gender": "남",
+    "phone_num": "010-1031-0031",
+    "chat_start_date": "2025-10-18T14:00:00",
+    "symptoms": [
+      "우하복부 통증",
+      "발열"
+    ],
+    "visit_type": "응급",
+    "preference_datetime": [
+      "2025-10-18T14:00:00"
+    ],
+    "dept": "외과",
+    "doctor_name": "null",
+    "top_k_suggestions": [
+      {
+        "의료진명": null,
+        "진료과": "외과",
+        "환자의 구체적인 증상": [
+          "우하복부 통증",
+          "발열"
+        ],
+        "이유": "우하복부 통증과 발열은 외과 응급 증상으로 관련 진료과임 (근거 문서 없음, 증상 일반적 응급 상황 판단)"
+      },
+      {
+        "의료진명": null,
+        "진료과": "내과",
+        "환자의 구체적인 증상": [
+          "우하복부 통증",
+          "발열"
+        ],
+        "이유": "복통 관련 내과 진료과가 2순위로 추천됨 (관리 규칙 fallback_depts_map에 의거)"
+      },
+      {
+        "의료진명": null,
+        "진료과": null,
+        "환자의 구체적인 증상": null,
+        "이유": null
+      },
+      {
+        "의료진명": null,
+        "진료과": null,
+        "환자의 구체적인 증상": null,
+        "이유": null
+      },
+      {
+        "의료진명": null,
+        "진료과": null,
+        "환자의 구체적인 증상": null,
+        "이유": null
+      }
+    ],
+    "retrieval_evidence": [
+      "sym-59",
+      "sym-8",
+      "sym-20",
+      "sym-34",
+      "sym-10",
+      "sym-18",
+      "sym-24",
+      "sym-40"
+    ]
+  }
+}

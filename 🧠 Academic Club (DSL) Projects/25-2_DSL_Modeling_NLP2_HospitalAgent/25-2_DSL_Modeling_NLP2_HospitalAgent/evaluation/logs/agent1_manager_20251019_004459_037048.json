@@ -1,0 +1,32 @@
+{
+  "timestamp": "20251019_004459_037048",
+  "agent": "agent1_manager",
+  "user_input": "이름은 홍길동, 010-3333-2222",
+  "output": {
+    "success": false,
+    "status": "need_symptoms",
+    "collected_info": {
+      "symptoms": [],
+      "preferred_date": "2025-10-20",
+      "preferred_time": "점심 이후",
+      "preferred_doctor": null,
+      "schedule_preference": "점심 이후로 예약하고 싶어요",
+      "notes": [],
+      "환자명": "홍길동",
+      "전화번호": "010-3333-2222",
+      "성별": null
+    },
+    "message": "✅ 환자 정보가 확인되었습니다.\n\n👤 **환자 정보:**\n• 이름: 홍길동\n• 연락처: 010-3333-2222\n\n🩺 **어떤 증상으로 예약하시나요?**\n예: 무릎이 아파요, 허리가 아프고 디스크가 있어요, 두통과 어지러움이 있어요",
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    },
+    "primary_intent": "reservation",
+    "confidence": 1.0,
+    "extracted_info": {
+      "action": "create"
+    }
+  }
+}

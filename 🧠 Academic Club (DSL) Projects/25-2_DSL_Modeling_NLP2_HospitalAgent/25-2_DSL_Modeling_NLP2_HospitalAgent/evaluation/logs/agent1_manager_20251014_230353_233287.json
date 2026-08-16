@@ -1,0 +1,43 @@
+{
+  "timestamp": "20251014_230353_233287",
+  "agent": "agent1_manager",
+  "user_input": "두통과 어지럼증이 심해서 예약하고 싶어요",
+  "output": {
+    "success": false,
+    "status": "missing_info",
+    "missing_fields": [
+      "환자명",
+      "전화번호"
+    ],
+    "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+    "collected_info": {
+      "symptoms": [
+        "두통",
+        "어지럼증"
+      ],
+      "preferred_date": null,
+      "preferred_time": null,
+      "preferred_doctor": null,
+      "schedule_preference": "최대한 빨리",
+      "notes": [],
+      "환자명": null,
+      "전화번호": null,
+      "성별": null
+    },
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    },
+    "primary_intent": "reservation",
+    "confidence": 1.0,
+    "extracted_info": {
+      "action": "create",
+      "symptoms": [
+        "두통",
+        "어지럼증"
+      ]
+    }
+  }
+}

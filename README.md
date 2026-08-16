@@ -29,7 +29,7 @@ Here are some ideas to get you started:
    : Final project for “Optimization in Artificial Intelligence (25-1)”, predicting stock price trends based on historical financial data using **GARCH**, **LSTM**, and **CatBoost**
 
 #### 💼 25-2 Long-term Internship(Samsung Electronics) ('25.09. ~ 12.)
-- In progress — summary version(becasue of security reason) coming soon
+- **3 projects — code and data are not included due to company security policy** (titles only)
   → Samsung Electronics, Semiconductor Research Institute – Process Development Innovation Team (Sep – Dec 2025)
 
   => Fault prediction for photomask equipment using SPRT

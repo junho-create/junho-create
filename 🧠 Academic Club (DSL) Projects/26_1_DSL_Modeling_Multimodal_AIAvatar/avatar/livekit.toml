@@ -1,0 +1,6 @@
+[project]
+  # my-avatar 프로젝트 (Project URL의 호스트 부분 = subdomain)
+  subdomain = "my-avatar-vjswic1n"
+
+[agent]
+  id = "CA_RAYeTPyzNuuv"

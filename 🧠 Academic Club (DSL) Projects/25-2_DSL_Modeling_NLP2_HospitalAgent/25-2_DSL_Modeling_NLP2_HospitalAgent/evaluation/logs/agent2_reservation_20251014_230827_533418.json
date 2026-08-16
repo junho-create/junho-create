@@ -1,0 +1,17 @@
+{
+  "timestamp": "20251014_230827_533418",
+  "agent": "agent2_reservation",
+  "user_input": "예약 취소하고 싶어요",
+  "output": {
+    "success": true,
+    "status": "cancel_request",
+    "message": "예약 취소 기능은 준비 중입니다. 전화 상담(1599-0015)을 이용해주세요.",
+    "action": "cancel",
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    }
+  }
+}

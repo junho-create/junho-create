@@ -1,0 +1,35 @@
+{
+  "timestamp": "20251014_225650_684097",
+  "agent": "agent1_manager",
+  "user_input": "홍길동으로 예약하고 싶어요",
+  "output": {
+    "success": false,
+    "status": "missing_info",
+    "missing_fields": [
+      "전화번호"
+    ],
+    "message": "예약 정보 수집 중... 전화번호을(를) 알려주세요.",
+    "collected_info": {
+      "symptoms": [],
+      "preferred_date": null,
+      "preferred_time": null,
+      "preferred_doctor": null,
+      "schedule_preference": null,
+      "notes": [],
+      "환자명": "홍길동",
+      "전화번호": null,
+      "성별": null
+    },
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    },
+    "primary_intent": "reservation",
+    "confidence": 1.0,
+    "extracted_info": {
+      "action": "create"
+    }
+  }
+}

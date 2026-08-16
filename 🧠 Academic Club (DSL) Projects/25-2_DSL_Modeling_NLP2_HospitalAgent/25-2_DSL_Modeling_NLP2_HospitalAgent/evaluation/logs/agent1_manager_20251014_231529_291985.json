@@ -1,0 +1,36 @@
+{
+  "timestamp": "20251014_231529_291985",
+  "agent": "agent1_manager",
+  "user_input": "내일 예약 돼?",
+  "output": {
+    "success": false,
+    "status": "missing_info",
+    "missing_fields": [
+      "환자명",
+      "전화번호"
+    ],
+    "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+    "collected_info": {
+      "symptoms": [],
+      "preferred_date": "2025-10-15",
+      "preferred_time": null,
+      "preferred_doctor": null,
+      "schedule_preference": "내일",
+      "notes": [],
+      "환자명": null,
+      "전화번호": null,
+      "성별": null
+    },
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    },
+    "primary_intent": "reservation",
+    "confidence": 0.9,
+    "extracted_info": {
+      "action": "check"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "timestamp": "20251019_003803_833609",
+  "agent": "agent1_manager",
+  "user_input": "의사 누구 있어요?",
+  "output": {
+    "success": true,
+    "message": "📋 **병원 정보 검색 결과**\n\n**요약:**\nThere is no specific doctor available at this moment. If you need immediate medical help, visit the nearest clinic or hospital. Emergency services can be reached at 119.\n\n📌 **출처:** 바른마디병원 공식 웹사이트 (barunjoint.kr)\n📞 **추가 문의:** 1599.0015",
+    "routing_info": {
+      "target": "tavily_search",
+      "target_agent": "tavily_search",
+      "action": "search_hospital_general",
+      "intent": "hospital_info"
+    },
+    "primary_intent": "hospital_info",
+    "confidence": 0.9,
+    "extracted_info": {
+      "info_type": "general"
+    }
+  }
+}

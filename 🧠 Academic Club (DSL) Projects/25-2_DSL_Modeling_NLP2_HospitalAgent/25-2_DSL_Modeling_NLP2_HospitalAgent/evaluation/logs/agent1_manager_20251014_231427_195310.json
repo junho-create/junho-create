@@ -1,0 +1,71 @@
+{
+  "timestamp": "20251014_231427_195310",
+  "agent": "agent1_manager",
+  "user_input": "무릎이 아파요",
+  "output": {
+    "success": true,
+    "recommended_doctors": [
+      {
+        "name": "양재혁/D003",
+        "department": "정형외과/O.P",
+        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID: team-2",
+        "symptoms": [
+          "무릎 통증",
+          "무릎이 아파요"
+        ]
+      },
+      {
+        "name": "김재훈/D001",
+        "department": "정형외과/O.P",
+        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID: team-0",
+        "symptoms": [
+          "무릎 통증",
+          "무릎이 아파요"
+        ]
+      },
+      {
+        "name": "백승하/D005",
+        "department": "정형외과/O.P",
+        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID: team-4",
+        "symptoms": [
+          "무릎 통증",
+          "무릎이 아파요"
+        ]
+      },
+      {
+        "name": "김상우/D004",
+        "department": "정형외과/O.P",
+        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID: team-3",
+        "symptoms": [
+          "무릎 통증",
+          "무릎이 아파요"
+        ]
+      },
+      {
+        "name": "이상원/D002",
+        "department": "정형외과/O.P",
+        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID: team-1",
+        "symptoms": [
+          "무릎 통증",
+          "무릎이 아파요"
+        ]
+      }
+    ],
+    "department": "정형외과/O.P",
+    "confidence": 0.9,
+    "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+    "source": "RAG 파이프라인",
+    "routing_info": {
+      "target": "agent3_rag",
+      "target_agent": "agent3_rag",
+      "action": "recommend_doctors",
+      "intent": "symptom_doctor"
+    },
+    "primary_intent": "symptom_doctor",
+    "extracted_info": {
+      "symptoms": [
+        "무릎 통증"
+      ]
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "timestamp": "20251014_230459_761123",
+  "agent": "agent1_manager",
+  "user_input": "정수진, 010-1111-2222",
+  "output": {
+    "success": false,
+    "status": "need_symptoms",
+    "collected_info": {
+      "recommended_doctors": [
+        {
+          "name": "응급의학센터 전문의",
+          "department": "응급의학센터",
+          "reasoning": "응급의학센터는 24시간 응급진료 서비스 제공(증상-전문분야 키워드 일치/문서ID:sym-66)",
+          "symptoms": [
+            "급성 통증",
+            "응급 상황"
+          ]
+        },
+        {
+          "name": "정고운/D013",
+          "department": "마취통증의학과/A.P",
+          "reasoning": "마취통증의학과 전문의로서 급성 통증 치료 가능(문서ID:team-12)",
+          "symptoms": [
+            "급성 통증"
+          ]
+        }
+      ],
+      "recommended_department": "응급의학센터",
+      "rag_confidence": 0.7,
+      "symptoms": [],
+      "preferred_date": null,
+      "preferred_time": null,
+      "preferred_doctor": null,
+      "schedule_preference": null,
+      "notes": [],
+      "환자명": "정수진",
+      "전화번호": "010-1111-2222",
+      "성별": null
+    },
+    "message": "✅ 환자 정보가 확인되었습니다.\n\n👤 **환자 정보:**\n• 이름: 정수진\n• 연락처: 010-1111-2222\n\n🩺 **어떤 증상으로 예약하시나요?**\n예: 무릎이 아파요, 허리가 아프고 디스크가 있어요, 두통과 어지러움이 있어요",
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    },
+    "primary_intent": "reservation",
+    "confidence": 0.9,
+    "extracted_info": {
+      "action": "create"
+    }
+  }
+}

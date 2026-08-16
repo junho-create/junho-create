@@ -1,0 +1,23 @@
+priority:
+  title_order:
+  - 센터장
+  - 교수
+  - 원장
+  - 전문의
+weights:
+  내과_weight: 2.0
+  정형외과_weight: 2.5
+  피부과_weight: 1.8
+  안과_weight: 1.9
+top_k: 5
+fallback_depts_map:
+  허리통증:
+  - 정형외과
+  두통:
+  - 신경과
+  복통:
+  - 내과
+  심장질환:
+  - 순환기내과
+doctor_availability:
+  홍길동: false

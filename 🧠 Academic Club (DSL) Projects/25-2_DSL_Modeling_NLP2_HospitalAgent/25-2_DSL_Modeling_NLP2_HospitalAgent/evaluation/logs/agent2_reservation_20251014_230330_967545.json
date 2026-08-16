@@ -1,0 +1,61 @@
+{
+  "timestamp": "20251014_230330_967545",
+  "agent": "agent2_reservation",
+  "user_input": "박영희, 010-5678-9012",
+  "output": {
+    "success": false,
+    "status": "need_doctor_selection",
+    "collected_info": {
+      "symptoms": [
+        "허리 통증",
+        "디스크"
+      ],
+      "preferred_date": "2025-10-15",
+      "preferred_time": "",
+      "preferred_doctor": "",
+      "schedule_preference": "최대한 빨리",
+      "notes": [],
+      "환자명": "박영희",
+      "전화번호": "010-5678-9012",
+      "성별": "",
+      "recommended_department": "척추센터",
+      "recommended_doctors": [
+        {
+          "name": "이상원/D002",
+          "department": "정형외과/O.P",
+          "reasoning": "관절·척추·비수술치료 전문, 허리 통증 및 디스크 관련 치료 가능 (team-1)",
+          "symptoms": [
+            "허리 통증",
+            "디스크"
+          ]
+        },
+        {
+          "name": "양재혁/D003",
+          "department": "정형외과/O.P",
+          "reasoning": "무릎·인공관절·어깨·반월상연골판·관절내시경·스포츠손상 전문, 정형외과 내 디스크 관련 치료 가능 (team-2)",
+          "symptoms": [
+            "허리 통증",
+            "디스크"
+          ]
+        },
+        {
+          "name": "백승하/D005",
+          "department": "정형외과/O.P",
+          "reasoning": "발목·무릎·관절경 전문, 정형외과 내 허리 통증 관련 치료 가능 (team-4)",
+          "symptoms": [
+            "허리 통증",
+            "디스크"
+          ]
+        }
+      ],
+      "rag_confidence": 0.8
+    },
+    "message": "👨‍⚕️ **추천 의료진을 선택해주세요:**\n\n1. **이상원** (정형외과/O.P)\n   💡 관절·척추·비수술치료 전문, 허리 통증 및 디스크 관련 치료 가능 (team-1)\n\n2. **양재혁** (정형외과/O.P)\n   💡 무릎·인공관절·어깨·반월상연골판·관절내시경·스포츠손상 전문, 정형외과 내 디스크 관련 치료 가능 (team-2)\n\n3. **백승하** (정형외과/O.P)\n   💡 발목·무릎·관절경 전문, 정형외과 내 허리 통증 관련 치료 가능 (team-4)\n\n**원하시는 의료진 번호를 선택해주세요** (예: 1번, 2번 등)",
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    }
+  }
+}

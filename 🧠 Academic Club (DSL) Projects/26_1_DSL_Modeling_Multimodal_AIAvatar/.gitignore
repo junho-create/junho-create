@@ -1,0 +1,34 @@
+.env
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+rag/chroma_db_store/
+
+# ---- 아바타 데모 푸시 시 제외 (구동에 불필요) ----
+# API 키 등 민감 파일
+openai api key.txt
+**/secrets.env
+**/.env
+**/.env.local
+**/.env.*
+!**/.env.example
+
+# avatar: 가상환경, 테스트, 템플릿 내부 git, 로컬 전용
+avatar/.venv/
+avatar/.git/
+avatar/KMS/
+avatar/tests/
+avatar/__pycache__/
+avatar/.pytest_cache/
+avatar/.ruff_cache/
+avatar/*.egg-info/
+
+# agent-starter-react: 의존성, 빌드 산출물
+agent-starter-react/node_modules/
+agent-starter-react/.next/
+agent-starter-react/out/
+agent-starter-react/build/
+agent-starter-react/.pnpm-debug.log*
+agent-starter-react/npm-debug.log*
+agent-starter-react/yarn-debug.log*
+agent-starter-react/yarn-error.log*

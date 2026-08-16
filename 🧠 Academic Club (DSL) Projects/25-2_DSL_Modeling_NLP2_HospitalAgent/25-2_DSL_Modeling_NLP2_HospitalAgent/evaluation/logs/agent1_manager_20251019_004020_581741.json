@@ -1,0 +1,72 @@
+{
+  "timestamp": "20251019_004020_581741",
+  "agent": "agent1_manager",
+  "user_input": "의식이 희미해요",
+  "output": {
+    "success": true,
+    "recommended_doctors": [
+      {
+        "name": "김도현/D014",
+        "department": "응급의학과/E.M",
+        "reasoning": "응급의학 전문분야로 의식 희미 증상 관련 (근거 문서ID: team-13)",
+        "symptoms": [
+          "의식 희미",
+          "의식이 희미해요"
+        ]
+      },
+      {
+        "name": "박상민/D015",
+        "department": "응급의학과/E.M",
+        "reasoning": "응급의학 전문분야로 의식 희미 증상 관련 (근거 문서ID: team-14)",
+        "symptoms": [
+          "의식 희미",
+          "의식이 희미해요"
+        ]
+      },
+      {
+        "name": "우연선/D007",
+        "department": "신경과/N",
+        "reasoning": "신경과 전문분야로 두통, 뇌졸중, 치매 등 신경계 증상 관련 (근거 문서ID: team-6)",
+        "symptoms": [
+          "의식 희미",
+          "의식이 희미해요"
+        ]
+      },
+      {
+        "name": "정명화/D010",
+        "department": "내과/I.M",
+        "reasoning": "내과 전문분야로 건강검진 및 전신상태 평가 가능 (근거 문서ID: team-9)",
+        "symptoms": [
+          "의식 희미",
+          "의식이 희미해요"
+        ]
+      },
+      {
+        "name": "손근숙/D012",
+        "department": "마취통증의학과/A.P",
+        "reasoning": "마취통증의학과 전문분야로 통증 및 관련 증상 관리 가능 (근거 문서ID: team-11)",
+        "symptoms": [
+          "의식 희미",
+          "의식이 희미해요"
+        ]
+      }
+    ],
+    "department": "응급의학과/E.M",
+    "confidence": 0.9,
+    "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+    "source": "RAG 파이프라인",
+    "contexts": [],
+    "routing_info": {
+      "target": "agent3_rag",
+      "target_agent": "agent3_rag",
+      "action": "recommend_doctors",
+      "intent": "symptom_doctor"
+    },
+    "primary_intent": "symptom_doctor",
+    "extracted_info": {
+      "symptoms": [
+        "의식 희미"
+      ]
+    }
+  }
+}

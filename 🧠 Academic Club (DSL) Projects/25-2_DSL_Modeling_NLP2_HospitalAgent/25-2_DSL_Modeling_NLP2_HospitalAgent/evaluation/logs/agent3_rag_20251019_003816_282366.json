@@ -1,0 +1,76 @@
+{
+  "timestamp": "20251019_003816_282366",
+  "agent": "agent3_rag",
+  "user_input": "몸이 아파요",
+  "output": {
+    "success": true,
+    "recommended_doctors": [
+      {
+        "name": "신경통증클리닉 전문의",
+        "department": "뇌신경센터",
+        "reasoning": "증상-전문분야 키워드 일치, 신경통증 관련 (sym-61)",
+        "symptoms": [
+          "몸이 아프다",
+          "저림",
+          "찌릿찌릿함",
+          "시림",
+          "감각이 없다"
+        ]
+      },
+      {
+        "name": "어지럼증클리닉 전문의",
+        "department": "뇌신경센터",
+        "reasoning": "증상-전문분야 키워드 일치, 어지럼증 관련 (sym-60)",
+        "symptoms": [
+          "몸이 아프다",
+          "어지럼증",
+          "현기증",
+          "속 울렁거림"
+        ]
+      },
+      {
+        "name": "백승하/D005",
+        "department": "정형외과/O.P",
+        "reasoning": "증상-전문분야 키워드 일치, 정형외과 전문의 (team-4)",
+        "symptoms": [
+          "몸이 아프다",
+          "무릎 통증",
+          "관절 통증"
+        ]
+      },
+      {
+        "name": "이애라/D009",
+        "department": "내과/I.M",
+        "reasoning": "내과 전문분야 관련, 일반 내과 진료 (team-8)",
+        "symptoms": [
+          "몸이 아프다",
+          "소화기 문제",
+          "당뇨",
+          "고혈압"
+        ]
+      },
+      {
+        "name": "정명화/D010",
+        "department": "내과/I.M",
+        "reasoning": "내과 전문분야 관련, 일반 내과 진료 (team-9)",
+        "symptoms": [
+          "몸이 아프다",
+          "소화기 문제",
+          "당뇨",
+          "고혈압"
+        ]
+      }
+    ],
+    "department": "뇌신경센터",
+    "confidence": 0.9,
+    "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+    "source": "RAG 파이프라인",
+    "contexts": [],
+    "routing_info": {
+      "target": "agent3_rag",
+      "target_agent": "agent3_rag",
+      "action": "recommend_doctors",
+      "intent": "symptom_doctor"
+    }
+  }
+}

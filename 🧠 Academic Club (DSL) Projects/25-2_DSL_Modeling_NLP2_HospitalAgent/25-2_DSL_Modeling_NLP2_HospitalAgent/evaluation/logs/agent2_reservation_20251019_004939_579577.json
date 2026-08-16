@@ -1,0 +1,31 @@
+{
+  "timestamp": "20251019_004939_579577",
+  "agent": "agent2_reservation",
+  "user_input": "같은 시간으로 가능할까요?",
+  "output": {
+    "success": false,
+    "status": "missing_info",
+    "missing_fields": [
+      "환자명",
+      "전화번호"
+    ],
+    "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+    "collected_info": {
+      "symptoms": [],
+      "preferred_date": "",
+      "preferred_time": "",
+      "preferred_doctor": "",
+      "schedule_preference": "같은 시간으로 가능할까요?",
+      "notes": [],
+      "환자명": "",
+      "전화번호": "",
+      "성별": ""
+    },
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    }
+  }
+}

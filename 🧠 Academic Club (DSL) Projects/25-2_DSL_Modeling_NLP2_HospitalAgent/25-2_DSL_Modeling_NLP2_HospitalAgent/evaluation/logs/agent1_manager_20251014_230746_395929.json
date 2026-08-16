@@ -1,0 +1,18 @@
+{
+  "timestamp": "20251014_230746_395929",
+  "agent": "agent1_manager",
+  "user_input": "안녕하세요",
+  "output": {
+    "success": true,
+    "message": "안녕하세요! 무엇을 도와드릴까요?",
+    "routing_info": {
+      "target": "agent1_direct",
+      "target_agent": "agent1_direct",
+      "action": "handle_greeting",
+      "intent": "greeting"
+    },
+    "primary_intent": "greeting",
+    "confidence": 1.0,
+    "extracted_info": {}
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "timestamp": "20251019_003752_678328",
+  "agent": "agent1_manager",
+  "user_input": "병원 진료시간 알려주세요",
+  "output": {
+    "success": true,
+    "message": "📋 **진료시간 정보 검색 결과**\n\n**요약:**\nMost hospitals in Korea operate from 9 AM to 6 PM on weekdays. Weekends often have reduced hours. Specific hospital times may vary.\n\n📌 **출처:** 바른마디병원 공식 웹사이트 (barunjoint.kr)\n📞 **추가 문의:** 1599.0015",
+    "routing_info": {
+      "target": "tavily_search",
+      "target_agent": "tavily_search",
+      "action": "search_hospital_hours",
+      "intent": "hospital_info"
+    },
+    "primary_intent": "hospital_info",
+    "confidence": 1.0,
+    "extracted_info": {
+      "info_type": "hours"
+    }
+  }
+}

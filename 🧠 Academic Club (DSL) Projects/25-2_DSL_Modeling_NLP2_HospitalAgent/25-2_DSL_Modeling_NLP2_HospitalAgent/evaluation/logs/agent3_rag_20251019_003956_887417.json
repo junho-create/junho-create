@@ -1,0 +1,57 @@
+{
+  "timestamp": "20251019_003956_887417",
+  "agent": "agent3_rag",
+  "user_input": "숨이 막히고 가슴이 답답해요",
+  "output": {
+    "success": true,
+    "recommended_doctors": [
+      {
+        "name": "박상민/D015",
+        "department": "응급의학과/E.M",
+        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-14",
+        "symptoms": [
+          "숨이 막힘",
+          "가슴 답답"
+        ]
+      },
+      {
+        "name": "김도현/D014",
+        "department": "응급의학과/E.M",
+        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-13",
+        "symptoms": [
+          "숨이 막힘",
+          "가슴 답답"
+        ]
+      },
+      {
+        "name": "정고운/D013",
+        "department": "마취통증의학과/A.P",
+        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-12",
+        "symptoms": [
+          "숨이 막힘",
+          "가슴 답답"
+        ]
+      },
+      {
+        "name": "손근숙/D012",
+        "department": "마취통증의학과/A.P",
+        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-11",
+        "symptoms": [
+          "숨이 막힘",
+          "가슴 답답"
+        ]
+      }
+    ],
+    "department": "응급의학과/E.M",
+    "confidence": 0.9,
+    "reasoning": "RAG 파이프라인을 통한 4명의 의료진 추천",
+    "source": "RAG 파이프라인",
+    "contexts": [],
+    "routing_info": {
+      "target": "agent3_rag",
+      "target_agent": "agent3_rag",
+      "action": "recommend_doctors",
+      "intent": "symptom_doctor"
+    }
+  }
+}

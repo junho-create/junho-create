@@ -1,0 +1,12 @@
+# Secrets — never commit to this public repo
+.env
+*/.env
+**/.env
+
+# Large files over GitHub's 100MB limit
+**/lg_forecasting_bundle/panel.pkl
+
+# Local noise
+.DS_Store
+**/__pycache__/
+**/node_modules/

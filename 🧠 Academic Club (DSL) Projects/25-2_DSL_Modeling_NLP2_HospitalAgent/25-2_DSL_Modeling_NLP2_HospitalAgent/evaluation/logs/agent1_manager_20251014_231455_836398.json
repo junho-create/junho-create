@@ -1,0 +1,90 @@
+{
+  "timestamp": "20251014_231455_836398",
+  "agent": "agent1_manager",
+  "user_input": "양재혁 의사로 예약하고 싶어요",
+  "output": {
+    "success": false,
+    "status": "missing_info",
+    "missing_fields": [
+      "환자명",
+      "전화번호"
+    ],
+    "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+    "collected_info": {
+      "recommended_doctors": [
+        {
+          "name": "양재혁/D003",
+          "department": "정형외과/O.P",
+          "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-2",
+          "symptoms": [
+            "무릎 통증",
+            "무릎이 아파요"
+          ]
+        },
+        {
+          "name": "김재훈/D001",
+          "department": "정형외과/O.P",
+          "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-0",
+          "symptoms": [
+            "무릎 통증",
+            "무릎이 아파요"
+          ]
+        },
+        {
+          "name": "백승하/D005",
+          "department": "정형외과/O.P",
+          "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-4",
+          "symptoms": [
+            "무릎 통증",
+            "무릎이 아파요"
+          ]
+        },
+        {
+          "name": "김상우/D004",
+          "department": "정형외과/O.P",
+          "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-3",
+          "symptoms": [
+            "무릎 통증",
+            "무릎이 아파요"
+          ]
+        },
+        {
+          "name": "이상원/D002",
+          "department": "정형외과/O.P",
+          "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-1",
+          "symptoms": [
+            "무릎 통증",
+            "무릎이 아파요"
+          ]
+        }
+      ],
+      "recommended_department": "정형외과/O.P",
+      "rag_confidence": 0.9,
+      "symptoms": [
+        "무릎 통증"
+      ],
+      "preferred_date": "",
+      "preferred_time": "",
+      "preferred_doctor": "양재혁",
+      "schedule_preference": "",
+      "notes": [],
+      "환자명": "",
+      "전화번호": "",
+      "성별": ""
+    },
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    },
+    "primary_intent": "reservation",
+    "confidence": 1.0,
+    "extracted_info": {
+      "action": "create",
+      "symptoms": [
+        "무릎 통증"
+      ]
+    }
+  }
+}

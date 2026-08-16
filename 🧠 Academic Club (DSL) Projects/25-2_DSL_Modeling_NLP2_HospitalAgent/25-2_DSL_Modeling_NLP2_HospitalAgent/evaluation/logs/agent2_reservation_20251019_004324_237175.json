@@ -1,0 +1,31 @@
+{
+  "timestamp": "20251019_004324_237175",
+  "agent": "agent2_reservation",
+  "user_input": "이름은 김민수예요",
+  "output": {
+    "success": false,
+    "status": "missing_info",
+    "missing_fields": [
+      "전화번호"
+    ],
+    "message": "예약 정보 수집 중... 전화번호을(를) 알려주세요.",
+    "collected_info": {
+      "recommended_dept": "정형외과",
+      "symptoms": [],
+      "preferred_date": null,
+      "preferred_time": null,
+      "preferred_doctor": null,
+      "schedule_preference": null,
+      "notes": [],
+      "환자명": "김민수",
+      "전화번호": null,
+      "성별": null
+    },
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    }
+  }
+}

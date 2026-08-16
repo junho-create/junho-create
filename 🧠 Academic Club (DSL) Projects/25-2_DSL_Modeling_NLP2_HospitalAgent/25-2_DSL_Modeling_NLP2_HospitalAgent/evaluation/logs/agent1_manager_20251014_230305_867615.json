@@ -1,0 +1,43 @@
+{
+  "timestamp": "20251014_230305_867615",
+  "agent": "agent1_manager",
+  "user_input": "허리가 아프고 디스크가 있어서 예약하고 싶어요",
+  "output": {
+    "success": false,
+    "status": "missing_info",
+    "missing_fields": [
+      "환자명",
+      "전화번호"
+    ],
+    "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+    "collected_info": {
+      "symptoms": [
+        "허리 통증",
+        "디스크"
+      ],
+      "preferred_date": "",
+      "preferred_time": "",
+      "preferred_doctor": "",
+      "schedule_preference": "최대한 빨리",
+      "notes": [],
+      "환자명": "",
+      "전화번호": "",
+      "성별": ""
+    },
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    },
+    "primary_intent": "reservation",
+    "confidence": 1.0,
+    "extracted_info": {
+      "action": "create",
+      "symptoms": [
+        "허리 아픔",
+        "디스크"
+      ]
+    }
+  }
+}

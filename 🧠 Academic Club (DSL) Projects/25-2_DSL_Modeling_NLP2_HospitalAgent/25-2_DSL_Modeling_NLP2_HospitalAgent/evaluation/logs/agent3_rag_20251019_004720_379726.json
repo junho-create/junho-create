@@ -1,0 +1,71 @@
+{
+  "timestamp": "20251019_004720_379726",
+  "agent": "agent3_rag",
+  "user_input": "기침이 심하고 열도 있어요",
+  "output": {
+    "success": true,
+    "recommended_doctors": [
+      {
+        "name": "김도현/D014",
+        "department": "응급의학과/E.M",
+        "reasoning": "응급의학 전문, 기침과 열 증상 관련 (team-13)",
+        "symptoms": [
+          "기침",
+          "열",
+          "기침이 심하고 열도 있음"
+        ]
+      },
+      {
+        "name": "박상민/D015",
+        "department": "응급의학과/E.M",
+        "reasoning": "응급의학 전문, 기침과 열 증상 관련 (team-14)",
+        "symptoms": [
+          "기침",
+          "열",
+          "기침이 심하고 열도 있음"
+        ]
+      },
+      {
+        "name": "고현길/D008",
+        "department": "내과/I.M",
+        "reasoning": "내과 전문, 기침과 열 증상 관련 (team-7)",
+        "symptoms": [
+          "기침",
+          "열",
+          "기침이 심하고 열도 있음"
+        ]
+      },
+      {
+        "name": "정명화/D010",
+        "department": "내과/I.M",
+        "reasoning": "내과 전문, 기침과 열 증상 관련 (team-9)",
+        "symptoms": [
+          "기침",
+          "열",
+          "기침이 심하고 열도 있음"
+        ]
+      },
+      {
+        "name": "이애라/D009",
+        "department": "내과/I.M",
+        "reasoning": "내과 전문, 기침과 열 증상 관련 (team-8)",
+        "symptoms": [
+          "기침",
+          "열",
+          "기침이 심하고 열도 있음"
+        ]
+      }
+    ],
+    "department": "응급의학과/E.M",
+    "confidence": 0.9,
+    "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+    "source": "RAG 파이프라인",
+    "contexts": [],
+    "routing_info": {
+      "target": "agent3_rag",
+      "target_agent": "agent3_rag",
+      "action": "recommend_doctors",
+      "intent": "symptom_doctor"
+    }
+  }
+}

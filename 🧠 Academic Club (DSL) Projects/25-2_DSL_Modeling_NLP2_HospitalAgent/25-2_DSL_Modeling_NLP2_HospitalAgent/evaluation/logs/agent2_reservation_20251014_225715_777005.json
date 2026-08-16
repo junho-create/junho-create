@@ -1,0 +1,20 @@
+{
+  "timestamp": "20251014_225715_777005",
+  "agent": "agent2_reservation",
+  "user_input": "내 예약 확인해주세요",
+  "output": {
+    "success": false,
+    "status": "need_patient_info",
+    "message": "예약 확인을 위해 환자명과 전화번호를 알려주세요.",
+    "missing_fields": [
+      "환자명",
+      "전화번호"
+    ],
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "timestamp": "20251014_230634_790867",
+  "agent": "agent1_manager",
+  "user_input": "몸이 아프고 구체적으로 뭐가 아픈지 모르겠어요",
+  "output": {
+    "success": true,
+    "recommended_doctors": [
+      {
+        "name": "신경통증클리닉",
+        "department": "뇌신경센터",
+        "reasoning": "증상-전문분야 키워드 일치/신경통증클리닉/문서ID sym-61",
+        "symptoms": [
+          "몸이 아프다"
+        ]
+      },
+      {
+        "name": "어지럼증클리닉",
+        "department": "뇌신경센터",
+        "reasoning": "증상-전문분야 키워드 일치/어지럼증클리닉/문서ID sym-60",
+        "symptoms": [
+          "몸이 아프다"
+        ]
+      },
+      {
+        "name": "척추센터 허리질환",
+        "department": "척추센터",
+        "reasoning": "증상-전문분야 키워드 일치/척추측만증/문서ID sym-33",
+        "symptoms": [
+          "몸이 아프다"
+        ]
+      },
+      {
+        "name": "백승하/D005",
+        "department": "정형외과/O.P",
+        "reasoning": "증상-전문분야 키워드 일치/발목·무릎·관절경/문서ID team-4",
+        "symptoms": [
+          "몸이 아프다"
+        ]
+      },
+      {
+        "name": "이애라/D009",
+        "department": "내과/I.M",
+        "reasoning": "증상-전문분야 키워드 일치/위·대장내시경·건강검진·당뇨·고혈압·갑상선/문서ID team-8",
+        "symptoms": [
+          "몸이 아프다"
+        ]
+      }
+    ],
+    "department": "뇌신경센터",
+    "confidence": 0.9,
+    "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+    "source": "RAG 파이프라인",
+    "routing_info": {
+      "target": "agent3_rag",
+      "target_agent": "agent3_rag",
+      "action": "recommend_doctors",
+      "intent": "symptom_doctor"
+    },
+    "primary_intent": "symptom_doctor",
+    "extracted_info": {
+      "symptoms": [
+        "몸이 아프다"
+      ]
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "timestamp": "20251014_230703_138528",
+  "agent": "agent1_manager",
+  "user_input": "김영희, 010-5555-6666",
+  "output": {
+    "success": false,
+    "status": "need_schedule",
+    "collected_info": {
+      "recommended_doctors": [
+        {
+          "name": "신경통증클리닉",
+          "department": "뇌신경센터",
+          "reasoning": "증상-전문분야 키워드 일치/신경통증클리닉 관련(문서ID:sym-61)",
+          "symptoms": [
+            "몸이 아프다"
+          ]
+        },
+        {
+          "name": "어지럼증클리닉",
+          "department": "뇌신경센터",
+          "reasoning": "증상-전문분야 키워드 일치/어지럼증 관련(문서ID:sym-60)",
+          "symptoms": [
+            "몸이 아프다"
+          ]
+        },
+        {
+          "name": "백승하/D005",
+          "department": "정형외과/O.P",
+          "reasoning": "무릎·관절 관련 전문분야 연관(문서ID:team-4)",
+          "symptoms": [
+            "몸이 아프다"
+          ]
+        },
+        {
+          "name": "이애라/D009",
+          "department": "내과/I.M",
+          "reasoning": "내과 일반 증상 관련(문서ID:team-8)",
+          "symptoms": [
+            "몸이 아프다"
+          ]
+        },
+        {
+          "name": "정명화/D010",
+          "department": "내과/I.M",
+          "reasoning": "내과 일반 증상 관련(문서ID:team-9)",
+          "symptoms": [
+            "몸이 아프다"
+          ]
+        }
+      ],
+      "recommended_department": "뇌신경센터",
+      "rag_confidence": 0.9,
+      "symptoms": [
+        "몸이 아프다"
+      ],
+      "preferred_date": null,
+      "preferred_time": null,
+      "preferred_doctor": null,
+      "schedule_preference": null,
+      "notes": [],
+      "환자명": "김영희",
+      "전화번호": "010-5555-6666"
+    },
+    "message": "✅ 환자 정보와 증상이 확인되었습니다.\n\n👤 **환자 정보:**\n• 이름: 김영희\n• 연락처: 010-5555-6666\n\n🩺 **증상:** 몸이 아프다\n\n📅 **언제 예약하시겠어요?**\n예: 내일, 다음주 월요일, 10월 15일 오후 2시",
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    },
+    "primary_intent": "reservation",
+    "confidence": 0.95,
+    "extracted_info": {
+      "action": "create"
+    }
+  }
+}

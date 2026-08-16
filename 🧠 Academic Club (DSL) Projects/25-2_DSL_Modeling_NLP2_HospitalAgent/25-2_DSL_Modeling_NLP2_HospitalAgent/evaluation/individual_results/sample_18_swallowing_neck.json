@@ -1,0 +1,63 @@
+{
+  "test_file": "sample_18_swallowing_neck.json",
+  "execution_time_seconds": 12.384,
+  "user_question": "증상: 목 이물감, 침 삼키기 어려움. 밥 먹을 때도 불편함",
+  "final_answer": "추천 진료과: 신경외과/N.S. 추천 의료진: 신경외과/N.S의 오재인/D006 (이유: 목질환 관련 신경외과 전문분야 일치 (team-5))",
+  "raw_rag_result": {
+    "patient_name": "김이물",
+    "patient_gender": "여",
+    "phone_num": "010-1018-0018",
+    "chat_start_date": "2025-10-18T11:35:00",
+    "symptoms": [
+      "목 이물감",
+      "침 삼키기 어려움"
+    ],
+    "visit_type": "재진",
+    "preference_datetime": [
+      "2025-10-21T13:00:00"
+    ],
+    "dept": "신경외과/N.S",
+    "doctor_name": "오재인/D006",
+    "top_k_suggestions": [
+      {
+        "의료진명": "오재인/D006",
+        "진료과": "신경외과/N.S",
+        "환자의 구체적인 증상": [
+          "목 이물감",
+          "침 삼키기 어려움",
+          "밥 먹을 때도 불편함"
+        ],
+        "이유": "목질환 관련 신경외과 전문분야 일치 (team-5)"
+      },
+      {
+        "의료진명": null,
+        "진료과": null,
+        "환자의 구체적인 증상": null,
+        "이유": null
+      },
+      {
+        "의료진명": null,
+        "진료과": null,
+        "환자의 구체적인 증상": null,
+        "이유": null
+      },
+      {
+        "의료진명": null,
+        "진료과": null,
+        "환자의 구체적인 증상": null,
+        "이유": null
+      },
+      {
+        "의료진명": null,
+        "진료과": null,
+        "환자의 구체적인 증상": null,
+        "이유": null
+      }
+    ],
+    "retrieval_evidence": [
+      "sym-38",
+      "sym-37",
+      "team-5"
+    ]
+  }
+}

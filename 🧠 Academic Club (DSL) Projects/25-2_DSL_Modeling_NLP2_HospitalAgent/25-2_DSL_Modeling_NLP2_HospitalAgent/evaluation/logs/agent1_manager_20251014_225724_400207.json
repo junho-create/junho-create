@@ -1,0 +1,18 @@
+{
+  "timestamp": "20251014_225724_400207",
+  "agent": "agent1_manager",
+  "user_input": "안녕하세요",
+  "output": {
+    "success": true,
+    "message": "안녕하세요! 바른마디병원 AI 어시스턴트입니다. 😊",
+    "routing_info": {
+      "target": "agent1_direct",
+      "target_agent": "agent1_direct",
+      "action": "handle_greeting",
+      "intent": "greeting"
+    },
+    "primary_intent": "greeting",
+    "confidence": 1.0,
+    "extracted_info": {}
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "timestamp": "20251014_231539_253588",
+  "agent": "agent1_manager",
+  "user_input": "박 세현, 01024675848",
+  "output": {
+    "success": false,
+    "status": "need_symptoms",
+    "collected_info": {
+      "previous_intent": "reservation",
+      "symptoms": [],
+      "preferred_date": "",
+      "preferred_time": "",
+      "preferred_doctor": "",
+      "schedule_preference": "",
+      "notes": [],
+      "환자명": "박 세현",
+      "전화번호": "01024675848"
+    },
+    "message": "✅ 환자 정보가 확인되었습니다.\n\n👤 **환자 정보:**\n• 이름: 박 세현\n• 연락처: 01024675848\n\n🩺 **어떤 증상으로 예약하시나요?**\n예: 무릎이 아파요, 허리가 아프고 디스크가 있어요, 두통과 어지러움이 있어요",
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    },
+    "primary_intent": "reservation",
+    "confidence": 1.0,
+    "extracted_info": {
+      "action": "create"
+    }
+  }
+}

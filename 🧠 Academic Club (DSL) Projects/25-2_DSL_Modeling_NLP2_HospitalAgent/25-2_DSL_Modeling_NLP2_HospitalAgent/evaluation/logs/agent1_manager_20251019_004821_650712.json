@@ -1,0 +1,18 @@
+{
+  "timestamp": "20251019_004821_650712",
+  "agent": "agent1_manager",
+  "user_input": "이름은 김민지예요",
+  "output": {
+    "success": true,
+    "message": "안녕하세요! 바른마디병원을 이용해주셔서 감사합니다. 예약, 의료진 추천, 또는 병원 정보 중 어떤 것을 도와드릴까요?",
+    "routing_info": {
+      "target": "agent1_direct",
+      "target_agent": "agent1_direct",
+      "action": "handle_general",
+      "intent": "general"
+    },
+    "primary_intent": "general",
+    "confidence": 0.9,
+    "extracted_info": {}
+  }
+}

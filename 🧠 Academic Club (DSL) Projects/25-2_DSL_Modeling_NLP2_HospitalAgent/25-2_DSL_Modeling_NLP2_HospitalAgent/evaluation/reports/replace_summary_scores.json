@@ -1,0 +1,48 @@
+{
+  "meta": {
+    "input_file": "C:\\Users\\asap0\\OneDrive\\바탕 화면\\연세대학교\\25-2 DSL\\25-2_DSL_Modeling_NLP2_HospitalAgent\\evaluation\\combined_logs.json",
+    "total_samples": 71,
+    "samples_per_agent": {
+      "supervisor": 38,
+      "reservation": 24,
+      "rag": 9
+    }
+  },
+  "supervisor": {
+    "routing_accuracy": 1.0,
+    "routing_ok": 38,
+    "total": 38,
+    "coherence_llm": 4.3
+  },
+  "reservation": {
+    "form_fill_accuracy": 0.4027777777777778,
+    "form_fill_count": 24,
+    "parsing_accuracy": 1.0,
+    "parsing_total": 24
+  },
+  "rag": {
+    "ragas": {
+      "Faithfulness": 0.0,
+      "AnswerRelevancy": 0.041741640425850955,
+      "ContextRelevance": 0.0
+    },
+    "deepeval": {
+      "FaithfulnessMetric": 0.0,
+      "AnswerRelevancyMetric": 0.041741640425850955
+    }
+  },
+  "collaboration": {
+    "communication_latency_mean_sec": 16.44439165714286,
+    "tool_usage": {
+      "per_tool_counts": {
+        "tavily_search": 3
+      },
+      "per_tool_success_rate": {
+        "tavily_search": 1.0
+      },
+      "time_to_first_success_sec": {
+        "tavily_search": 21.067622
+      }
+    }
+  }
+}

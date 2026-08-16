@@ -1,0 +1,36 @@
+{
+  "timestamp": "20251019_004742_706482",
+  "agent": "agent1_manager",
+  "user_input": "이름은 이수연이에요",
+  "output": {
+    "success": false,
+    "status": "missing_info",
+    "missing_fields": [
+      "전화번호"
+    ],
+    "message": "예약 정보 수집 중... 전화번호을(를) 알려주세요.",
+    "collected_info": {
+      "recommended_dept": "내과/I.M",
+      "symptoms": [],
+      "preferred_date": null,
+      "preferred_time": null,
+      "preferred_doctor": null,
+      "schedule_preference": "최대한 빨리",
+      "notes": [],
+      "환자명": "이수연",
+      "전화번호": null,
+      "성별": null
+    },
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    },
+    "primary_intent": "reservation",
+    "confidence": 1.0,
+    "extracted_info": {
+      "action": "create"
+    }
+  }
+}

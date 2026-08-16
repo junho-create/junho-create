@@ -1,0 +1,82 @@
+{
+  "timestamp": "20251014_230237_776630",
+  "agent": "agent1_manager",
+  "user_input": "전화번호는 010-1234-5678",
+  "output": {
+    "success": false,
+    "status": "need_doctor_selection",
+    "collected_info": {
+      "symptoms": [
+        "무릎이 아파서"
+      ],
+      "preferred_date": "",
+      "preferred_time": "",
+      "preferred_doctor": "",
+      "schedule_preference": "무릎이 아파서 예약하고 싶어요",
+      "notes": [],
+      "환자명": "김철수",
+      "전화번호": "010-1234-5678",
+      "성별": "",
+      "recommended_department": "정형외과",
+      "recommended_doctors": [
+        {
+          "name": "양재혁",
+          "department": "정형외과",
+          "reasoning": "증상-전문분야 키워드 일치/무릎·인공관절·어깨·반월상연골판·관절내시경·스포츠손상/문서ID team-2",
+          "symptoms": [
+            "무릎이 아파서"
+          ]
+        },
+        {
+          "name": "이상원",
+          "department": "정형외과",
+          "reasoning": "증상-전문분야 키워드 일치/관절·척추·비수술치료/문서ID team-1",
+          "symptoms": [
+            "무릎이 아파서"
+          ]
+        },
+        {
+          "name": "백승하",
+          "department": "정형외과",
+          "reasoning": "증상-전문분야 키워드 일치/발목·무릎·관절경/문서ID team-4",
+          "symptoms": [
+            "무릎이 아파서"
+          ]
+        },
+        {
+          "name": "김재훈",
+          "department": "정형외과",
+          "reasoning": "증상-전문분야 키워드 일치/어깨·무릎·관절내시경·스포츠손상/문서ID team-0",
+          "symptoms": [
+            "무릎이 아파서"
+          ]
+        },
+        {
+          "name": "김상우",
+          "department": "정형외과",
+          "reasoning": "증상-전문분야 키워드 일치/수부 및 손목관절· 팔꿈치·어깨·무릎·수지접합 및 미세수술·관절내시경/문서ID team-3",
+          "symptoms": [
+            "무릎이 아파서"
+          ]
+        }
+      ],
+      "rag_confidence": 0.9
+    },
+    "message": "👨‍⚕️ **추천 의료진을 선택해주세요:**\n\n1. **양재혁** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n2. **이상원** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n3. **백승하** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n4. **김재훈** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n5. **김상우** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n**원하시는 의료진 번호를 선택해주세요** (예: 1번, 2번 등)",
+    "routing_info": {
+      "target": "agent2_reservation",
+      "target_agent": "agent2_reservation",
+      "action": "process_reservation_request",
+      "intent": "reservation"
+    },
+    "primary_intent": "reservation",
+    "confidence": 1.0,
+    "extracted_info": {
+      "action": "create",
+      "symptoms": [
+        "무릎이 아파서"
+      ],
+      "info_type": ""
+    }
+  }
+}

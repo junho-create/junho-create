@@ -1,0 +1,59 @@
+{
+  "meta": {
+    "input_file": "C:\\Users\\asap0\\OneDrive\\바탕 화면\\연세대학교\\25-2 DSL\\25-2_DSL_Modeling_NLP2_HospitalAgent\\evaluation\\combined_logs.json",
+    "total_samples": 71,
+    "samples_per_agent": {
+      "supervisor": 38,
+      "reservation": 24,
+      "rag": 9
+    }
+  },
+  "supervisor": {
+    "routing_accuracy": 1.0,
+    "routing_ok": 38,
+    "total": 38,
+    "coherence_llm": 3.5,
+    "coherence_samples": 10
+  },
+  "reservation": {
+    "form_fill_accuracy": 0.402778,
+    "form_fill_count": 24,
+    "parsing_accuracy": 1.0,
+    "parsing_total": 24
+  },
+  "rag": {
+    "ragas": {
+      "faithfulness": null,
+      "answer_relevancy": null,
+      "context_relevance": null
+    },
+    "deepeval": {
+      "FaithfulnessMetric": 0.0,
+      "AnswerRelevancyMetric": 0.0,
+      "samples": 18
+    },
+    "samples": 18
+  },
+  "overall": {
+    "A1 RoutingAcc": 1.0,
+    "A1 Coherence": 0.7,
+    "A2 FormFill": 0.402778,
+    "A2 Parsing": 1.0,
+    "A3 Coherence": 0.7,
+    "A3 Faith/Rel.": 0.0,
+    "Overall Coh.": 0.35,
+    "samples": {
+      "A1 RoutingAcc": 38,
+      "A1 Coherence": 10,
+      "A2 FormFill": 24,
+      "A2 Parsing": 24,
+      "A3 Coherence": 18,
+      "A3 Faith/Rel.": 18,
+      "Overall Coh.": 28
+    }
+  },
+  "collaboration": {
+    "communication_latency_mean_sec": 16.44,
+    "communication_counts": 70
+  }
+}

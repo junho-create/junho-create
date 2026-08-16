@@ -1,0 +1,7 @@
+__pycache__/
+.env
+.cursor/
+.langgraph_api/
+supabase/
+data/
+.DS_Store

@@ -1,0 +1,3386 @@
+[
+    {
+        "timestamp": "20251014_225650_684097",
+        "agent": "agent1_manager",
+        "user_input": "홍길동으로 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [],
+                "preferred_date": null,
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": null,
+                "notes": [],
+                "환자명": "홍길동",
+                "전화번호": null,
+                "성별": null
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "create"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225702_755762",
+        "agent": "agent1_manager",
+        "user_input": "어깨가 아파서 어떤 의사한테 가야 할까요?",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "양재혁/D003",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 문서ID team-2",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                },
+                {
+                    "name": "김재훈/D001",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 문서ID team-0",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                },
+                {
+                    "name": "김상우/D004",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 문서ID team-3",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                },
+                {
+                    "name": "이상원/D002",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/관절·척추·비수술치료/근거 문서ID team-1",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                },
+                {
+                    "name": "백승하/D005",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/발목·무릎·관절경 전문이나 정형외과 소속/근거 문서ID team-4",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                }
+            ],
+            "department": "정형외과",
+            "confidence": 0.95,
+            "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            },
+            "primary_intent": "symptom_doctor",
+            "extracted_info": {
+                "symptoms": [
+                    "어깨 통증"
+                ]
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225711_751719",
+        "agent": "agent1_manager",
+        "user_input": "병원 휴무일이 언제인가요?",
+        "output": {
+            "success": true,
+            "message": "📋 **휴무일 정보 검색 결과**\n\n**요약:**\n바른마디병원의 휴무일은 일요일입니다. 휴진일은 없습니다. 현재 날짜는 2025년 10월 14일이므로 오늘은 영업일입니다.\n\n**상세 정보:**\n1. **바른마디병원 - barunjoint.kr**\n   새로운 패러다임을 선도하는 ALL 바른마디병원비급여진료항목 검색 입력창검색 버튼\n   🔗 [자세히 보기](https://barunjoint.kr/hospital/list.nx?M2_IDX=37446&PAGE=6)\n\n📌 **출처:** 바른마디병원 공식 웹사이트 (barunjoint.kr)\n📞 **추가 문의:** 1599.0015\n\n📅 **현재 날짜**: 2025년 10월 14일 (화요일)\n🏥 **바른마디병원 휴무일**: 매주 월요일\n✅ **오늘은 영업일입니다**",
+            "routing_info": {
+                "target": "tavily_search",
+                "target_agent": "tavily_search",
+                "action": "search_hospital_holidays",
+                "intent": "hospital_info"
+            },
+            "primary_intent": "hospital_info",
+            "confidence": 1.0,
+            "extracted_info": {
+                "info_type": "holidays"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225715_779022",
+        "agent": "agent1_manager",
+        "user_input": "내 예약 확인해주세요",
+        "output": {
+            "success": false,
+            "status": "need_patient_info",
+            "message": "예약 확인을 위해 환자명과 전화번호를 알려주세요.",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "check"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225721_354647",
+        "agent": "agent1_manager",
+        "user_input": "예약 취소하고 싶어요",
+        "output": {
+            "success": true,
+            "status": "cancel_request",
+            "message": "예약 취소 기능은 준비 중입니다. 전화 상담(1599-0015)을 이용해주세요.",
+            "action": "cancel",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "cancel"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225724_400207",
+        "agent": "agent1_manager",
+        "user_input": "안녕하세요",
+        "output": {
+            "success": true,
+            "message": "안녕하세요! 바른마디병원 AI 어시스턴트입니다. 😊",
+            "routing_info": {
+                "target": "agent1_direct",
+                "target_agent": "agent1_direct",
+                "action": "handle_greeting",
+                "intent": "greeting"
+            },
+            "primary_intent": "greeting",
+            "confidence": 1.0,
+            "extracted_info": {}
+        }
+    },
+    {
+        "timestamp": "20251014_225730_033971",
+        "agent": "agent1_manager",
+        "user_input": "병원 운영시간이 어떻게 되나요?",
+        "output": {
+            "success": true,
+            "message": "📋 **진료시간 정보 검색 결과**\n\n**요약:**\nBarunjoint 바른마디병원 운영시간은 평일 월요일부터 금요일까지 오전 9시부터 오후 6시까지, 토요일 오전 9시부터 오후 12시까지입니다. 일요일과 공휴일은 휴무입니다.\n\n**상세 정보:**\n1. **Barunjoint 바른마디병원**\n   엘보우 수술을 받은 환자입니다 · 친구가 십자인대 수술을 받은 병원이라고 소개를 받아서 방문을 하였습니다. 군대 시절부터 아팠는데 최근에 골프를 시작하면서 너무 아파서 왔는데 역시나 수술을 하라고 하시는군요.\n   🔗 [자세히 보기](https://barunjoint.kr)\n\n📌 **출처:** 바른마디병원 공식 웹사이트 (barunjoint.kr)\n📞 **추가 문의:** 1599.0015",
+            "routing_info": {
+                "target": "tavily_search",
+                "target_agent": "tavily_search",
+                "action": "search_hospital_hours",
+                "intent": "hospital_info"
+            },
+            "primary_intent": "hospital_info",
+            "confidence": 1.0,
+            "extracted_info": {
+                "info_type": "hours"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225740_479384",
+        "agent": "agent1_manager",
+        "user_input": "김철수, 010-1234-5678로 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "need_symptoms",
+            "collected_info": {
+                "symptoms": [],
+                "preferred_date": "",
+                "preferred_time": "",
+                "preferred_doctor": "",
+                "schedule_preference": "",
+                "notes": [],
+                "환자명": "김철수",
+                "전화번호": "010-1234-5678"
+            },
+            "message": "✅ 환자 정보가 확인되었습니다.\n\n👤 **환자 정보:**\n• 이름: 김철수\n• 연락처: 010-1234-5678\n\n🩺 **어떤 증상으로 예약하시나요?**\n예: 무릎이 아파요, 허리가 아프고 디스크가 있어요, 두통과 어지러움이 있어요",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "create"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225900_443289",
+        "agent": "agent1_manager",
+        "user_input": "내일 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [],
+                "preferred_date": "2025-10-15",
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": "내일",
+                "notes": [],
+                "환자명": null,
+                "전화번호": null,
+                "성별": null
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "create"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225917_350444",
+        "agent": "agent1_manager",
+        "user_input": "무릎이 아파요",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "양재혁/D003",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-2",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "김재훈/D001",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-0",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "백승하/D005",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-4",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "김상우/D004",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-3",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "이상원/D002",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-1",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                }
+            ],
+            "department": "정형외과/O.P",
+            "confidence": 0.9,
+            "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            },
+            "primary_intent": "symptom_doctor",
+            "extracted_info": {
+                "symptoms": [
+                    "무릎 통증"
+                ]
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225935_062775",
+        "agent": "agent1_manager",
+        "user_input": "양재혁 의사로 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [],
+                "preferred_date": null,
+                "preferred_time": null,
+                "preferred_doctor": "양재혁",
+                "schedule_preference": null,
+                "notes": [],
+                "환자명": null,
+                "전화번호": null,
+                "성별": null
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "create"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230155_154991",
+        "agent": "agent1_manager",
+        "user_input": "무릎이 아파서 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [
+                    "무릎이 아파서"
+                ],
+                "preferred_date": "",
+                "preferred_time": "",
+                "preferred_doctor": "",
+                "schedule_preference": "무릎이 아파서 예약하고 싶어요",
+                "notes": [],
+                "환자명": "",
+                "전화번호": "",
+                "성별": ""
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 0.95,
+            "extracted_info": {
+                "action": "create",
+                "symptoms": [
+                    "무릎 통증"
+                ]
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230213_378388",
+        "agent": "agent1_manager",
+        "user_input": "이름은 김철수입니다",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [
+                    "무릎이 아파서"
+                ],
+                "preferred_date": "",
+                "preferred_time": "",
+                "preferred_doctor": "",
+                "schedule_preference": "무릎이 아파서 예약하고 싶어요",
+                "notes": [],
+                "환자명": "김철수",
+                "전화번호": "",
+                "성별": ""
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 0.95,
+            "extracted_info": {
+                "action": "create",
+                "symptoms": [
+                    "무릎이 아파서"
+                ]
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230237_776630",
+        "agent": "agent1_manager",
+        "user_input": "전화번호는 010-1234-5678",
+        "output": {
+            "success": false,
+            "status": "need_doctor_selection",
+            "collected_info": {
+                "symptoms": [
+                    "무릎이 아파서"
+                ],
+                "preferred_date": "",
+                "preferred_time": "",
+                "preferred_doctor": "",
+                "schedule_preference": "무릎이 아파서 예약하고 싶어요",
+                "notes": [],
+                "환자명": "김철수",
+                "전화번호": "010-1234-5678",
+                "성별": "",
+                "recommended_department": "정형외과",
+                "recommended_doctors": [
+                    {
+                        "name": "양재혁",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/무릎·인공관절·어깨·반월상연골판·관절내시경·스포츠손상/문서ID team-2",
+                        "symptoms": [
+                            "무릎이 아파서"
+                        ]
+                    },
+                    {
+                        "name": "이상원",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/관절·척추·비수술치료/문서ID team-1",
+                        "symptoms": [
+                            "무릎이 아파서"
+                        ]
+                    },
+                    {
+                        "name": "백승하",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/발목·무릎·관절경/문서ID team-4",
+                        "symptoms": [
+                            "무릎이 아파서"
+                        ]
+                    },
+                    {
+                        "name": "김재훈",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/어깨·무릎·관절내시경·스포츠손상/문서ID team-0",
+                        "symptoms": [
+                            "무릎이 아파서"
+                        ]
+                    },
+                    {
+                        "name": "김상우",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/수부 및 손목관절· 팔꿈치·어깨·무릎·수지접합 및 미세수술·관절내시경/문서ID team-3",
+                        "symptoms": [
+                            "무릎이 아파서"
+                        ]
+                    }
+                ],
+                "rag_confidence": 0.9
+            },
+            "message": "👨‍⚕️ **추천 의료진을 선택해주세요:**\n\n1. **양재혁** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n2. **이상원** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n3. **백승하** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n4. **김재훈** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n5. **김상우** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n**원하시는 의료진 번호를 선택해주세요** (예: 1번, 2번 등)",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "create",
+                "symptoms": [
+                    "무릎이 아파서"
+                ],
+                "info_type": ""
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230305_867615",
+        "agent": "agent1_manager",
+        "user_input": "허리가 아프고 디스크가 있어서 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [
+                    "허리 통증",
+                    "디스크"
+                ],
+                "preferred_date": "",
+                "preferred_time": "",
+                "preferred_doctor": "",
+                "schedule_preference": "최대한 빨리",
+                "notes": [],
+                "환자명": "",
+                "전화번호": "",
+                "성별": ""
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "create",
+                "symptoms": [
+                    "허리 아픔",
+                    "디스크"
+                ]
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230330_969525",
+        "agent": "agent1_manager",
+        "user_input": "박영희, 010-5678-9012",
+        "output": {
+            "success": false,
+            "status": "need_doctor_selection",
+            "collected_info": {
+                "symptoms": [
+                    "허리 통증",
+                    "디스크"
+                ],
+                "preferred_date": "2025-10-15",
+                "preferred_time": "",
+                "preferred_doctor": "",
+                "schedule_preference": "최대한 빨리",
+                "notes": [],
+                "환자명": "박영희",
+                "전화번호": "010-5678-9012",
+                "성별": "",
+                "recommended_department": "척추센터",
+                "recommended_doctors": [
+                    {
+                        "name": "이상원/D002",
+                        "department": "정형외과/O.P",
+                        "reasoning": "관절·척추·비수술치료 전문, 허리 통증 및 디스크 관련 치료 가능 (team-1)",
+                        "symptoms": [
+                            "허리 통증",
+                            "디스크"
+                        ]
+                    },
+                    {
+                        "name": "양재혁/D003",
+                        "department": "정형외과/O.P",
+                        "reasoning": "무릎·인공관절·어깨·반월상연골판·관절내시경·스포츠손상 전문, 정형외과 내 디스크 관련 치료 가능 (team-2)",
+                        "symptoms": [
+                            "허리 통증",
+                            "디스크"
+                        ]
+                    },
+                    {
+                        "name": "백승하/D005",
+                        "department": "정형외과/O.P",
+                        "reasoning": "발목·무릎·관절경 전문, 정형외과 내 허리 통증 관련 치료 가능 (team-4)",
+                        "symptoms": [
+                            "허리 통증",
+                            "디스크"
+                        ]
+                    }
+                ],
+                "rag_confidence": 0.8
+            },
+            "message": "👨‍⚕️ **추천 의료진을 선택해주세요:**\n\n1. **이상원** (정형외과/O.P)\n   💡 관절·척추·비수술치료 전문, 허리 통증 및 디스크 관련 치료 가능 (team-1)\n\n2. **양재혁** (정형외과/O.P)\n   💡 무릎·인공관절·어깨·반월상연골판·관절내시경·스포츠손상 전문, 정형외과 내 디스크 관련 치료 가능 (team-2)\n\n3. **백승하** (정형외과/O.P)\n   💡 발목·무릎·관절경 전문, 정형외과 내 허리 통증 관련 치료 가능 (team-4)\n\n**원하시는 의료진 번호를 선택해주세요** (예: 1번, 2번 등)",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "create",
+                "symptoms": [
+                    "허리 통증",
+                    "디스크"
+                ]
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230353_233287",
+        "agent": "agent1_manager",
+        "user_input": "두통과 어지럼증이 심해서 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [
+                    "두통",
+                    "어지럼증"
+                ],
+                "preferred_date": null,
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": "최대한 빨리",
+                "notes": [],
+                "환자명": null,
+                "전화번호": null,
+                "성별": null
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "create",
+                "symptoms": [
+                    "두통",
+                    "어지럼증"
+                ]
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230418_047255",
+        "agent": "agent1_manager",
+        "user_input": "이름은 이민호, 전화번호는 010-9876-5432",
+        "output": {
+            "success": false,
+            "status": "need_doctor_selection",
+            "collected_info": {
+                "symptoms": [
+                    "두통",
+                    "어지럼증"
+                ],
+                "preferred_date": "2025-10-15",
+                "preferred_time": "",
+                "preferred_doctor": "",
+                "schedule_preference": "최대한 빨리",
+                "notes": [],
+                "환자명": "이민호",
+                "전화번호": "010-9876-5432",
+                "성별": "",
+                "recommended_department": "신경과",
+                "recommended_doctors": [
+                    {
+                        "name": "우연선",
+                        "department": "신경과",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-6",
+                        "symptoms": [
+                            "두통",
+                            "어지럼증"
+                        ]
+                    },
+                    {
+                        "name": "오재인",
+                        "department": "신경외과",
+                        "reasoning": "어지럼증 관련 신경외과 전문분야/근거 문서ID team-5",
+                        "symptoms": [
+                            "두통",
+                            "어지럼증"
+                        ]
+                    },
+                    {
+                        "name": "정고운",
+                        "department": "마취통증의학과",
+                        "reasoning": "통증치료 전문분야 연관/근거 문서ID team-12",
+                        "symptoms": [
+                            "두통",
+                            "어지럼증"
+                        ]
+                    }
+                ],
+                "rag_confidence": 0.8
+            },
+            "message": "👨‍⚕️ **추천 의료진을 선택해주세요:**\n\n1. **우연선** (신경과)\n   💡 증상-전문분야 키워드 일치\n\n2. **오재인** (신경외과)\n   💡 어지럼증 관련 신경외과 전문분야\n\n3. **정고운** (마취통증의학과)\n   💡 통증치료 전문분야 연관\n\n**원하시는 의료진 번호를 선택해주세요** (예: 1번, 2번 등)",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "create",
+                "symptoms": [
+                    "두통",
+                    "어지럼증"
+                ]
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230443_427914",
+        "agent": "agent1_manager",
+        "user_input": "급성 통증이 심해서 응급실에 가야 할 것 같아요",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "응급의학센터 전문의",
+                    "department": "응급의학센터",
+                    "reasoning": "응급의학과 전문의 상주, 24시간 응급진료 서비스 제공(문서ID:sym-66)",
+                    "symptoms": [
+                        "급성 통증",
+                        "응급 상황"
+                    ]
+                },
+                {
+                    "name": "정고운/D013",
+                    "department": "마취통증의학과/A.P",
+                    "reasoning": "마취·통증치료 전문, 급성 통증 치료 가능(문서ID:team-12)",
+                    "symptoms": [
+                        "급성 통증"
+                    ]
+                }
+            ],
+            "department": "응급의학센터",
+            "confidence": 0.9,
+            "reasoning": "RAG 파이프라인을 통한 2명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            },
+            "primary_intent": "symptom_doctor",
+            "extracted_info": {
+                "symptoms": [
+                    "급성 통증"
+                ]
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230459_761123",
+        "agent": "agent1_manager",
+        "user_input": "정수진, 010-1111-2222",
+        "output": {
+            "success": false,
+            "status": "need_symptoms",
+            "collected_info": {
+                "recommended_doctors": [
+                    {
+                        "name": "응급의학센터 전문의",
+                        "department": "응급의학센터",
+                        "reasoning": "응급의학센터는 24시간 응급진료 서비스 제공(증상-전문분야 키워드 일치/문서ID:sym-66)",
+                        "symptoms": [
+                            "급성 통증",
+                            "응급 상황"
+                        ]
+                    },
+                    {
+                        "name": "정고운/D013",
+                        "department": "마취통증의학과/A.P",
+                        "reasoning": "마취통증의학과 전문의로서 급성 통증 치료 가능(문서ID:team-12)",
+                        "symptoms": [
+                            "급성 통증"
+                        ]
+                    }
+                ],
+                "recommended_department": "응급의학센터",
+                "rag_confidence": 0.7,
+                "symptoms": [],
+                "preferred_date": null,
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": null,
+                "notes": [],
+                "환자명": "정수진",
+                "전화번호": "010-1111-2222",
+                "성별": null
+            },
+            "message": "✅ 환자 정보가 확인되었습니다.\n\n👤 **환자 정보:**\n• 이름: 정수진\n• 연락처: 010-1111-2222\n\n🩺 **어떤 증상으로 예약하시나요?**\n예: 무릎이 아파요, 허리가 아프고 디스크가 있어요, 두통과 어지러움이 있어요",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 0.9,
+            "extracted_info": {
+                "action": "create"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230517_406287",
+        "agent": "agent1_manager",
+        "user_input": "어깨가 아파요",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "양재혁/D003",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 team-2",
+                    "symptoms": [
+                        "어깨 통증",
+                        "어깨가 아파요"
+                    ]
+                },
+                {
+                    "name": "김재훈/D001",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 team-0",
+                    "symptoms": [
+                        "어깨 통증",
+                        "어깨가 아파요"
+                    ]
+                },
+                {
+                    "name": "김상우/D004",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 team-3",
+                    "symptoms": [
+                        "어깨 통증",
+                        "어깨가 아파요"
+                    ]
+                },
+                {
+                    "name": "이상원/D002",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/관절·척추·비수술치료/근거 team-1",
+                    "symptoms": [
+                        "어깨 통증",
+                        "어깨가 아파요"
+                    ]
+                },
+                {
+                    "name": "백승하/D005",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/발목·무릎·관절경 전문이나 정형외과 소속/근거 team-4",
+                    "symptoms": [
+                        "어깨 통증",
+                        "어깨가 아파요"
+                    ]
+                }
+            ],
+            "department": "정형외과/O.P",
+            "confidence": 0.9,
+            "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            },
+            "primary_intent": "symptom_doctor",
+            "extracted_info": {
+                "symptoms": [
+                    "어깨 통증"
+                ]
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230538_928480",
+        "agent": "agent1_manager",
+        "user_input": "그럼 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "recommended_doctors": [
+                    {
+                        "name": "양재혁/D003",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 문서ID team-2",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    },
+                    {
+                        "name": "김재훈/D001",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 문서ID team-0",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    },
+                    {
+                        "name": "김상우/D004",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 문서ID team-3",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    },
+                    {
+                        "name": "이상원/D002",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/관절 전문/근거 문서ID team-1",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    },
+                    {
+                        "name": "백승하/D005",
+                        "department": "정형외과",
+                        "reasoning": "근거 문서ID team-4, 증상 일부 연관",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    }
+                ],
+                "recommended_department": "정형외과",
+                "rag_confidence": 0.9,
+                "symptoms": [
+                    "어깨 통증",
+                    "어깨가 아파요"
+                ],
+                "preferred_date": null,
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": null,
+                "notes": [],
+                "환자명": null,
+                "전화번호": null,
+                "성별": null
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "create"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230606_825347",
+        "agent": "agent1_manager",
+        "user_input": "최지훈, 010-3333-4444",
+        "output": {
+            "success": false,
+            "status": "need_doctor_selection",
+            "collected_info": {
+                "recommended_doctors": [
+                    {
+                        "name": "양재혁/D003",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-2",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    },
+                    {
+                        "name": "김재훈/D001",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-0",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    },
+                    {
+                        "name": "김상우/D004",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-3",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    },
+                    {
+                        "name": "이상원/D002",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-1",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    },
+                    {
+                        "name": "백승하/D005",
+                        "department": "정형외과",
+                        "reasoning": "진료과 일치/근거 문서ID team-4",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    }
+                ],
+                "recommended_department": "정형외과",
+                "rag_confidence": 0.9,
+                "symptoms": [
+                    "어깨 통증",
+                    "어깨가 아파요"
+                ],
+                "preferred_date": null,
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": "최대한 빨리",
+                "notes": [],
+                "환자명": "최지훈",
+                "전화번호": "010-3333-4444",
+                "성별": null
+            },
+            "message": "👨‍⚕️ **추천 의료진을 선택해주세요:**\n\n1. **양재혁** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n2. **김재훈** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n3. **김상우** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n4. **이상원** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n5. **백승하** (정형외과)\n   💡 진료과 일치\n\n**원하시는 의료진 번호를 선택해주세요** (예: 1번, 2번 등)",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 0.95,
+            "extracted_info": {
+                "action": "create"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230634_790867",
+        "agent": "agent1_manager",
+        "user_input": "몸이 아프고 구체적으로 뭐가 아픈지 모르겠어요",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "신경통증클리닉",
+                    "department": "뇌신경센터",
+                    "reasoning": "증상-전문분야 키워드 일치/신경통증클리닉/문서ID sym-61",
+                    "symptoms": [
+                        "몸이 아프다"
+                    ]
+                },
+                {
+                    "name": "어지럼증클리닉",
+                    "department": "뇌신경센터",
+                    "reasoning": "증상-전문분야 키워드 일치/어지럼증클리닉/문서ID sym-60",
+                    "symptoms": [
+                        "몸이 아프다"
+                    ]
+                },
+                {
+                    "name": "척추센터 허리질환",
+                    "department": "척추센터",
+                    "reasoning": "증상-전문분야 키워드 일치/척추측만증/문서ID sym-33",
+                    "symptoms": [
+                        "몸이 아프다"
+                    ]
+                },
+                {
+                    "name": "백승하/D005",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/발목·무릎·관절경/문서ID team-4",
+                    "symptoms": [
+                        "몸이 아프다"
+                    ]
+                },
+                {
+                    "name": "이애라/D009",
+                    "department": "내과/I.M",
+                    "reasoning": "증상-전문분야 키워드 일치/위·대장내시경·건강검진·당뇨·고혈압·갑상선/문서ID team-8",
+                    "symptoms": [
+                        "몸이 아프다"
+                    ]
+                }
+            ],
+            "department": "뇌신경센터",
+            "confidence": 0.9,
+            "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            },
+            "primary_intent": "symptom_doctor",
+            "extracted_info": {
+                "symptoms": [
+                    "몸이 아프다"
+                ]
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230703_138528",
+        "agent": "agent1_manager",
+        "user_input": "김영희, 010-5555-6666",
+        "output": {
+            "success": false,
+            "status": "need_schedule",
+            "collected_info": {
+                "recommended_doctors": [
+                    {
+                        "name": "신경통증클리닉",
+                        "department": "뇌신경센터",
+                        "reasoning": "증상-전문분야 키워드 일치/신경통증클리닉 관련(문서ID:sym-61)",
+                        "symptoms": [
+                            "몸이 아프다"
+                        ]
+                    },
+                    {
+                        "name": "어지럼증클리닉",
+                        "department": "뇌신경센터",
+                        "reasoning": "증상-전문분야 키워드 일치/어지럼증 관련(문서ID:sym-60)",
+                        "symptoms": [
+                            "몸이 아프다"
+                        ]
+                    },
+                    {
+                        "name": "백승하/D005",
+                        "department": "정형외과/O.P",
+                        "reasoning": "무릎·관절 관련 전문분야 연관(문서ID:team-4)",
+                        "symptoms": [
+                            "몸이 아프다"
+                        ]
+                    },
+                    {
+                        "name": "이애라/D009",
+                        "department": "내과/I.M",
+                        "reasoning": "내과 일반 증상 관련(문서ID:team-8)",
+                        "symptoms": [
+                            "몸이 아프다"
+                        ]
+                    },
+                    {
+                        "name": "정명화/D010",
+                        "department": "내과/I.M",
+                        "reasoning": "내과 일반 증상 관련(문서ID:team-9)",
+                        "symptoms": [
+                            "몸이 아프다"
+                        ]
+                    }
+                ],
+                "recommended_department": "뇌신경센터",
+                "rag_confidence": 0.9,
+                "symptoms": [
+                    "몸이 아프다"
+                ],
+                "preferred_date": null,
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": null,
+                "notes": [],
+                "환자명": "김영희",
+                "전화번호": "010-5555-6666"
+            },
+            "message": "✅ 환자 정보와 증상이 확인되었습니다.\n\n👤 **환자 정보:**\n• 이름: 김영희\n• 연락처: 010-5555-6666\n\n🩺 **증상:** 몸이 아프다\n\n📅 **언제 예약하시겠어요?**\n예: 내일, 다음주 월요일, 10월 15일 오후 2시",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 0.95,
+            "extracted_info": {
+                "action": "create"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230746_395929",
+        "agent": "agent1_manager",
+        "user_input": "안녕하세요",
+        "output": {
+            "success": true,
+            "message": "안녕하세요! 무엇을 도와드릴까요?",
+            "routing_info": {
+                "target": "agent1_direct",
+                "target_agent": "agent1_direct",
+                "action": "handle_greeting",
+                "intent": "greeting"
+            },
+            "primary_intent": "greeting",
+            "confidence": 1.0,
+            "extracted_info": {}
+        }
+    },
+    {
+        "timestamp": "20251014_230754_844322",
+        "agent": "agent1_manager",
+        "user_input": "예약하고 싶은데...",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {},
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 0.9,
+            "extracted_info": {
+                "action": "create"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230813_273885",
+        "agent": "agent1_manager",
+        "user_input": "홍길동, 010-1234-5678, 어깨가 아파요",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "양재혁/D003",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치(무릎·인공관절·어깨·반월상연골판·관절내시경·스포츠손상)/근거 문서ID team-2",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                },
+                {
+                    "name": "김재훈/D001",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치(어깨·무릎·관절내시경·스포츠손상)/근거 문서ID team-0",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                },
+                {
+                    "name": "김상우/D004",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치(수부 및 손목관절· 팔꿈치·어깨·무릎·수지접합 및 미세수술·관절내시경)/근거 문서ID team-3",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                },
+                {
+                    "name": "이상원/D002",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치(관절·척추·비수술치료)/근거 문서ID team-1",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                },
+                {
+                    "name": "백승하/D005",
+                    "department": "정형외과",
+                    "reasoning": "진료과 일치 및 증상 관련(발목·무릎·관절경 전문이나 정형외과 소속)/근거 문서ID team-4",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                }
+            ],
+            "department": "정형외과",
+            "confidence": 0.9,
+            "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            },
+            "primary_intent": "symptom_doctor",
+            "extracted_info": {
+                "symptoms": [
+                    "어깨 통증"
+                ]
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230827_534648",
+        "agent": "agent1_manager",
+        "user_input": "예약 취소하고 싶어요",
+        "output": {
+            "success": true,
+            "status": "cancel_request",
+            "message": "예약 취소 기능은 준비 중입니다. 전화 상담(1599-0015)을 이용해주세요.",
+            "action": "cancel",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "cancel"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230845_108104",
+        "agent": "agent1_manager",
+        "user_input": "무릎이 아프고 허리도 아파요",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "양재혁/D003",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/무릎 전문/근거 team-2",
+                    "symptoms": [
+                        "무릎 통증"
+                    ]
+                },
+                {
+                    "name": "백승하/D005",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/무릎 전문/근거 team-4",
+                    "symptoms": [
+                        "무릎 통증"
+                    ]
+                },
+                {
+                    "name": "김재훈/D001",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/무릎 전문/근거 team-0",
+                    "symptoms": [
+                        "무릎 통증"
+                    ]
+                },
+                {
+                    "name": "김상우/D004",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/무릎 전문/근거 team-3",
+                    "symptoms": [
+                        "무릎 통증"
+                    ]
+                },
+                {
+                    "name": "이상원/D002",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/척추 전문/근거 team-1",
+                    "symptoms": [
+                        "허리 통증"
+                    ]
+                }
+            ],
+            "department": "정형외과",
+            "confidence": 0.95,
+            "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            },
+            "primary_intent": "symptom_doctor",
+            "extracted_info": {
+                "symptoms": [
+                    "무릎 통증",
+                    "허리 통증"
+                ]
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230858_259282",
+        "agent": "agent1_manager",
+        "user_input": "병원 휴무일이 언제인가요?",
+        "output": {
+            "success": true,
+            "message": "📋 **휴무일 정보 검색 결과**\n\n**요약:**\n바른마디병원의 휴무일은 일요일입니다. 휴진일은 없습니다. 현재 날짜는 2025년 10월 14일이므로 오늘은 영업일입니다.\n\n**상세 정보:**\n1. **바른마디병원 - barunjoint.kr**\n   새로운 패러다임을 선도하는 ALL 바른마디병원비급여진료항목 검색 입력창검색 버튼\n   🔗 [자세히 보기](https://barunjoint.kr/hospital/list.nx?M2_IDX=37446&PAGE=6)\n\n📌 **출처:** 바른마디병원 공식 웹사이트 (barunjoint.kr)\n📞 **추가 문의:** 1599.0015\n\n📅 **현재 날짜**: 2025년 10월 14일 (화요일)\n🏥 **바른마디병원 휴무일**: 매주 월요일\n✅ **오늘은 영업일입니다**",
+            "routing_info": {
+                "target": "tavily_search",
+                "target_agent": "tavily_search",
+                "action": "search_hospital_holidays",
+                "intent": "hospital_info"
+            },
+            "primary_intent": "hospital_info",
+            "confidence": 1.0,
+            "extracted_info": {
+                "info_type": "holidays"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_231354_533909",
+        "agent": "agent1_manager",
+        "user_input": "내일 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [],
+                "preferred_date": "2025-10-15",
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": "내일",
+                "notes": [],
+                "환자명": null,
+                "전화번호": null,
+                "성별": null
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "create"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_231406_308479",
+        "agent": "agent1_manager",
+        "user_input": "내일 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [],
+                "preferred_date": "2025-10-15",
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": "내일",
+                "notes": [],
+                "환자명": null,
+                "전화번호": null,
+                "성별": null
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "create"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_231427_195310",
+        "agent": "agent1_manager",
+        "user_input": "무릎이 아파요",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "양재혁/D003",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID: team-2",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "김재훈/D001",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID: team-0",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "백승하/D005",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID: team-4",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "김상우/D004",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID: team-3",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "이상원/D002",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID: team-1",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                }
+            ],
+            "department": "정형외과/O.P",
+            "confidence": 0.9,
+            "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            },
+            "primary_intent": "symptom_doctor",
+            "extracted_info": {
+                "symptoms": [
+                    "무릎 통증"
+                ]
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_231455_836398",
+        "agent": "agent1_manager",
+        "user_input": "양재혁 의사로 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "recommended_doctors": [
+                    {
+                        "name": "양재혁/D003",
+                        "department": "정형외과/O.P",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-2",
+                        "symptoms": [
+                            "무릎 통증",
+                            "무릎이 아파요"
+                        ]
+                    },
+                    {
+                        "name": "김재훈/D001",
+                        "department": "정형외과/O.P",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-0",
+                        "symptoms": [
+                            "무릎 통증",
+                            "무릎이 아파요"
+                        ]
+                    },
+                    {
+                        "name": "백승하/D005",
+                        "department": "정형외과/O.P",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-4",
+                        "symptoms": [
+                            "무릎 통증",
+                            "무릎이 아파요"
+                        ]
+                    },
+                    {
+                        "name": "김상우/D004",
+                        "department": "정형외과/O.P",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-3",
+                        "symptoms": [
+                            "무릎 통증",
+                            "무릎이 아파요"
+                        ]
+                    },
+                    {
+                        "name": "이상원/D002",
+                        "department": "정형외과/O.P",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-1",
+                        "symptoms": [
+                            "무릎 통증",
+                            "무릎이 아파요"
+                        ]
+                    }
+                ],
+                "recommended_department": "정형외과/O.P",
+                "rag_confidence": 0.9,
+                "symptoms": [
+                    "무릎 통증"
+                ],
+                "preferred_date": "",
+                "preferred_time": "",
+                "preferred_doctor": "양재혁",
+                "schedule_preference": "",
+                "notes": [],
+                "환자명": "",
+                "전화번호": "",
+                "성별": ""
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "create",
+                "symptoms": [
+                    "무릎 통증"
+                ]
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_231529_291985",
+        "agent": "agent1_manager",
+        "user_input": "내일 예약 돼?",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [],
+                "preferred_date": "2025-10-15",
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": "내일",
+                "notes": [],
+                "환자명": null,
+                "전화번호": null,
+                "성별": null
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 0.9,
+            "extracted_info": {
+                "action": "check"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_231539_253588",
+        "agent": "agent1_manager",
+        "user_input": "박 세현, 01024675848",
+        "output": {
+            "success": false,
+            "status": "need_symptoms",
+            "collected_info": {
+                "previous_intent": "reservation",
+                "symptoms": [],
+                "preferred_date": "",
+                "preferred_time": "",
+                "preferred_doctor": "",
+                "schedule_preference": "",
+                "notes": [],
+                "환자명": "박 세현",
+                "전화번호": "01024675848"
+            },
+            "message": "✅ 환자 정보가 확인되었습니다.\n\n👤 **환자 정보:**\n• 이름: 박 세현\n• 연락처: 01024675848\n\n🩺 **어떤 증상으로 예약하시나요?**\n예: 무릎이 아파요, 허리가 아프고 디스크가 있어요, 두통과 어지러움이 있어요",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            },
+            "primary_intent": "reservation",
+            "confidence": 1.0,
+            "extracted_info": {
+                "action": "create"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_231601_792749",
+        "agent": "agent1_manager",
+        "user_input": "무릎이 아파요",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "양재혁/D003",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-2",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "김재훈/D001",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-0",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "백승하/D005",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-4",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "김상우/D004",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-3",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "이상원/D002",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-1",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                }
+            ],
+            "department": "정형외과/O.P",
+            "confidence": 0.9,
+            "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            },
+            "primary_intent": "symptom_doctor",
+            "extracted_info": {
+                "symptoms": [
+                    "무릎 통증"
+                ]
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225650_682933",
+        "agent": "agent2_reservation",
+        "user_input": "홍길동으로 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [],
+                "preferred_date": null,
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": null,
+                "notes": [],
+                "환자명": "홍길동",
+                "전화번호": null,
+                "성별": null
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225715_777005",
+        "agent": "agent2_reservation",
+        "user_input": "내 예약 확인해주세요",
+        "output": {
+            "success": false,
+            "status": "need_patient_info",
+            "message": "예약 확인을 위해 환자명과 전화번호를 알려주세요.",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225721_353569",
+        "agent": "agent2_reservation",
+        "user_input": "예약 취소하고 싶어요",
+        "output": {
+            "success": true,
+            "status": "cancel_request",
+            "message": "예약 취소 기능은 준비 중입니다. 전화 상담(1599-0015)을 이용해주세요.",
+            "action": "cancel",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225740_478041",
+        "agent": "agent2_reservation",
+        "user_input": "김철수, 010-1234-5678로 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "need_symptoms",
+            "collected_info": {
+                "symptoms": [],
+                "preferred_date": "",
+                "preferred_time": "",
+                "preferred_doctor": "",
+                "schedule_preference": "",
+                "notes": [],
+                "환자명": "김철수",
+                "전화번호": "010-1234-5678"
+            },
+            "message": "✅ 환자 정보가 확인되었습니다.\n\n👤 **환자 정보:**\n• 이름: 김철수\n• 연락처: 010-1234-5678\n\n🩺 **어떤 증상으로 예약하시나요?**\n예: 무릎이 아파요, 허리가 아프고 디스크가 있어요, 두통과 어지러움이 있어요",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225900_441637",
+        "agent": "agent2_reservation",
+        "user_input": "내일 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [],
+                "preferred_date": "2025-10-15",
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": "내일",
+                "notes": [],
+                "환자명": null,
+                "전화번호": null,
+                "성별": null
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225935_061567",
+        "agent": "agent2_reservation",
+        "user_input": "양재혁 의사로 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [],
+                "preferred_date": null,
+                "preferred_time": null,
+                "preferred_doctor": "양재혁",
+                "schedule_preference": null,
+                "notes": [],
+                "환자명": null,
+                "전화번호": null,
+                "성별": null
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230155_153446",
+        "agent": "agent2_reservation",
+        "user_input": "무릎이 아파서 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [
+                    "무릎이 아파서"
+                ],
+                "preferred_date": "",
+                "preferred_time": "",
+                "preferred_doctor": "",
+                "schedule_preference": "무릎이 아파서 예약하고 싶어요",
+                "notes": [],
+                "환자명": "",
+                "전화번호": "",
+                "성별": ""
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230213_376999",
+        "agent": "agent2_reservation",
+        "user_input": "이름은 김철수입니다",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [
+                    "무릎이 아파서"
+                ],
+                "preferred_date": "",
+                "preferred_time": "",
+                "preferred_doctor": "",
+                "schedule_preference": "무릎이 아파서 예약하고 싶어요",
+                "notes": [],
+                "환자명": "김철수",
+                "전화번호": "",
+                "성별": ""
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230237_774164",
+        "agent": "agent2_reservation",
+        "user_input": "전화번호는 010-1234-5678",
+        "output": {
+            "success": false,
+            "status": "need_doctor_selection",
+            "collected_info": {
+                "symptoms": [
+                    "무릎이 아파서"
+                ],
+                "preferred_date": "",
+                "preferred_time": "",
+                "preferred_doctor": "",
+                "schedule_preference": "무릎이 아파서 예약하고 싶어요",
+                "notes": [],
+                "환자명": "김철수",
+                "전화번호": "010-1234-5678",
+                "성별": "",
+                "recommended_department": "정형외과",
+                "recommended_doctors": [
+                    {
+                        "name": "양재혁",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/무릎·인공관절·어깨·반월상연골판·관절내시경·스포츠손상/문서ID team-2",
+                        "symptoms": [
+                            "무릎이 아파서"
+                        ]
+                    },
+                    {
+                        "name": "이상원",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/관절·척추·비수술치료/문서ID team-1",
+                        "symptoms": [
+                            "무릎이 아파서"
+                        ]
+                    },
+                    {
+                        "name": "백승하",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/발목·무릎·관절경/문서ID team-4",
+                        "symptoms": [
+                            "무릎이 아파서"
+                        ]
+                    },
+                    {
+                        "name": "김재훈",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/어깨·무릎·관절내시경·스포츠손상/문서ID team-0",
+                        "symptoms": [
+                            "무릎이 아파서"
+                        ]
+                    },
+                    {
+                        "name": "김상우",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/수부 및 손목관절· 팔꿈치·어깨·무릎·수지접합 및 미세수술·관절내시경/문서ID team-3",
+                        "symptoms": [
+                            "무릎이 아파서"
+                        ]
+                    }
+                ],
+                "rag_confidence": 0.9
+            },
+            "message": "👨‍⚕️ **추천 의료진을 선택해주세요:**\n\n1. **양재혁** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n2. **이상원** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n3. **백승하** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n4. **김재훈** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n5. **김상우** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n**원하시는 의료진 번호를 선택해주세요** (예: 1번, 2번 등)",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230305_865264",
+        "agent": "agent2_reservation",
+        "user_input": "허리가 아프고 디스크가 있어서 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [
+                    "허리 통증",
+                    "디스크"
+                ],
+                "preferred_date": "",
+                "preferred_time": "",
+                "preferred_doctor": "",
+                "schedule_preference": "최대한 빨리",
+                "notes": [],
+                "환자명": "",
+                "전화번호": "",
+                "성별": ""
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230330_967545",
+        "agent": "agent2_reservation",
+        "user_input": "박영희, 010-5678-9012",
+        "output": {
+            "success": false,
+            "status": "need_doctor_selection",
+            "collected_info": {
+                "symptoms": [
+                    "허리 통증",
+                    "디스크"
+                ],
+                "preferred_date": "2025-10-15",
+                "preferred_time": "",
+                "preferred_doctor": "",
+                "schedule_preference": "최대한 빨리",
+                "notes": [],
+                "환자명": "박영희",
+                "전화번호": "010-5678-9012",
+                "성별": "",
+                "recommended_department": "척추센터",
+                "recommended_doctors": [
+                    {
+                        "name": "이상원/D002",
+                        "department": "정형외과/O.P",
+                        "reasoning": "관절·척추·비수술치료 전문, 허리 통증 및 디스크 관련 치료 가능 (team-1)",
+                        "symptoms": [
+                            "허리 통증",
+                            "디스크"
+                        ]
+                    },
+                    {
+                        "name": "양재혁/D003",
+                        "department": "정형외과/O.P",
+                        "reasoning": "무릎·인공관절·어깨·반월상연골판·관절내시경·스포츠손상 전문, 정형외과 내 디스크 관련 치료 가능 (team-2)",
+                        "symptoms": [
+                            "허리 통증",
+                            "디스크"
+                        ]
+                    },
+                    {
+                        "name": "백승하/D005",
+                        "department": "정형외과/O.P",
+                        "reasoning": "발목·무릎·관절경 전문, 정형외과 내 허리 통증 관련 치료 가능 (team-4)",
+                        "symptoms": [
+                            "허리 통증",
+                            "디스크"
+                        ]
+                    }
+                ],
+                "rag_confidence": 0.8
+            },
+            "message": "👨‍⚕️ **추천 의료진을 선택해주세요:**\n\n1. **이상원** (정형외과/O.P)\n   💡 관절·척추·비수술치료 전문, 허리 통증 및 디스크 관련 치료 가능 (team-1)\n\n2. **양재혁** (정형외과/O.P)\n   💡 무릎·인공관절·어깨·반월상연골판·관절내시경·스포츠손상 전문, 정형외과 내 디스크 관련 치료 가능 (team-2)\n\n3. **백승하** (정형외과/O.P)\n   💡 발목·무릎·관절경 전문, 정형외과 내 허리 통증 관련 치료 가능 (team-4)\n\n**원하시는 의료진 번호를 선택해주세요** (예: 1번, 2번 등)",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230353_231908",
+        "agent": "agent2_reservation",
+        "user_input": "두통과 어지럼증이 심해서 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [
+                    "두통",
+                    "어지럼증"
+                ],
+                "preferred_date": null,
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": "최대한 빨리",
+                "notes": [],
+                "환자명": null,
+                "전화번호": null,
+                "성별": null
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230418_045166",
+        "agent": "agent2_reservation",
+        "user_input": "이름은 이민호, 전화번호는 010-9876-5432",
+        "output": {
+            "success": false,
+            "status": "need_doctor_selection",
+            "collected_info": {
+                "symptoms": [
+                    "두통",
+                    "어지럼증"
+                ],
+                "preferred_date": "2025-10-15",
+                "preferred_time": "",
+                "preferred_doctor": "",
+                "schedule_preference": "최대한 빨리",
+                "notes": [],
+                "환자명": "이민호",
+                "전화번호": "010-9876-5432",
+                "성별": "",
+                "recommended_department": "신경과",
+                "recommended_doctors": [
+                    {
+                        "name": "우연선",
+                        "department": "신경과",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-6",
+                        "symptoms": [
+                            "두통",
+                            "어지럼증"
+                        ]
+                    },
+                    {
+                        "name": "오재인",
+                        "department": "신경외과",
+                        "reasoning": "어지럼증 관련 신경외과 전문분야/근거 문서ID team-5",
+                        "symptoms": [
+                            "두통",
+                            "어지럼증"
+                        ]
+                    },
+                    {
+                        "name": "정고운",
+                        "department": "마취통증의학과",
+                        "reasoning": "통증치료 전문분야 연관/근거 문서ID team-12",
+                        "symptoms": [
+                            "두통",
+                            "어지럼증"
+                        ]
+                    }
+                ],
+                "rag_confidence": 0.8
+            },
+            "message": "👨‍⚕️ **추천 의료진을 선택해주세요:**\n\n1. **우연선** (신경과)\n   💡 증상-전문분야 키워드 일치\n\n2. **오재인** (신경외과)\n   💡 어지럼증 관련 신경외과 전문분야\n\n3. **정고운** (마취통증의학과)\n   💡 통증치료 전문분야 연관\n\n**원하시는 의료진 번호를 선택해주세요** (예: 1번, 2번 등)",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230459_759508",
+        "agent": "agent2_reservation",
+        "user_input": "정수진, 010-1111-2222",
+        "output": {
+            "success": false,
+            "status": "need_symptoms",
+            "collected_info": {
+                "recommended_doctors": [
+                    {
+                        "name": "응급의학센터 전문의",
+                        "department": "응급의학센터",
+                        "reasoning": "응급의학센터는 24시간 응급진료 서비스 제공(증상-전문분야 키워드 일치/문서ID:sym-66)",
+                        "symptoms": [
+                            "급성 통증",
+                            "응급 상황"
+                        ]
+                    },
+                    {
+                        "name": "정고운/D013",
+                        "department": "마취통증의학과/A.P",
+                        "reasoning": "마취통증의학과 전문의로서 급성 통증 치료 가능(문서ID:team-12)",
+                        "symptoms": [
+                            "급성 통증"
+                        ]
+                    }
+                ],
+                "recommended_department": "응급의학센터",
+                "rag_confidence": 0.7,
+                "symptoms": [],
+                "preferred_date": null,
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": null,
+                "notes": [],
+                "환자명": "정수진",
+                "전화번호": "010-1111-2222",
+                "성별": null
+            },
+            "message": "✅ 환자 정보가 확인되었습니다.\n\n👤 **환자 정보:**\n• 이름: 정수진\n• 연락처: 010-1111-2222\n\n🩺 **어떤 증상으로 예약하시나요?**\n예: 무릎이 아파요, 허리가 아프고 디스크가 있어요, 두통과 어지러움이 있어요",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230538_927055",
+        "agent": "agent2_reservation",
+        "user_input": "그럼 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "recommended_doctors": [
+                    {
+                        "name": "양재혁/D003",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 문서ID team-2",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    },
+                    {
+                        "name": "김재훈/D001",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 문서ID team-0",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    },
+                    {
+                        "name": "김상우/D004",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 문서ID team-3",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    },
+                    {
+                        "name": "이상원/D002",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/관절 전문/근거 문서ID team-1",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    },
+                    {
+                        "name": "백승하/D005",
+                        "department": "정형외과",
+                        "reasoning": "근거 문서ID team-4, 증상 일부 연관",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    }
+                ],
+                "recommended_department": "정형외과",
+                "rag_confidence": 0.9,
+                "symptoms": [
+                    "어깨 통증",
+                    "어깨가 아파요"
+                ],
+                "preferred_date": null,
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": null,
+                "notes": [],
+                "환자명": null,
+                "전화번호": null,
+                "성별": null
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230606_824054",
+        "agent": "agent2_reservation",
+        "user_input": "최지훈, 010-3333-4444",
+        "output": {
+            "success": false,
+            "status": "need_doctor_selection",
+            "collected_info": {
+                "recommended_doctors": [
+                    {
+                        "name": "양재혁/D003",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-2",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    },
+                    {
+                        "name": "김재훈/D001",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-0",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    },
+                    {
+                        "name": "김상우/D004",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-3",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    },
+                    {
+                        "name": "이상원/D002",
+                        "department": "정형외과",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-1",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    },
+                    {
+                        "name": "백승하/D005",
+                        "department": "정형외과",
+                        "reasoning": "진료과 일치/근거 문서ID team-4",
+                        "symptoms": [
+                            "어깨 통증",
+                            "어깨가 아파요"
+                        ]
+                    }
+                ],
+                "recommended_department": "정형외과",
+                "rag_confidence": 0.9,
+                "symptoms": [
+                    "어깨 통증",
+                    "어깨가 아파요"
+                ],
+                "preferred_date": null,
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": "최대한 빨리",
+                "notes": [],
+                "환자명": "최지훈",
+                "전화번호": "010-3333-4444",
+                "성별": null
+            },
+            "message": "👨‍⚕️ **추천 의료진을 선택해주세요:**\n\n1. **양재혁** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n2. **김재훈** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n3. **김상우** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n4. **이상원** (정형외과)\n   💡 증상-전문분야 키워드 일치\n\n5. **백승하** (정형외과)\n   💡 진료과 일치\n\n**원하시는 의료진 번호를 선택해주세요** (예: 1번, 2번 등)",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230703_136949",
+        "agent": "agent2_reservation",
+        "user_input": "김영희, 010-5555-6666",
+        "output": {
+            "success": false,
+            "status": "need_schedule",
+            "collected_info": {
+                "recommended_doctors": [
+                    {
+                        "name": "신경통증클리닉",
+                        "department": "뇌신경센터",
+                        "reasoning": "증상-전문분야 키워드 일치/신경통증클리닉 관련(문서ID:sym-61)",
+                        "symptoms": [
+                            "몸이 아프다"
+                        ]
+                    },
+                    {
+                        "name": "어지럼증클리닉",
+                        "department": "뇌신경센터",
+                        "reasoning": "증상-전문분야 키워드 일치/어지럼증 관련(문서ID:sym-60)",
+                        "symptoms": [
+                            "몸이 아프다"
+                        ]
+                    },
+                    {
+                        "name": "백승하/D005",
+                        "department": "정형외과/O.P",
+                        "reasoning": "무릎·관절 관련 전문분야 연관(문서ID:team-4)",
+                        "symptoms": [
+                            "몸이 아프다"
+                        ]
+                    },
+                    {
+                        "name": "이애라/D009",
+                        "department": "내과/I.M",
+                        "reasoning": "내과 일반 증상 관련(문서ID:team-8)",
+                        "symptoms": [
+                            "몸이 아프다"
+                        ]
+                    },
+                    {
+                        "name": "정명화/D010",
+                        "department": "내과/I.M",
+                        "reasoning": "내과 일반 증상 관련(문서ID:team-9)",
+                        "symptoms": [
+                            "몸이 아프다"
+                        ]
+                    }
+                ],
+                "recommended_department": "뇌신경센터",
+                "rag_confidence": 0.9,
+                "symptoms": [
+                    "몸이 아프다"
+                ],
+                "preferred_date": null,
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": null,
+                "notes": [],
+                "환자명": "김영희",
+                "전화번호": "010-5555-6666"
+            },
+            "message": "✅ 환자 정보와 증상이 확인되었습니다.\n\n👤 **환자 정보:**\n• 이름: 김영희\n• 연락처: 010-5555-6666\n\n🩺 **증상:** 몸이 아프다\n\n📅 **언제 예약하시겠어요?**\n예: 내일, 다음주 월요일, 10월 15일 오후 2시",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230754_842798",
+        "agent": "agent2_reservation",
+        "user_input": "예약하고 싶은데...",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {},
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230827_533418",
+        "agent": "agent2_reservation",
+        "user_input": "예약 취소하고 싶어요",
+        "output": {
+            "success": true,
+            "status": "cancel_request",
+            "message": "예약 취소 기능은 준비 중입니다. 전화 상담(1599-0015)을 이용해주세요.",
+            "action": "cancel",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_231354_531345",
+        "agent": "agent2_reservation",
+        "user_input": "내일 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [],
+                "preferred_date": "2025-10-15",
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": "내일",
+                "notes": [],
+                "환자명": null,
+                "전화번호": null,
+                "성별": null
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_231406_307140",
+        "agent": "agent2_reservation",
+        "user_input": "내일 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [],
+                "preferred_date": "2025-10-15",
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": "내일",
+                "notes": [],
+                "환자명": null,
+                "전화번호": null,
+                "성별": null
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_231455_834065",
+        "agent": "agent2_reservation",
+        "user_input": "양재혁 의사로 예약하고 싶어요",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "recommended_doctors": [
+                    {
+                        "name": "양재혁/D003",
+                        "department": "정형외과/O.P",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-2",
+                        "symptoms": [
+                            "무릎 통증",
+                            "무릎이 아파요"
+                        ]
+                    },
+                    {
+                        "name": "김재훈/D001",
+                        "department": "정형외과/O.P",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-0",
+                        "symptoms": [
+                            "무릎 통증",
+                            "무릎이 아파요"
+                        ]
+                    },
+                    {
+                        "name": "백승하/D005",
+                        "department": "정형외과/O.P",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-4",
+                        "symptoms": [
+                            "무릎 통증",
+                            "무릎이 아파요"
+                        ]
+                    },
+                    {
+                        "name": "김상우/D004",
+                        "department": "정형외과/O.P",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-3",
+                        "symptoms": [
+                            "무릎 통증",
+                            "무릎이 아파요"
+                        ]
+                    },
+                    {
+                        "name": "이상원/D002",
+                        "department": "정형외과/O.P",
+                        "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-1",
+                        "symptoms": [
+                            "무릎 통증",
+                            "무릎이 아파요"
+                        ]
+                    }
+                ],
+                "recommended_department": "정형외과/O.P",
+                "rag_confidence": 0.9,
+                "symptoms": [
+                    "무릎 통증"
+                ],
+                "preferred_date": "",
+                "preferred_time": "",
+                "preferred_doctor": "양재혁",
+                "schedule_preference": "",
+                "notes": [],
+                "환자명": "",
+                "전화번호": "",
+                "성별": ""
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_231529_290689",
+        "agent": "agent2_reservation",
+        "user_input": "내일 예약 돼?",
+        "output": {
+            "success": false,
+            "status": "missing_info",
+            "missing_fields": [
+                "환자명",
+                "전화번호"
+            ],
+            "message": "예약 정보 수집 중... 환자명과(와) 전화번호을(를) 알려주세요.",
+            "collected_info": {
+                "symptoms": [],
+                "preferred_date": "2025-10-15",
+                "preferred_time": null,
+                "preferred_doctor": null,
+                "schedule_preference": "내일",
+                "notes": [],
+                "환자명": null,
+                "전화번호": null,
+                "성별": null
+            },
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_231539_252346",
+        "agent": "agent2_reservation",
+        "user_input": "박 세현, 01024675848",
+        "output": {
+            "success": false,
+            "status": "need_symptoms",
+            "collected_info": {
+                "previous_intent": "reservation",
+                "symptoms": [],
+                "preferred_date": "",
+                "preferred_time": "",
+                "preferred_doctor": "",
+                "schedule_preference": "",
+                "notes": [],
+                "환자명": "박 세현",
+                "전화번호": "01024675848"
+            },
+            "message": "✅ 환자 정보가 확인되었습니다.\n\n👤 **환자 정보:**\n• 이름: 박 세현\n• 연락처: 01024675848\n\n🩺 **어떤 증상으로 예약하시나요?**\n예: 무릎이 아파요, 허리가 아프고 디스크가 있어요, 두통과 어지러움이 있어요",
+            "routing_info": {
+                "target": "agent2_reservation",
+                "target_agent": "agent2_reservation",
+                "action": "process_reservation_request",
+                "intent": "reservation"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225702_754595",
+        "agent": "agent3_rag",
+        "user_input": "어깨가 아파서 어떤 의사한테 가야 할까요?",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "양재혁/D003",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 문서ID team-2",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                },
+                {
+                    "name": "김재훈/D001",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 문서ID team-0",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                },
+                {
+                    "name": "김상우/D004",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 문서ID team-3",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                },
+                {
+                    "name": "이상원/D002",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/관절·척추·비수술치료/근거 문서ID team-1",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                },
+                {
+                    "name": "백승하/D005",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/발목·무릎·관절경 전문이나 정형외과 소속/근거 문서ID team-4",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                }
+            ],
+            "department": "정형외과",
+            "confidence": 0.9,
+            "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_225917_348757",
+        "agent": "agent3_rag",
+        "user_input": "무릎이 아파요",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "양재혁/D003",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-2",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "김재훈/D001",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-0",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "백승하/D005",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-4",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "김상우/D004",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-3",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "이상원/D002",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-1",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                }
+            ],
+            "department": "정형외과/O.P",
+            "confidence": 0.9,
+            "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230443_426035",
+        "agent": "agent3_rag",
+        "user_input": "급성 통증이 심해서 응급실에 가야 할 것 같아요",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "응급의학센터 전문의",
+                    "department": "응급의학센터",
+                    "reasoning": "응급의학과 전문의 상주, 24시간 응급진료 서비스 제공(문서ID:sym-66)",
+                    "symptoms": [
+                        "급성 통증",
+                        "응급 상황"
+                    ]
+                },
+                {
+                    "name": "정고운/D013",
+                    "department": "마취통증의학과/A.P",
+                    "reasoning": "마취·통증치료 전문, 급성 통증 치료 가능(문서ID:team-12)",
+                    "symptoms": [
+                        "급성 통증"
+                    ]
+                }
+            ],
+            "department": "응급의학센터",
+            "confidence": 0.7,
+            "reasoning": "RAG 파이프라인을 통한 2명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230517_404869",
+        "agent": "agent3_rag",
+        "user_input": "어깨가 아파요",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "양재혁/D003",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 team-2",
+                    "symptoms": [
+                        "어깨 통증",
+                        "어깨가 아파요"
+                    ]
+                },
+                {
+                    "name": "김재훈/D001",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 team-0",
+                    "symptoms": [
+                        "어깨 통증",
+                        "어깨가 아파요"
+                    ]
+                },
+                {
+                    "name": "김상우/D004",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/어깨 전문/근거 team-3",
+                    "symptoms": [
+                        "어깨 통증",
+                        "어깨가 아파요"
+                    ]
+                },
+                {
+                    "name": "이상원/D002",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/관절·척추·비수술치료/근거 team-1",
+                    "symptoms": [
+                        "어깨 통증",
+                        "어깨가 아파요"
+                    ]
+                },
+                {
+                    "name": "백승하/D005",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/발목·무릎·관절경 전문이나 정형외과 소속/근거 team-4",
+                    "symptoms": [
+                        "어깨 통증",
+                        "어깨가 아파요"
+                    ]
+                }
+            ],
+            "department": "정형외과/O.P",
+            "confidence": 0.9,
+            "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230634_789324",
+        "agent": "agent3_rag",
+        "user_input": "몸이 아프고 구체적으로 뭐가 아픈지 모르겠어요",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "신경통증클리닉",
+                    "department": "뇌신경센터",
+                    "reasoning": "증상-전문분야 키워드 일치/신경통증클리닉/문서ID sym-61",
+                    "symptoms": [
+                        "몸이 아프다"
+                    ]
+                },
+                {
+                    "name": "어지럼증클리닉",
+                    "department": "뇌신경센터",
+                    "reasoning": "증상-전문분야 키워드 일치/어지럼증클리닉/문서ID sym-60",
+                    "symptoms": [
+                        "몸이 아프다"
+                    ]
+                },
+                {
+                    "name": "척추센터 허리질환",
+                    "department": "척추센터",
+                    "reasoning": "증상-전문분야 키워드 일치/척추측만증/문서ID sym-33",
+                    "symptoms": [
+                        "몸이 아프다"
+                    ]
+                },
+                {
+                    "name": "백승하/D005",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/발목·무릎·관절경/문서ID team-4",
+                    "symptoms": [
+                        "몸이 아프다"
+                    ]
+                },
+                {
+                    "name": "이애라/D009",
+                    "department": "내과/I.M",
+                    "reasoning": "증상-전문분야 키워드 일치/위·대장내시경·건강검진·당뇨·고혈압·갑상선/문서ID team-8",
+                    "symptoms": [
+                        "몸이 아프다"
+                    ]
+                }
+            ],
+            "department": "뇌신경센터",
+            "confidence": 0.9,
+            "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230813_272689",
+        "agent": "agent3_rag",
+        "user_input": "홍길동, 010-1234-5678, 어깨가 아파요",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "양재혁/D003",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치(무릎·인공관절·어깨·반월상연골판·관절내시경·스포츠손상)/근거 문서ID team-2",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                },
+                {
+                    "name": "김재훈/D001",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치(어깨·무릎·관절내시경·스포츠손상)/근거 문서ID team-0",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                },
+                {
+                    "name": "김상우/D004",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치(수부 및 손목관절· 팔꿈치·어깨·무릎·수지접합 및 미세수술·관절내시경)/근거 문서ID team-3",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                },
+                {
+                    "name": "이상원/D002",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치(관절·척추·비수술치료)/근거 문서ID team-1",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                },
+                {
+                    "name": "백승하/D005",
+                    "department": "정형외과",
+                    "reasoning": "진료과 일치 및 증상 관련(발목·무릎·관절경 전문이나 정형외과 소속)/근거 문서ID team-4",
+                    "symptoms": [
+                        "어깨 통증"
+                    ]
+                }
+            ],
+            "department": "정형외과",
+            "confidence": 0.9,
+            "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_230845_106779",
+        "agent": "agent3_rag",
+        "user_input": "무릎이 아프고 허리도 아파요",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "양재혁/D003",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/무릎 전문/근거 team-2",
+                    "symptoms": [
+                        "무릎 통증"
+                    ]
+                },
+                {
+                    "name": "백승하/D005",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/무릎 전문/근거 team-4",
+                    "symptoms": [
+                        "무릎 통증"
+                    ]
+                },
+                {
+                    "name": "김재훈/D001",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/무릎 전문/근거 team-0",
+                    "symptoms": [
+                        "무릎 통증"
+                    ]
+                },
+                {
+                    "name": "김상우/D004",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/무릎 전문/근거 team-3",
+                    "symptoms": [
+                        "무릎 통증"
+                    ]
+                },
+                {
+                    "name": "이상원/D002",
+                    "department": "정형외과",
+                    "reasoning": "증상-전문분야 키워드 일치/척추 전문/근거 team-1",
+                    "symptoms": [
+                        "허리 통증"
+                    ]
+                }
+            ],
+            "department": "정형외과",
+            "confidence": 0.9,
+            "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_231427_194156",
+        "agent": "agent3_rag",
+        "user_input": "무릎이 아파요",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "양재혁/D003",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID: team-2",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "김재훈/D001",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID: team-0",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "백승하/D005",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID: team-4",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "김상우/D004",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID: team-3",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "이상원/D002",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID: team-1",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                }
+            ],
+            "department": "정형외과/O.P",
+            "confidence": 0.9,
+            "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            }
+        }
+    },
+    {
+        "timestamp": "20251014_231601_791513",
+        "agent": "agent3_rag",
+        "user_input": "무릎이 아파요",
+        "output": {
+            "success": true,
+            "recommended_doctors": [
+                {
+                    "name": "양재혁/D003",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-2",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "김재훈/D001",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-0",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "백승하/D005",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-4",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "김상우/D004",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-3",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                },
+                {
+                    "name": "이상원/D002",
+                    "department": "정형외과/O.P",
+                    "reasoning": "증상-전문분야 키워드 일치/근거 문서ID team-1",
+                    "symptoms": [
+                        "무릎 통증",
+                        "무릎이 아파요"
+                    ]
+                }
+            ],
+            "department": "정형외과/O.P",
+            "confidence": 0.9,
+            "reasoning": "RAG 파이프라인을 통한 5명의 의료진 추천",
+            "source": "RAG 파이프라인",
+            "routing_info": {
+                "target": "agent3_rag",
+                "target_agent": "agent3_rag",
+                "action": "recommend_doctors",
+                "intent": "symptom_doctor"
+            }
+        }
+    }
+]
