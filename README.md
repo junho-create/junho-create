@@ -54,7 +54,7 @@ Here are some ideas to get you started:
 - **Document-parsing VLM pipeline** — end-to-end data curation → fine-tuning → benchmark evaluation for a document OCR/layout model (**Qwen3.5-9B**, Chandra div-HTML output format)
 
   => Built an automatic dataset curation engine (MinerU2.5-Pro style): cross-model cross-validation of 3 VLMs (target / dots.ocr / PaddleOCR-VL) scored per subtask (**PageIoU** for layout, **edit distance** for text, **TEDS** for tables, **CDM** for formulas) to auto-tier pages into Easy/Medium/Hard and adopt pseudo-labels
-  => Designed an element-level **rescue** stage (N:M bbox grouping of two external models' outputs) and a **hardcase judge** stage (122B VLM, generate + render-then-verify) to auto-label the hardest pages without human annotation — curated **56K+ SFT samples out of 63,541 raw pages**
+  => Designed an element-level **rescue** stage (N:M bbox grouping of two external models' outputs) and a **hardcase judge** stage (122B VLM, generate + render-then-verify) to auto-label the hardest pages without human annotation
   => Fine-tuned **Qwen3.5-9B with LoRA (r=128)** on a 37,818-sample combined dataset (auto-curated + human-GT reference) using 3–4×H100 / DeepSpeed, running versioned experiments with W&B tracking
   => Built an end-to-end evaluation pipeline on **T²-RAGBench**, statistically verifying that our in-house document parser outperforms commercial OCR parsers and competitors in downstream generation accuracy (**48.44% vs 46.51%, p=0.006**)
 
