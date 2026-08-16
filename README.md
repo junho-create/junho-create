@@ -42,7 +42,7 @@ Here are some ideas to get you started:
 - **ISBI 2026 Low Concentration Reconstruction MPI Challenge**
   : Achieved **Top 5 finalist** and accepted challenge paper; contributed to experiment analysis and presentation materials for the international conference
   
-#### 🧠 Academic Club (DSL) Projects ('25.07.~'26.06)
+#### 🧠 Academic Club (DSL) Projects ('25.07.~'26.05)
 - 25-2_DSL_Medical_team_EDA
   : **CGM × IOB MixedLM analysis** for insulin sensitivity — per-patient sensitivity estimated with **Linear Mixed Model** and **ARIMA**, quantifying the time lag of insulin/carbohydrate effects on blood glucose ('25.07~08)
 - 25-2_DSL_Modeling_NLP2_HospitalAgent
