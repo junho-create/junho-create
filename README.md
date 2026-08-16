@@ -32,9 +32,9 @@ Here are some ideas to get you started:
 - In progress — summary version(becasue of security reason) coming soon
   → Samsung Electronics, Semiconductor Research Institute – Process Development Innovation Team (Sep – Dec 2025)
 
-  Ongoing projects
-  
   => Fault prediction for photomask equipment using SPRT
+  => CNN-based image classification for fault detection in photomask equipment
+  => Deep learning-based image classification scoring method using Deep SVDD and SAD for fault detection in photomask equipment
 
 #### 🔬 BISPL winter Internship ('25.12.~'26.03.)
 - **ISBI 2026 Low Concentration Reconstruction MPI Challenge**
@@ -56,9 +56,7 @@ Here are some ideas to get you started:
   
 
   
-  => CNN-based image classification for fault detection in photomask equipment
 
-  => Deep learning-based image classification scoring method using Deep SVDD and SAD for fault detection in photomask equipment
 
 ---
 
